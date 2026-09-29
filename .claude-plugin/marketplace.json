@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "deepdive-cpq",
+  "description": "DD CPQ skills and the DD CPQ connector, in one plugin. Skills update themselves from the repo; the connector is the hosted DD CPQ MCP server.",
+  "owner": {
+    "name": "DeepDive IT"
+  },
+  "plugins": [
+    {
+      "name": "dd-cpq",
+      "displayName": "DD CPQ",
+      "description": "Every DD CPQ skill (rule authoring, quoting, bundles, rate plans, testing, dev workflow) and the DD CPQ connector, which signs you in to Salesforce as yourself.",
+      "category": "sales",
+      "author": {
+        "name": "DeepDive IT"
+      },
+      "source": "./skills",
+      "skills": [
+        "./"
+      ],
+      "mcpServers": {
+        "dd-cpq": {
+          "type": "http",
+          "url": "https://dd-cpq-mcp.deepdiveit-ai.workers.dev/mcp"
+        }
+      }
+    },
+    {
+      "name": "dd-cpq-readonly",
+      "displayName": "DD CPQ (read-only)",
+      "description": "For testers: every DD CPQ skill with the read-only DD CPQ connector. It can look up quotes, prices and rules but cannot change anything.",
+      "category": "sales",
+      "author": {
+        "name": "DeepDive IT"
+      },
+      "source": "./skills",
+      "skills": [
+        "./"
+      ],
+      "mcpServers": {
+        "dd-cpq-readonly": {
+          "type": "http",
+          "url": "https://dd-cpq-mcp.deepdiveit-ai.workers.dev/mcp-readonly"
+        }
+      }
+    }
+  ]
+}
