@@ -52,6 +52,19 @@ do.
 If nothing fits, say so and stop. Do not force a request into the nearest
 type.
 
+**A bigger discount for a longer contract** is a term curve, which is not a
+ruleType: it is saved as a whole, curve and points together.
+
+1. `dd_cpq_term_curves` — list the curves; reuse one that covers the same
+   products instead of adding a second.
+2. Build `{curve:{Name, Status__c:"Draft", InterpolationMode__c:"step"},
+points:[{TermMonths__c, DiscountPct__c, BillingFrequency__c?,
+Target__c?, Conditions__c?}]}`. Blank billing = any billing; blank target =
+   every product; `Target__c` and `Conditions__c` take the shapes below.
+3. `dd_cpq_term_curve_test` on a quote, then `dd_cpq_term_curve_save`.
+   Existing points go back with their `Id`; removed ones in
+   `deletePointIds`.
+
 ## Build it
 
 1. `dd_cpq_rules_studio` with the ruleType: read `actionFieldMeta` (the

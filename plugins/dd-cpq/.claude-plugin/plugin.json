@@ -1,8 +1,0 @@
-{
-  "name": "dd-cpq",
-  "version": "1.0.189",
-  "description": "Every DD CPQ skill (rule authoring, quoting, bundles, rate plans, testing, dev workflow) and the DD CPQ connector, which signs you in to Salesforce as yourself.",
-  "author": {
-    "name": "DeepDive IT"
-  }
-}

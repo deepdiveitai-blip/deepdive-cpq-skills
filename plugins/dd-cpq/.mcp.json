@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "dd-cpq": {
-      "type": "http",
-      "url": "https://dd-cpq-mcp.deepdiveit-ai.workers.dev/mcp"
-    }
-  }
-}
