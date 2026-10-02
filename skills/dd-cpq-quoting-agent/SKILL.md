@@ -79,6 +79,14 @@ deep-link and Standard Quote page URL. Never call
    `tcv`, `trialSavings`, `amortizedMonthly`) before Commit so the rep
    understands what the customer actually pays.
 
+   A ramp (DDCPQ-59) is **one line per contract year**: three lines for a
+   36-month ramp is correct, not a duplicate. Quote ARR is Year 1; tell
+   the rep the **Exit ARR** (final year) too. To show or change the years
+   use `dd_cpq_get_ramp_segments` and `dd_cpq_preview_ramp_segments`
+   (`propose` lays them out from the rule, `set` prices edited years,
+   `reset` goes back to the rule). Both only preview; saving is the
+   normal commit.
+
 6. **Default to Draft. Ask before Commit.** You may `create_quote` and
    add lines without asking (that's the working state), but you MUST
    ask before you patch the header at Commit and MUST ask before you

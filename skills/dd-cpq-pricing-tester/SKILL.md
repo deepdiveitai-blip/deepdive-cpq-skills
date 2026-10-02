@@ -529,10 +529,9 @@ Returns:
 - `invariants[]` — pre-scored TL-01…TL-07 (Timeline) and
   SP-01…SP-05 (Spread) checks with `ok`/`expected`/`actual`/`delta`.
 
-Feed each invariant into Pass 3's row of the report. MVP caveat:
-ramp cell modulation (TL-02) is checked at weighted-avg level only
-because `LineDraft.rampScheduleJson` isn't persisted on QLI; per-
-period cell values for ramped lines are the flat average. All
+Feed each invariant into Pass 3's row of the report. Since DDCPQ-59
+a ramped new-sale line is one QLI per contract year (see TL-02), so
+each year's cells are checked against that year's own price. All
 other invariants (Trial, UpfrontForTerm, Amortization,
 PercentOfBasis skip) are checked to full precision.
 
@@ -568,9 +567,28 @@ was replaced with a direct cell sum. On those plans the row paints
 should be tautological on any fresh reprice; any drift means a cell
 went wrong, not the accumulator.
 
-### Invariant TL-02 · Ramp modulators are mean-1 (TCV/ARR preserved)
+### Invariant TL-02 · Ramp years (DDCPQ-59)
 
-If `RampSchedule__c` rows exist for the line's Product/Quote:
+A recurring, rateable new-sale line over 12 months whose product has
+`RampSchedule__c` rows is **one QLI per contract year**, sharing
+`SegmentGroupKey__c`; `SegmentIndex__c` 0 is Year 1.
+
+- Each year: 12 months (the last takes the rest), `EffectiveDate__c`
+  = the previous year's start + 12 months.
+- `SegmentSource__c = Rule`: Year n's `RampAdjustedPrice__c` = Year n-1's
+  rate adjusted by the rule for period n-1; Year 1 is list.
+  `Manual`: a year with `SegmentBasePrice__c` uses it, any other year keeps
+  the rule's price.
+- Discounts (term, system, volume, manual) run on each year separately.
+- Quote ARR = Year 1 ARR; Exit ARR = the last year's ARR.
+
+**Test**: per year, rule-compounded rate → `RampAdjustedPrice__c`,
+then the waterfall to `NetPrice__c`. Any drift > $0.02 → finding.
+Three lines where you expected one is correct; one averaged line on a
+new sale over 12 months with a ramp rule is a finding.
+
+The term-averaged check below still applies to lines that are NOT split
+(usage charges, amendment/renewal lines, hybrid siblings):
 
 - Ramp rates per period: `[r1, r2, ..., rn]`
 - Months per period: `[m1, m2, ..., mn]` (12 each; last absorbs

@@ -192,6 +192,18 @@ agreement.
 A ramp needs a term over 12 months. Terms are per-line; a component with no
 term of its own inherits the header's.
 
+Since DDCPQ-59 a ramp is **one quote line per contract year**. On a bundle:
+
+- **RollUp** header: never split. Its `Priced` children can ramp on their own rules.
+- **HeaderPriced** header: split into years. Year 1 is the bundle; Years 2+ are
+  years of it, not more bundles. `Included` components stay one line for the
+  whole term under Year 1.
+- **Mixed**: the header and each `Priced` component ramp on their own rules;
+  every year of a component keeps the header (Year 1) as its parent.
+
+Accepting the sale books one Asset per line with a scheduled price step per
+year, so the install base shows the bundle once.
+
 **Never ramp the header and a `Priced` option at the same time** — the customer
 takes the increase twice. That one IS a blocking error
 (`RAMP_DOUBLE_APPLIED`).
