@@ -64,11 +64,9 @@ Goal: an evidence-backed description of what the rule does now.
 4. Walk one real quote: `dd_cpq_find_quote`, `dd_cpq_get_cart`,
    `dd_cpq_explain_price` (pricing rules) or `dd_cpq_check_compatibility`
    (configure rules). Show where the rule fired or did not.
-   `dd_cpq_rule_test` answers "what would this rule do to this quote" for a
-   saved or unsaved rule: each condition with the value it read, whether the
-   rule fired and at which stage, and the money before and after. Nothing is
-   saved, so it is safe in read-only mode. `dd_cpq_rule_overlaps` lists the
-   rules that can fire on the same deals.
+   There is no dry run for a rule (DDCPQ-68): what a rule does is read off a
+   quote it fires on, through the waterfall and the cart's Rules meter.
+   `dd_cpq_rule_overlaps` lists the rules that can fire on the same deals.
 5. Ask the tester what they saw when they clicked through the same scenario
    in the Salesforce UI. Their screen observations go in the report as
    "Tester observed", separate from what the tools returned.

@@ -7,7 +7,7 @@ description: >-
   compatibility, margin floors, renewal uplift and amend/renew rules. Drafts
   the rule, checks it with the org's own validator, reads it back with the
   sentence Rules Studio shows, previews which products it covers, saves it
-  ONLY as a Draft, tests it on a real quote and reports. Never activates a
+  ONLY as a Draft and tells the admin how to check it on a real quote. Never activates a
   rule, never guesses a field, product or value the org does not have.
 
   Trigger on: "write a rule", "create a pricing rule", "make a promotion",
@@ -61,9 +61,8 @@ ruleType: it is saved as a whole, curve and points together.
 points:[{TermMonths__c, DiscountPct__c, BillingFrequency__c?,
 Target__c?, Conditions__c?}]}`. Blank billing = any billing; blank target =
    every product; `Target__c` and `Conditions__c` take the shapes below.
-3. `dd_cpq_term_curve_test` on a quote, then `dd_cpq_term_curve_save`.
-   Existing points go back with their `Id`; removed ones in
-   `deletePointIds`.
+3. `dd_cpq_term_curve_save`. Existing points go back with their `Id`;
+   removed ones in `deletePointIds`.
 
 ## Build it
 
@@ -101,18 +100,21 @@ Target__c?, Conditions__c?}]}`. Blank billing = any billing; blank target =
    what they asked for, fix the rule; do not explain the difference away.
 3. `dd_cpq_rule_overlaps` — mention any rule that fires on the same deals.
 
-## Save and test
+## Save
 
 1. `dd_cpq_rule_save`.
-2. `dd_cpq_rule_test` on a quote the admin names (or a recent one from
-   `dd_cpq_find_quote`): report the price before and after, line by line.
-   A promotion needs the code; a channel rule needs the partner tier.
+
+There is no dry run (DDCPQ-68). A rule is checked on the actual quote, once
+it is Active: price the quote in the cart, then read the line's waterfall
+(`dd_cpq_explain_price`) and the cart's Rules meter. A promotion needs the
+code on the quote; a channel rule needs the partner tier.
 
 ## Report
 
 - The rule's name and the sentence it reads as.
 - How many products it covers.
-- The test result.
+- How to check it: activate it, open a quote it should fire on, price it,
+  and look at Explain price and the Rules meter.
 - "It is saved as a Draft. Check it in Rules Studio, then set it (or its
   rule set) Active when you are happy."
 
