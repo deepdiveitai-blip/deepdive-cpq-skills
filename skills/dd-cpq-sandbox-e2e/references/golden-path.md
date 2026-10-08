@@ -60,7 +60,7 @@ Ask the tester which they prefer:
 
 - **You run it:**
   ```bash
-  sf package install -p 04tam000006c165AAA -o dd-e2e -w 30 -s AdminsOnly --no-prompt
+  sf package install -p 04tam000006c4LhAAI -o dd-e2e -w 30 -s AdminsOnly --no-prompt
   ```
 - **They click it:** the install link for their org type (Fixed facts) →
   **Install for Admins Only** → tick the third-party acknowledgement →
@@ -68,7 +68,7 @@ Ask the tester which they prefer:
   arrives when it is done.
 
 **Check:** `sf package installed list -o dd-e2e` lists **DD CPQ Engine
-0.1.0.9**.
+0.1.0.11**.
 
 If the install fails, read the error to the tester word for word and use
 Troubleshooting. Do not retry the same thing in a loop.
@@ -213,7 +213,7 @@ sf data query -o dd-e2e -q "SELECT Product2.Name, Quantity, UnitPrice, DDCPQ__De
 
 ## The finish line
 
-Verified on an installed 0.1.0-9 org. A correct build gives exactly this:
+Verified on installed 0.1.0-9 and 0.1.0-11 orgs (0.1.0-11 in a single-currency org). A correct build gives exactly this:
 
 | Line              | Derived list | Net        | ARR         | Parent line   |
 | ----------------- | ------------ | ---------- | ----------- | ------------- |
