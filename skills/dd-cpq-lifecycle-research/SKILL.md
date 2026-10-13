@@ -210,8 +210,8 @@ against — a tester's or customer's org will not match this seed data.
   `MinNoticeDays__c`, `MaxDecreasePercent__c`, `RequiresApproval__c`, plus the
   shared 5-field criteria), `cpqQuoteHero` Amend/Renew buttons,
   `CpqCartController.detectCartMode` returning `netnew` unconditionally.
-- **Live in the engine:** `RenewalPricingService` (CPI + adder uplift from
-  `RenewalUpliftRule__c` and `CPIIndex__c`, keyed on `PriorNetPrice__c`, runs
+- **Live in the engine:** `RenewalPricingService` (percent uplift, capped, from
+  `RenewalUpliftRule__c`; CPI retired by DDCPQ-141; keyed on `PriorNetPrice__c`, runs
   before `PricingService.derive`), `ProrationCalculator` (Daily /
   MonthlyRoundUp / MonthlyRoundDown / None; called by `ProrationService`),
   `VirtualStateService` (Asset statuses Installed/Purchased/Shipped count as

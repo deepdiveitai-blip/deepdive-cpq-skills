@@ -89,10 +89,10 @@ early credits only its unused, already-paid time.
 
 **Renewal uplift**: when a renewal line carries a prior net price (from its
 Baseline line), `RenewalPricingService` computes `newPrice = priorNetPrice ×
-(1 + MIN(CPI% + Adder%, MaxCap%)/100)` using the winning Active
+(1 + MIN(Uplift%, MaxCap%)/100)` using the winning Active
 `RenewalUpliftRule__c` (by criteria, then the product-specific rule beating a
-catch-all) and the latest Active `CPIIndex__c` row for the currency on or
-before today. It is gated purely on `Quote.TransactionType__c == 'Renewal'`
+catch-all). Since DDCPQ-141 no inflation index is added: `UseCPI__c` is
+retired and hidden, and `CPIIndex__c` is no longer read. It is gated purely on `Quote.TransactionType__c == 'Renewal'`
 — nothing else — so it never fires on an Amendment quote even if the line
 carries the same Baseline linkage.
 
@@ -107,8 +107,8 @@ carries the same Baseline linkage.
 | Install Base Change (`InstallBaseChange__c`) | `ChangeType__c` (Add/Increase/Decrease/Swap/Renew/PriceChange/Remove), `QuantityDelta__c`, `QuantityAfter__c`, `MrrDelta__c`, `MrrAfter__c`, `ProratedAmount__c`, `EffectiveDate__c`, `Timing__c`, `AppliedStatus__c` (Pending/Applied/Rejected), `AppliedRef__c`, `RatePlan__c`, `Lot__c`, `ProjectedAt__c`, `ReversalOf__c`, `ParentChange__c`, `CounterpartChange__c`                                | One row per accepted change — the permanent ledger                                                    |
 | Lifecycle Rule Set (`LifecycleMatrix__c`)    | `Status__c`, `EffectiveFrom__c`, `EffectiveTo__c`                                                                                                                                                                                                                                                                                                                                                       | One Active set whose dates cover today governs                                                        |
 | Lifecycle Rule (`LifecycleRule__c`)          | `Matrix__c`, `AllowedAction__c` (Increase/Decrease/Cancel/Swap/Renew/Suspend/Resume/Rewrite/Merge/Transfer/Split/Expire), `IsAllowed__c`, `ProrationMethod__c` (Daily/MonthlyRoundUp/MonthlyRoundDown/None), `MinNoticeDays__c`, `MaxDecreasePercent__c`, `RequiresApproval__c`, `PriceBasis__c` (HoldPrior/Reprice), `DecreaseOrder__c`, `Priority__c`, `Product__c`, plus the shared 5-field criteria | What each lifecycle action is allowed to do and how it is priced                                      |
-| Renewal Uplift Rule (`RenewalUpliftRule__c`) | `TargetProduct__c`, `Target__c`, `AdditionalUpliftPct__c`, `MaxCapPct__c`, `UseCPI__c`, `Priority__c`, `Status__c`, plus the shared 5-field criteria                                                                                                                                                                                                                                                    | The Adder% and MaxCap% a renewal escalates by                                                         |
-| CPI Index (`CPIIndex__c`)                    | `Currency__c`, `EffectiveDate__c`, `IndexValue__c`, `Source__c`, `Locked__c`, `Status__c`                                                                                                                                                                                                                                                                                                               | Versioned inflation input; latest Active row on/before today, for the QLI currency, wins              |
+| Renewal Uplift Rule (`RenewalUpliftRule__c`) | `TargetProduct__c`, `Target__c`, `AdditionalUpliftPct__c` (required), `MaxCapPct__c`, `Priority__c`, `Status__c`, plus the shared 5-field criteria                                                                                                                                                                                                                                                      | The Adder% and MaxCap% a renewal escalates by                                                         |
+| CPI Index (`CPIIndex__c`)                    | `Currency__c`, `EffectiveDate__c`, `IndexValue__c`, `Source__c`, `Locked__c`, `Status__c`                                                                                                                                                                                                                                                                                                               | No longer read since DDCPQ-141; kept in the package                                                   |
 
 ## Build it (tester)
 
@@ -162,7 +162,7 @@ sf data query -o dd-e2e -q "SELECT Id, Product2Id, Quantity, UnitPrice, DDCPQ__N
 sf data query -o dd-e2e -q "SELECT Id, DDCPQ__ChangeType__c, DDCPQ__QuantityDelta__c, DDCPQ__QuantityAfter__c, DDCPQ__MrrDelta__c, DDCPQ__MrrAfter__c, DDCPQ__ProratedAmount__c, DDCPQ__EffectiveDate__c, DDCPQ__AppliedStatus__c, DDCPQ__AppliedRef__c, DDCPQ__ProjectedAt__c FROM DDCPQ__InstallBaseChange__c WHERE DDCPQ__Quote__c='<quoteId>'"
 sf data query -o dd-e2e -q "SELECT Id, Quantity, Price, Status, UsageEndDate FROM Asset WHERE AccountId='<accountId>'"
 sf data query -o dd-e2e -q "SELECT Id, DDCPQ__Status__c, DDCPQ__AllowedAction__c, DDCPQ__PriceBasis__c, DDCPQ__Product__c FROM DDCPQ__LifecycleRule__c"
-sf data query -o dd-e2e -q "SELECT Id, DDCPQ__Status__c, DDCPQ__AdditionalUpliftPct__c, DDCPQ__MaxCapPct__c, DDCPQ__UseCPI__c, DDCPQ__TargetProduct__c FROM DDCPQ__RenewalUpliftRule__c"
+sf data query -o dd-e2e -q "SELECT Id, DDCPQ__Status__c, DDCPQ__AdditionalUpliftPct__c, DDCPQ__MaxCapPct__c, DDCPQ__TargetProduct__c FROM DDCPQ__RenewalUpliftRule__c"
 ```
 
 Expect: `AppliedStatus__c = 'Applied'` with `ProjectedAt__c` **blank** when
@@ -192,22 +192,22 @@ POST services/apexrest/DDCPQ/dd/v1/price?includeWaterfall=true
 All from a real run in cpq-pkg, account "AR Test Co", product "AR Widget
 Pro" ($100/unit, PerUnit, Monthly, Recurring).
 
-| Step                                                                             | Field                              | Value                                                                                                      |
-| -------------------------------------------------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| New business: 50 units                                                           | NetPrice__c / ARR                  | 100 / $60,000 ($5,000 MRR × 12)                                                                            |
-| Accept                                                                           | Asset Quantity / Price / Status    | 50 / 100 / Purchased                                                                                       |
-| Amendment, effective 16 Oct 2026 (31-day October), 50 → 70                       | LineAction__c                      | Increase                                                                                                   |
-| same                                                                             | QuantityDelta__c                   | 20                                                                                                         |
-| same                                                                             | MrrDelta__c                        | 2,000.00 (20 × 100)                                                                                        |
-| same                                                                             | ProrationFactor__c                 | 0.516129 — (31 − 16 + 1) / 31                                                                              |
-| same                                                                             | ProratedFirstPeriodAmount__c       | 1,032.26                                                                                                   |
-| same, NetPrice__c (PerUnit, HoldPrior)                                           | NetPrice__c                        | 100 (unchanged — unit price held, not repriced)                                                            |
-| Accept amendment                                                                 | InstallBaseChange__c.ChangeType__c | Increase, QuantityAfter 70, MrrAfter 7,000.00, AppliedStatus Applied, ProjectedAt **blank** (future-dated) |
-| New business #2: 40 units, 12-month term                                         | Contract StartDate/EndDate         | 2026-10-07 / 2027-10-06                                                                                    |
-| Renew that contract, no overrides                                                | Renewal quote StartDate / term     | 2027-10-07 / 12 months                                                                                     |
-| same                                                                             | renewing[].mrr (dry run)           | 4,000.00                                                                                                   |
-| same, with a RenewalUpliftRule (Adder 2%, MaxCap 8%, UseCPI) + CPIIndex 3.2% USD | RenewalUpliftPct__c / Breakdown    | 5.20 / "CPI 3.20% + Adder 2.00% = 5.20% (AR test index)"                                                   |
-| same                                                                             | NetPrice__c on the renewed line    | 100 (uplift stamped but **not** applied — see below)                                                       |
+| Step                                                       | Field                              | Value                                                                                                      |
+| ---------------------------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| New business: 50 units                                     | NetPrice__c / ARR                  | 100 / $60,000 ($5,000 MRR × 12)                                                                            |
+| Accept                                                     | Asset Quantity / Price / Status    | 50 / 100 / Purchased                                                                                       |
+| Amendment, effective 16 Oct 2026 (31-day October), 50 → 70 | LineAction__c                      | Increase                                                                                                   |
+| same                                                       | QuantityDelta__c                   | 20                                                                                                         |
+| same                                                       | MrrDelta__c                        | 2,000.00 (20 × 100)                                                                                        |
+| same                                                       | ProrationFactor__c                 | 0.516129 — (31 − 16 + 1) / 31                                                                              |
+| same                                                       | ProratedFirstPeriodAmount__c       | 1,032.26                                                                                                   |
+| same, NetPrice__c (PerUnit, HoldPrior)                     | NetPrice__c                        | 100 (unchanged — unit price held, not repriced)                                                            |
+| Accept amendment                                           | InstallBaseChange__c.ChangeType__c | Increase, QuantityAfter 70, MrrAfter 7,000.00, AppliedStatus Applied, ProjectedAt **blank** (future-dated) |
+| New business #2: 40 units, 12-month term                   | Contract StartDate/EndDate         | 2026-10-07 / 2027-10-06                                                                                    |
+| Renew that contract, no overrides                          | Renewal quote StartDate / term     | 2027-10-07 / 12 months                                                                                     |
+| same                                                       | renewing[].mrr (dry run)           | 4,000.00                                                                                                   |
+| same, with a RenewalUpliftRule (Uplift 2%, MaxCap 8%)      | RenewalUpliftPct__c / Breakdown    | 2.00 / "Uplift 2.00%" (DDCPQ-141; verified 2026-10-07 as 5.20 with CPI, before CPI was retired)            |
+| same                                                       | NetPrice__c on the renewed line    | 100 (uplift stamped but **not** applied — see below)                                                       |
 
 ## Troubleshooting
 

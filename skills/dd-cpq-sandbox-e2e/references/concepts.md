@@ -269,7 +269,7 @@ unprefixed name, per CLAUDE.md rule 1.
 | `MarginFloorRule__c`                                           | The last-word floor against `Cost__c`                                                      |
 | `ContractPriceRule__c`                                         | Negotiated Account+Product override, read before `DerivedListPrice`                        |
 | `CommitmentContract__c` / `CommitmentDiscountRule__c`          | Prepaid commitment + its locked rate                                                       |
-| `RenewalUpliftRule__c` / `CPIIndex__c`                         | Renewal-quote price uplift and the CPI table it reads                                      |
+| `RenewalUpliftRule__c` / `CPIIndex__c`                         | Renewal-quote price uplift; the CPI table is no longer read (DDCPQ-141)                    |
 | `TermDiscountCurve__c` / `TermDiscountPoint__c`                | Whole-contract-term discount curve                                                         |
 | `RampMatrix__c` / `RampSchedule__c`                            | Per-period ramp pricing                                                                    |
 | `LifecycleMatrix__c` / `LifecycleRule__c`                      | Amend/renew policy against an `Asset`                                                      |
