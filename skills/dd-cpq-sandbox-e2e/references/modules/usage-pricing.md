@@ -264,13 +264,13 @@ This needs `UP Tiered Widget` (Scenario 1) as a **bundle option**, because
 ## Check it (Claude)
 
 ```bash
-sf data query -o cpq-pkg -q "SELECT DDCPQ__TargetProduct__r.Name, DDCPQ__Status__c, DDCPQ__RevenueNature__c, DDCPQ__PricingModel__c, DDCPQ__UnitPrice__c, DDCPQ__UsageTierMatrix__c FROM DDCPQ__RatePlan__c WHERE DDCPQ__TargetProduct__r.Name LIKE 'UP %'"
+sf data query -o dd-e2e -q "SELECT DDCPQ__TargetProduct__r.Name, DDCPQ__Status__c, DDCPQ__RevenueNature__c, DDCPQ__PricingModel__c, DDCPQ__UnitPrice__c, DDCPQ__UsageTierMatrix__c FROM DDCPQ__RatePlan__c WHERE DDCPQ__TargetProduct__r.Name LIKE 'UP %'"
 
-sf data query -o cpq-pkg -q "SELECT DDCPQ__TierIndex__c, DDCPQ__QtyMin__c, DDCPQ__QtyMax__c, DDCPQ__RatePerUnit__c FROM DDCPQ__UsageTier__c WHERE DDCPQ__TargetProduct__r.Name = 'UP Tiered Widget' ORDER BY DDCPQ__TierIndex__c"
+sf data query -o dd-e2e -q "SELECT DDCPQ__TierIndex__c, DDCPQ__QtyMin__c, DDCPQ__QtyMax__c, DDCPQ__RatePerUnit__c FROM DDCPQ__UsageTier__c WHERE DDCPQ__TargetProduct__r.Name = 'UP Tiered Widget' ORDER BY DDCPQ__TierIndex__c"
 
-sf data query -o cpq-pkg -q "SELECT DDCPQ__ChildProduct__r.Name, DDCPQ__MinimumCommit__c, DDCPQ__OverageRate__c FROM DDCPQ__ProductOption__c WHERE DDCPQ__ParentProduct__r.Name = 'UP Commit Bundle'"
+sf data query -o dd-e2e -q "SELECT DDCPQ__ChildProduct__r.Name, DDCPQ__MinimumCommit__c, DDCPQ__OverageRate__c FROM DDCPQ__ProductOption__c WHERE DDCPQ__ParentProduct__r.Name = 'UP Commit Bundle'"
 
-sf data query -o cpq-pkg -q "SELECT Product2.Name, Quantity, DDCPQ__NetPrice__c, DDCPQ__UsageTierPrice__c, DDCPQ__MRR__c, DDCPQ__ARR__c, DDCPQ__ChargeType__c FROM QuoteLineItem WHERE Quote.Name = 'UP Test Quote'"
+sf data query -o dd-e2e -q "SELECT Product2.Name, Quantity, DDCPQ__NetPrice__c, DDCPQ__UsageTierPrice__c, DDCPQ__MRR__c, DDCPQ__ARR__c, DDCPQ__ChargeType__c FROM QuoteLineItem WHERE Quote.Name = 'UP Test Quote'"
 ```
 
 Expect: both Rate Plans `Active`; 3 tier rows on `UP Tiered Widget` in
@@ -296,7 +296,7 @@ quote and product Ids first, write the body to a file:
 ```
 
 ```bash
-sf api request rest "services/apexrest/DDCPQ/dd/v1/price?includeWaterfall=true" -o cpq-pkg --method POST --body @body.json
+sf api request rest "services/apexrest/DDCPQ/dd/v1/price?includeWaterfall=true" -o dd-e2e --method POST --body @body.json
 ```
 
 Look at the `UsageTierPrice` stage in `lines[0].waterfall` — its `subRows`

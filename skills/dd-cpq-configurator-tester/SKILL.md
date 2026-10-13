@@ -70,7 +70,9 @@ found by clicking once, it is not where your value is.
 
 4. **Never leave a shared baseline quote modified.** `Rate Plan Coverage
 Quote`, `Q-0042 Acme (golden $101.83)` and `Acme Cloud Platform Quote`
-   belong to other suites. Read them; do not commit to them.
+   belong to other suites in our internal dev org — read them, do not
+   commit to them. A tester's own org may not have any of these; if so,
+   there is nothing to protect and this rule is moot there.
 
 5. **`localKey` matters only when you write the payload yourself.**
    It is the primary key for per-line results across the engine: a null
@@ -89,6 +91,19 @@ Quote`, `Q-0042 Acme (golden $101.83)` and `Acme Cloud Platform Quote`
    find.** It means a customer can sell an invalid configuration. Rank
    it above any wrong number.
 
+## Before you start: seeded baseline
+
+Several families below cite fixtures from our internal dev org (the Acme
+Cloud Platform bundle's deliberately-broken constraints, the `cpq-dev`
+tier ranks, `Studio Scale Test Suite`). Our internal org has these; a
+tester's or customer's org will not unless they were built there. Before
+relying on a named bundle, quote or rule, check it exists with a
+read-only call (`dd_cpq_find_products`, `dd_cpq_get_bundle_structure`, or
+`dd_cpq_list_rules`). If it does not exist, say so plainly and either run
+the families that do not depend on it, or describe the minimum
+bundle/rule the user would need to build to exercise that family — never
+invent or run a seed script.
+
 ## The five layers, and the tools that read each
 
 | Layer            | Question                      | Tool                                                                            |
@@ -105,7 +120,9 @@ internally consistent, which it almost always is.
 
 ## Quickstart · a full run
 
-1. `dd_cpq_current_user` once, to know who you are running as.
+1. `dd_cpq_current_user` once — it returns the user and org. Tell the
+   user which org you are connected to before reading or writing
+   anything.
 2. `dd_cpq_find_products` → pick the bundles under test.
 3. For each bundle: `dd_cpq_get_bundle_structure`, then
    `dd_cpq_list_rules({ruleType:'optionConstraints', bundleProductId})`.
@@ -122,8 +139,9 @@ internally consistent, which it almost always is.
 
 ## Family A · Option constraints
 
-The Acme Cloud Platform bundle in `cpq-dev` is seeded to fail on
-purpose. Four constraints, three Block and one Warning:
+The Acme Cloud Platform bundle in our internal dev org is seeded to fail
+on purpose — check it exists in the connected org before relying on it.
+Four constraints, three Block and one Warning:
 
 | Trigger            | Requires                     | Severity |
 | ------------------ | ---------------------------- | -------- |
@@ -148,8 +166,9 @@ targetOption    = null          ← correct, not missing
 ```
 
 `Tier.SelectedRank` is the **highest** `ProductTier__c.Rank__c` among
-the products selected. Ranks in `cpq-dev`: Starter 10, Professional 20,
-Enterprise 30.
+the products selected. Ranks in our internal dev org: Starter 10,
+Professional 20, Enterprise 30 — confirm the equivalent ranks in the
+connected org rather than assuming these.
 
 A floor constraint exists because "at least Professional" is
 unrepresentable as an exact match — it named Professional, so Enterprise
@@ -409,7 +428,7 @@ missing on a net-new one.
 **Seeded 2026-09-15**, so this family can finally run in both
 directions:
 
-| Rule                   | Seeded in `cpq-dev`                  | Stage it should produce |
+| Rule                   | Seeded in our internal dev org       | Stage it should produce |
 | ---------------------- | ------------------------------------ | ----------------------- |
 | `promotionRules`       | CFG10, 10% off Collab Seats          | PromotionDiscount       |
 | `channelDiscountRules` | Gold tier, 5% off Workspace Pro      | ChannelDiscount         |
@@ -517,11 +536,13 @@ rule, picked names, subtotal) and only undecided features open; header
 click, rail click or _Expand all_ opens the rest, and an undecided feature
 cannot be folded. Past 40 options the rows are compact. Search matches
 option names, product codes, descriptions and feature names and hides
-features with nothing to show. Fixture in cpq-dev: bundle **Studio Scale
-Test Suite** `01tQL00000UQW1NYAX` (11 features, 41 options, 3
-constraints; Storage deliberately has no default) committed at qty 25 on
-quote `0Q0QL000005HUd70AG`. Remove its Storage pick to see the undecided
-state. Both are throwaway.
+features with nothing to show. Fixture in our internal dev org: bundle
+**Studio Scale Test Suite** (example Id from our dev org,
+`01tQL00000UQW1NYAX` — find the equivalent bundle by name in your org;
+11 features, 41 options, 3 constraints; Storage deliberately has no
+default) committed at qty 25 on quote (example Id,
+`0Q0QL000005HUd70AG` — find the equivalent quote by name). Remove its
+Storage pick to see the undecided state. Both are throwaway.
 
 **Which surface you are on, and what changes with it.** `Surface__c` on
 the view decides where Configure Products opens the cart, and the studio

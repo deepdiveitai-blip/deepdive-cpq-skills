@@ -111,6 +111,21 @@ deep-link and Standard Quote page URL. Never call
    surfaced during quoting, refuse politely and route to the human
    dev (Vijay). Your job is to build quotes, not to change DD CPQ.
 
+## Before you start: seeded baseline
+
+The sample scenarios below name fixtures from our internal dev org —
+`Acme Corp` / `Acme Corporation` / `Rate Plan Testbed` Accounts,
+`Q-0042 Acme (golden $101.83)`, `Rate Plan Coverage` quote, RP-00000
+through RP-00008. Our internal org has these; a rep's own org will not
+unless they were built there. Before Phase 1, call `dd_cpq_current_user`
+(see below) to see which org you are in, and use `find_accounts` /
+`find_quote` / `find_products` to check whether a named fixture actually
+exists before treating a scenario as runnable. If it does not exist,
+say so plainly and either build the quote fresh from what the rep
+describes, or tell them what minimum Account/Opportunity/rate-plan data
+they would need for that exact scenario — never invent or run a seed
+script.
+
 ## The 8-phase workflow
 
 Every quote runs through some subset of these. "Build from scratch"
@@ -119,7 +134,9 @@ starts at 1, "Modify existing" starts at 3 with a `find_quote` result.
 ### Phase 1 · Discover
 
 - `dd_cpq_current_user` — call ONCE per session to pre-fill
-  SalesRepId + default currency + user's role for approval routing.
+  SalesRepId + default currency + user's role for approval routing. It
+  also returns the org you are connected to — tell the rep which org
+  that is before reading or writing anything.
 - `dd_cpq_find_accounts` — resolve the Account by name / industry /
   accountNumber. On multi-match, present a table and stop.
 - `dd_cpq_find_opportunities({accountId, isOpen: true})` — list open
@@ -387,7 +404,7 @@ pieces at once:
    (not the $150 pricebook list)
 4. A VolumeDiscount tier at qty 100+ = −15%
 
-On `cpq-dev` (the current dev org, 2026-09-14) all four pieces are
+In our internal dev org (2026-09-14) all four pieces are
 wired on the **Acme Corp** Account — Industry Healthcare, with an
 **Acme Q3 Renewal** Opportunity of Type Renewal, and one
 SystemDiscountMatrix carrying both rules, one VolumeDiscountTier and

@@ -365,9 +365,9 @@ Demo`. In the inspector under "Pricing", leave **Options carry the
 ## Check it (Claude)
 
 ```bash
-sf data query -o cpq-pkg -q "SELECT DDCPQ__BundleProduct__r.Name, DDCPQ__PricingMode__c, DDCPQ__Status__c FROM DDCPQ__BundleDefinition__c WHERE DDCPQ__BundleProduct__r.Name LIKE 'BN %'"
-sf data query -o cpq-pkg -q "SELECT DDCPQ__ParentProduct__r.Name, DDCPQ__ChildProduct__r.Name, DDCPQ__PricingRole__c, DDCPQ__QuantityRule__c, DDCPQ__QuantityMultiplier__c, DDCPQ__Required__c, DDCPQ__DefaultSelected__c FROM DDCPQ__ProductOption__c WHERE DDCPQ__ParentProduct__r.Name LIKE 'BN %' ORDER BY DDCPQ__SortOrder__c"
-sf data query -o cpq-pkg -q "SELECT Product2.Name, Quantity, UnitPrice, DDCPQ__DerivedListPrice__c, DDCPQ__NetPrice__c, DDCPQ__ParentLine__r.Product2.Name, DDCPQ__SourceBundle__c FROM QuoteLineItem WHERE Quote.Name = 'BN Test Quote'"
+sf data query -o dd-e2e -q "SELECT DDCPQ__BundleProduct__r.Name, DDCPQ__PricingMode__c, DDCPQ__Status__c FROM DDCPQ__BundleDefinition__c WHERE DDCPQ__BundleProduct__r.Name LIKE 'BN %'"
+sf data query -o dd-e2e -q "SELECT DDCPQ__ParentProduct__r.Name, DDCPQ__ChildProduct__r.Name, DDCPQ__PricingRole__c, DDCPQ__QuantityRule__c, DDCPQ__QuantityMultiplier__c, DDCPQ__Required__c, DDCPQ__DefaultSelected__c FROM DDCPQ__ProductOption__c WHERE DDCPQ__ParentProduct__r.Name LIKE 'BN %' ORDER BY DDCPQ__SortOrder__c"
+sf data query -o dd-e2e -q "SELECT Product2.Name, Quantity, UnitPrice, DDCPQ__DerivedListPrice__c, DDCPQ__NetPrice__c, DDCPQ__ParentLine__r.Product2.Name, DDCPQ__SourceBundle__c FROM QuoteLineItem WHERE Quote.Name = 'BN Test Quote'"
 ```
 
 Expect: each `BundleDefinition__c` `Active` with the `PricingMode__c` you
@@ -402,7 +402,7 @@ your own quote and product/option Ids:
 ```
 
 ```bash
-sf api request rest "services/apexrest/DDCPQ/dd/v1/price?includeWaterfall=true" -o cpq-pkg --method POST --body @body.json
+sf api request rest "services/apexrest/DDCPQ/dd/v1/price?includeWaterfall=true" -o dd-e2e --method POST --body @body.json
 ```
 
 `productOptionId` is what lets the engine read `PricingRole__c` and apply a

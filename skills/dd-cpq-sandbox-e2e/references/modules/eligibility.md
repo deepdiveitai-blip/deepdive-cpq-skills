@@ -217,8 +217,8 @@ as the target so you don't need new products.
 ## Check it (Claude)
 
 ```bash
-sf data query -o cpq-pkg -q "SELECT Id, Name, DDCPQ__Status__c FROM DDCPQ__EligibilityMatrix__c"
-sf data query -o cpq-pkg -q "SELECT DDCPQ__Matrix__r.Name, DDCPQ__Matrix__r.DDCPQ__Status__c, DDCPQ__TargetProduct__r.Name, DDCPQ__Eligible__c, DDCPQ__FieldApiName__c, DDCPQ__Operator__c, DDCPQ__Value__c, DDCPQ__ValueType__c, DDCPQ__Priority__c, DDCPQ__Message__c FROM DDCPQ__EligibilityRule__c"
+sf data query -o dd-e2e -q "SELECT Id, Name, DDCPQ__Status__c FROM DDCPQ__EligibilityMatrix__c"
+sf data query -o dd-e2e -q "SELECT DDCPQ__Matrix__r.Name, DDCPQ__Matrix__r.DDCPQ__Status__c, DDCPQ__TargetProduct__r.Name, DDCPQ__Eligible__c, DDCPQ__FieldApiName__c, DDCPQ__Operator__c, DDCPQ__Value__c, DDCPQ__ValueType__c, DDCPQ__Priority__c, DDCPQ__Message__c FROM DDCPQ__EligibilityRule__c"
 ```
 
 Expect the set **Active**, the rule's `TargetProduct__r.Name` = Compliance
@@ -229,7 +229,7 @@ step): write the body to a file with the Globex quote and Compliance
 Add-on's Id, then
 
 ```bash
-sf api request rest "services/apexrest/DDCPQ/dd/v1/price?includeWaterfall=true" -o cpq-pkg --method POST --body @body.json
+sf api request rest "services/apexrest/DDCPQ/dd/v1/price?includeWaterfall=true" -o dd-e2e --method POST --body @body.json
 ```
 
 The response prices the line as if nothing were wrong (eligibility does not

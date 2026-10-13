@@ -26,7 +26,8 @@ do.
 
 ## Before anything
 
-1. `dd_cpq_list_orgs` — confirm which org the tools point at and say it.
+1. `dd_cpq_current_user` — it returns the user and org. Tell the admin
+   which org you are connected to before reading or writing anything.
 2. If the request is vague ("a discount for big customers"), ask one short
    question: which customers, how much, which products, from when. Do not
    invent a threshold.

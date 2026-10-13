@@ -33,8 +33,9 @@ in the error message, in the cart's red banner, in the Run meter header, and
 in Engine Health → Errors. If they have no reference, ask for the quote and
 what they did (commit, reprice, add a product), and use the quote instead.
 
-Check you are connected to the right org first: `dd_cpq_list_orgs`. The
-packet is only as good as the org it came from.
+Confirm which org you are connected to first: `dd_cpq_current_user` (it
+returns the user and org). Tell the person before pulling the packet — it
+is only as good as the org it came from.
 
 ## 2. Pull the packet
 

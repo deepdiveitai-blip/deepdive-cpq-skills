@@ -25,11 +25,27 @@ description: >-
 # DD CPQ Pricing Tester · operating guide
 
 This skill turns Claude Cowork into an autonomous **read-and-report**
-regression agent for DD CPQ. It runs against a pre-seeded scratch
-org (currently `cpq-dev`), exercises every real-world pricing
-combination the engine can express, verifies front-end (cart / Invoice
-Timeline) against back-end (QuoteLineItem + Quote SOQL), and produces
-a single self-contained HTML report per run.
+regression agent for DD CPQ. It runs against whatever org you are
+connected to. Our internal org has a pre-seeded baseline (see
+[Before you start](#before-you-start-seeded-baseline)); a tester's or
+customer's org will not have it unless it was built there. The skill
+exercises every real-world pricing combination the engine can express,
+verifies front-end (cart / Invoice Timeline) against back-end
+(QuoteLineItem + Quote SOQL), and produces a single self-contained HTML
+report per run.
+
+## Before you start: seeded baseline
+
+Call `dd_cpq_current_user` first — it returns the user and org. Tell
+the user which org you are connected to before reading or writing
+anything. Then check (read-only) whether the named baseline records
+below exist in that org: the `Rate Plan Coverage` quote on `Rate Plan
+Testbed`, `Q-0042 Acme (golden $101.83)` on `Acme Corp`, and `Acme
+Cloud Platform Quote` on `Acme Corporation`. Our internal org has
+these; a tester's org will not unless they were built there. If they
+are missing, say so plainly, and either run Mode B (dynamic,
+web-researched patterns) or guide the user to build the minimum
+rate plans / quotes themselves — never invent or run a seed script.
 
 **Current policy: report-only.** The skill does NOT call
 `dd_cpq_file_defect` — every finding is captured inline in the HTML
@@ -153,20 +169,23 @@ Fastest mode, and the default when the user says "run the pricing
 tests" without specifying.
 
 **Read this before you enumerate anything.** There are two static
-baselines, and they live in different orgs:
+baselines, historically seeded in different internal orgs:
 
-| Baseline                      | Org              | Status                 |
-| ----------------------------- | ---------------- | ---------------------- |
-| Rate Plan Coverage (16 plans) | `cpq-dev`        | **current — use this** |
-| The 21 PW scenarios           | `cpq-scratch-v3` | retired, not re-seeded |
+| Baseline                      | Internal org (history) | Status                                   |
+| ----------------------------- | ---------------------- | ---------------------------------------- |
+| Rate Plan Coverage (16 plans) | `cpq-dev`              | **current — use this if the org has it** |
+| The 21 PW scenarios           | `cpq-scratch-v3`       | retired, not re-seeded anywhere          |
 
 The [PW scenario table](#pw-scenario-table) further down is kept for
-history and for anyone still on the old org. On `cpq-dev` those
-quotes do not exist, so enumerating them yields 21 SKIPs and a report
-that says nothing. **Do not run the PW list against `cpq-dev`** — use
-the coverage matrix below.
+history. Check first whether the connected org has the `Rate Plan
+Coverage` quote at all — a tester's own org will not unless it was
+built there, and enumerating either baseline against an org that lacks
+it yields nothing but SKIPs. **Do not run the PW list unless you've
+confirmed the org actually has those quotes** — use the coverage matrix
+below, and fall back to Mode B or guiding the user to build data if
+neither baseline exists.
 
-#### The `cpq-dev` coverage baseline
+#### The coverage baseline (seeded in our internal dev org)
 
 One quote, **`Rate Plan Coverage`** on the `Rate Plan Testbed`
 Account, backed by 16 Active plans chosen to cover every axis at
@@ -265,8 +284,8 @@ values, not estimates:**
 - Prepaid credit pools are discoverable via
   `dd_cpq_list_prepaid_credit_pools`
 
-Beyond the matrix, `cpq-dev` also carries two non-rate-plan
-baselines worth a pass:
+Beyond the matrix, our internal dev org also carries two non-rate-plan
+baselines worth a pass, if the connected org has them:
 
 - **`Q-0042 Acme (golden $101.83)`** on `Acme Corp` — the CLAUDE.md
   golden canary. Seeded but **empty**: the four pricing pieces
@@ -990,12 +1009,14 @@ rule and a family rule on the same product to check the order.
 
 ## PW scenario table
 
-> **Historical — `cpq-scratch-v3` only.** None of these 21 quotes
-> exist in `cpq-dev`, the org this skill now targets. Running the
-> list there produces 21 SKIPs. The current static baseline is the
-> [`cpq-dev` coverage baseline](#the-cpq-dev-coverage-baseline) under
-> Mode A. Kept here because the expected values are still correct for
-> anyone testing on the old org, and because several document real
+> **Historical — our internal `cpq-scratch-v3` org only.** None of
+> these 21 quotes exist in the current internal dev org, or in a
+> tester's own org. Running the list against an org that lacks them
+> produces 21 SKIPs. The current static baseline is the
+> [coverage baseline](#the-coverage-baseline-seeded-in-our-internal-dev-org)
+> under Mode A — check it exists before using it, same as that
+> baseline. Kept here because the expected values are still correct
+> for anyone testing on the old org, and because several document real
 > engine behaviour worth preserving.
 
 Query the quote by Name (e.g. `Quote.Name LIKE 'PW-01%'`)

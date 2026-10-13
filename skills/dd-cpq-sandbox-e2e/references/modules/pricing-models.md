@@ -195,8 +195,9 @@ commit.
 
 **Where an admin changes it:** Setup → Quick Find **"Custom Metadata
 Types"** → **DD CPQ Rate Plan Settings** → **Manage Records** → **Default**
-→ **Edit** → Enforcement. Do **not** change it in cpq-pkg — this is shared
-org-wide state other module writers depend on; leave it on `Block`.
+→ **Edit** → Enforcement. Do **not** change this in your org without reason —
+it is shared org-wide state other module writers depend on; leave it on
+`Block`.
 
 ### `ProductTier__c` is not a pricing-tier object — do not confuse it with `UsageTier__c`
 
@@ -285,9 +286,9 @@ touch CRM Suite Pro, Sales Cloud or the other golden-quote products.
 ## Check it (Claude)
 
 ```bash
-sf data query -o cpq-pkg -q "SELECT DDCPQ__TargetProduct__r.Name, DDCPQ__Status__c, DDCPQ__PricingModel__c, DDCPQ__RevenueNature__c, DDCPQ__BillingSchedule__c, DDCPQ__UnitPrice__c, DDCPQ__PlanGroupKey__c FROM DDCPQ__RatePlan__c WHERE DDCPQ__TargetProduct__r.Name LIKE 'PM %'"
-sf data query -o cpq-pkg -q "SELECT DDCPQ__TierIndex__c, DDCPQ__QtyMin__c, DDCPQ__QtyMax__c, DDCPQ__RatePerUnit__c FROM DDCPQ__UsageTier__c WHERE DDCPQ__TargetProduct__r.Name = 'PM Tiered Widget' ORDER BY DDCPQ__TierIndex__c"
-sf data query -o cpq-pkg -q "SELECT Product2.Name, Quantity, DDCPQ__DerivedListPrice__c, DDCPQ__NetPrice__c, DDCPQ__MRR__c, DDCPQ__ARR__c FROM QuoteLineItem WHERE Quote.Name = 'PM Test Quote'"
+sf data query -o dd-e2e -q "SELECT DDCPQ__TargetProduct__r.Name, DDCPQ__Status__c, DDCPQ__PricingModel__c, DDCPQ__RevenueNature__c, DDCPQ__BillingSchedule__c, DDCPQ__UnitPrice__c, DDCPQ__PlanGroupKey__c FROM DDCPQ__RatePlan__c WHERE DDCPQ__TargetProduct__r.Name LIKE 'PM %'"
+sf data query -o dd-e2e -q "SELECT DDCPQ__TierIndex__c, DDCPQ__QtyMin__c, DDCPQ__QtyMax__c, DDCPQ__RatePerUnit__c FROM DDCPQ__UsageTier__c WHERE DDCPQ__TargetProduct__r.Name = 'PM Tiered Widget' ORDER BY DDCPQ__TierIndex__c"
+sf data query -o dd-e2e -q "SELECT Product2.Name, Quantity, DDCPQ__DerivedListPrice__c, DDCPQ__NetPrice__c, DDCPQ__MRR__c, DDCPQ__ARR__c FROM QuoteLineItem WHERE Quote.Name = 'PM Test Quote'"
 ```
 
 Expect: every `PM …` Rate Plan `Active`, `PlanGroupKey__c` = `Recurring`
@@ -313,7 +314,7 @@ query first:
 ```
 
 ```bash
-sf api request rest "services/apexrest/DDCPQ/dd/v1/price?includeWaterfall=true" -o cpq-pkg --method POST --body @body.json
+sf api request rest "services/apexrest/DDCPQ/dd/v1/price?includeWaterfall=true" -o dd-e2e --method POST --body @body.json
 ```
 
 Look at `lines[0].netPrice` and `lines[0].derivedListPrice` in the response —

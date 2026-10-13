@@ -250,12 +250,12 @@ USD Opp` (currency USD, default) and `MC EUR Opp` — when creating it,
 ## Check it (Claude)
 
 ```bash
-sf data query -o cpq-pkg -q "SELECT IsoCode, ConversionRate, IsActive, IsCorporate FROM CurrencyType"
-sf data query -o cpq-pkg -q "SELECT DDCPQ__TargetProduct__r.Name, CurrencyIsoCode, DDCPQ__Status__c, DDCPQ__UnitPrice__c FROM DDCPQ__RatePlan__c WHERE DDCPQ__TargetProduct__r.Name = 'MC Seat'"
-sf data query -o cpq-pkg -q "SELECT Product2.Name, CurrencyIsoCode, UnitPrice, IsActive FROM PricebookEntry WHERE Product2.Name = 'MC Seat'"
-sf data query -o cpq-pkg -q "SELECT DDCPQ__TargetProduct__r.Name, DDCPQ__Currency__c, DDCPQ__PriceType__c, DDCPQ__PriceValue__c FROM DDCPQ__PricingRule__c WHERE DDCPQ__TargetProduct__r.Name = 'MC Seat'"
-sf data query -o cpq-pkg -q "SELECT Name, CurrencyIsoCode FROM Opportunity WHERE Name LIKE 'MC %Opp'"
-sf data query -o cpq-pkg -q "SELECT Name, CurrencyIsoCode FROM Quote WHERE Name LIKE 'MC %Quote%'"
+sf data query -o dd-e2e -q "SELECT IsoCode, ConversionRate, IsActive, IsCorporate FROM CurrencyType"
+sf data query -o dd-e2e -q "SELECT DDCPQ__TargetProduct__r.Name, CurrencyIsoCode, DDCPQ__Status__c, DDCPQ__UnitPrice__c FROM DDCPQ__RatePlan__c WHERE DDCPQ__TargetProduct__r.Name = 'MC Seat'"
+sf data query -o dd-e2e -q "SELECT Product2.Name, CurrencyIsoCode, UnitPrice, IsActive FROM PricebookEntry WHERE Product2.Name = 'MC Seat'"
+sf data query -o dd-e2e -q "SELECT DDCPQ__TargetProduct__r.Name, DDCPQ__Currency__c, DDCPQ__PriceType__c, DDCPQ__PriceValue__c FROM DDCPQ__PricingRule__c WHERE DDCPQ__TargetProduct__r.Name = 'MC Seat'"
+sf data query -o dd-e2e -q "SELECT Name, CurrencyIsoCode FROM Opportunity WHERE Name LIKE 'MC %Opp'"
+sf data query -o dd-e2e -q "SELECT Name, CurrencyIsoCode FROM Quote WHERE Name LIKE 'MC %Quote%'"
 ```
 
 Expect two `CurrencyType` rows (USD corporate, EUR active); two
@@ -275,7 +275,7 @@ own quote and product:
 ```
 
 ```bash
-sf api request rest "services/apexrest/DDCPQ/dd/v1/price?includeWaterfall=true" -o cpq-pkg --method POST --body @body.json
+sf api request rest "services/apexrest/DDCPQ/dd/v1/price?includeWaterfall=true" -o dd-e2e --method POST --body @body.json
 ```
 
 Look at `lines[0].waterfall` — the `PricebookList` stage should read your

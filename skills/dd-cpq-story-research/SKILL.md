@@ -2,8 +2,8 @@
 name: dd-cpq-story-research
 description: >-
   Work one DD CPQ Jira rule story from start to Venkat's review, in Claude
-  Cowork. Reads the story from Jira, validates what the rule does today on
-  cpq-dev with the read-only dd-cpq tools, researches how other CPQ vendors
+  Cowork. Reads the story from Jira, validates what the rule does today in
+  the connected org with the read-only dd-cpq tools, researches how other CPQ vendors
   handle the same rule, merges the tester's findings from other AI tools,
   writes a gap analysis and a design, maps the design onto the real code
   and metadata in the org, then posts it all to the Jira story and moves it
@@ -32,14 +32,15 @@ the tester has to add their own view.
 
 ## Tools you need, and how to check them
 
-| Need            | Tool                                                                                          | If missing                                                                                            |
-| --------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Jira            | Atlassian connector (getJiraIssue, addCommentToJiraIssue, transitionJiraIssue, editJiraIssue) | Ask the tester to connect **Atlassian** in Settings → Connectors                                      |
-| The org         | `dd_cpq_*` tools, read-only mode                                                              | Ask the tester to follow the setup page; run `dd_cpq_list_orgs` and confirm the active org is cpq-dev |
-| Vendor research | Web search / web fetch                                                                        | Ask the tester to turn on web search                                                                  |
+| Need            | Tool                                                                                          | If missing                                                       |
+| --------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Jira            | Atlassian connector (getJiraIssue, addCommentToJiraIssue, transitionJiraIssue, editJiraIssue) | Ask the tester to connect **Atlassian** in Settings → Connectors |
+| The org         | `dd_cpq_*` tools, read-only mode                                                              | Ask the tester to follow the setup page                          |
+| Vendor research | Web search / web fetch                                                                        | Ask the tester to turn on web search                             |
 
-Run `dd_cpq_list_orgs` first, every session. If the active org is not
-cpq-dev, stop and say so. Results from the wrong org are worse than none.
+Call `dd_cpq_current_user` first, every session — it returns the user and
+org. Tell the tester which org you are connected to before reading or
+writing anything. Results from the wrong org are worse than none.
 
 ## Phase 0 · Pick up the story
 
@@ -201,7 +202,7 @@ Venkat's review comment says one of:
 
 ```
 # <Rule> · gap analysis and design · <DDCPQ-nn>
-Researched by <tester> with Claude Cowork · <date> · org cpq-dev
+Researched by <tester> with Claude Cowork · <date> · org <from dd_cpq_current_user>
 
 ## Summary
 3–5 lines: what the rule does today, the biggest gaps, what the design proposes.

@@ -65,6 +65,15 @@ builds.
    update CLAUDE.md, memory, or any plan file to say a design is approved unless
    he says so in those words.
 
+## Before you start: seeded baseline
+
+The "Known facts" section below was verified against our internal dev org
+(`cpq-dev`) and its data. A tester's or customer's org will not have this
+baseline unless it was built there. Before Phase 1, confirm which org you
+are pointed at (`sf data query -q "SELECT NamespacePrefix FROM
+Organization"`), and re-run the row-count/describe checks against that org
+rather than assuming the internal org's facts hold.
+
 ## The research protocol — in this order
 
 ### Phase 0 · Frame
@@ -85,8 +94,9 @@ and what "done" looks like. For this pillar the shapes are at least:
 
 ### Phase 1 · Platform facts, from the org
 
-Run against the target org (default `cpq-dev`; check the namespace first —
-`SELECT NamespacePrefix FROM Organization`):
+Run against `<org>` — the alias of the org you are researching against (ask
+the user, or `sf org list`; our internal dev org is `cpq-dev`, historically).
+Check the namespace first — `SELECT NamespacePrefix FROM Organization`:
 
 - `sf sobject describe -s <Object>` for `Asset`, `AssetRelationship`,
   `AssetAttribute`, `AssetStatePeriod`, `AssetAction`, `AssetActionSource`,
@@ -159,10 +169,11 @@ Print the absolute path of the HTML, the Artifact link, and a chat summary of
 under 200 words: the one-sentence thesis, the three decisions that matter most,
 and what you could not verify. Do not commit. Do not update memory to "approved".
 
-## Known facts (verified 2026-09-23 on cpq-dev, namespace DDCPQ)
+## Known facts (verified 2026-09-23 on our internal dev org, cpq-dev, namespace DDCPQ)
 
-These save an hour and prevent a wrong design. Re-verify if the org or edition
-changes.
+These save an hour and prevent a wrong design, but they describe our
+internal org. Re-verify against whichever org you are actually running
+against — a tester's or customer's org will not match this seed data.
 
 - **`AssetStatePeriod`, `AssetAction`, `AssetActionSource`,
   `AssetStatePeriodAttribute` exist and are queryable but NOT createable,
@@ -186,8 +197,9 @@ changes.
   a stock org turns an accepted quote into an Order or an Asset. CLAUDE.md rule 8
   ("native sync handles it") does not hold — memory
   `reference_ddcpq_platform_quote_to_order_gap`.
-- **cpq-dev holds zero Assets, Contracts, Orders, ServiceContracts,
-  LifecycleRules, RenewalUpliftRules or CommitmentContracts** as of 2026-09-23.
+- **Our internal dev org (cpq-dev) holds zero Assets, Contracts, Orders,
+  ServiceContracts, LifecycleRules, RenewalUpliftRules or
+  CommitmentContracts** as of 2026-09-23.
   No quote or line references a `SourceAsset__c`. Every demo of this pillar
   needs seed data that does not exist yet.
 - **Dormant in the engine:** `Quote.AmendmentType__c`, `Quote.IsAmendment__c`,

@@ -33,6 +33,18 @@ about to do before you do it, and when you cannot be certain you say so and
 stop, because the cost of guessing here is the wrong SKU inside a priced bundle
 that nobody notices until a customer does.
 
+## Before you start: seeded baseline
+
+This guide's examples (`Acme Cloud Platform`, `CRM Suite Pro`,
+`Enterprise Cloud Suite`) exist in our internal dev org. A tester's or
+customer's own org will not have them unless they were built there. Before
+Phase 0, call `dd_cpq_bundle_workspace` and check its `bundles[]` /
+`products[]` for the names you are about to reference — do not assume any
+named bundle or product exists just because it is used as an example here.
+If it is missing, say so plainly and either work with what the org actually
+has or guide the user to build the minimum products/bundle themselves. Never
+invent or run a seed script to create it.
+
 ## Quickstart · one paragraph you must never forget
 
 `dd_cpq_bundle_workspace` (preflight, always first) → read the file into the
@@ -227,7 +239,7 @@ codes for Phase 2 inference, and `variables[]` with status for rule 11.
 `canAdminister: false` → **stop before reading the file.** There is no point
 parsing a workbook you cannot act on.
 
-> **Chat output:** `**Preflight** · cpq-dev · admin rights OK · 6 bundles, 41 products, 2 variables. Reading the file now.`
+> **Chat output:** `**Preflight** · connected org · admin rights OK · 6 bundles, 41 products, 2 variables. Reading the file now.`
 
 ### Phase 1 · Ingest
 

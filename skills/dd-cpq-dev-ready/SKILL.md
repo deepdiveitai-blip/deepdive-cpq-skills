@@ -24,14 +24,14 @@ Claude Code, and works the issues he names.
 
 ## Fixed facts
 
-|             |                                                                                     |
-| ----------- | ----------------------------------------------------------------------------------- |
-| Jira site   | `deepdiveitsolutions.atlassian.net`, cloudId `f6a84dff-7c5f-4a00-8cf5-14db37af6fec` |
-| Project     | `DDCPQ`                                                                             |
-| Transitions | To Do `11` · In Progress `21` · In Review `31` · Done `41` · DEV Ready `42`         |
-| Repo        | `deepdive-cpq-engine` only (CLAUDE.md rule 11)                                      |
-| Base branch | `feat/ddcpq-api-parity`. PRs go there, never to `main`                              |
-| Org         | `cpq-dev`, and only after its namespace reads `DDCPQ`                               |
+|             |                                                                                                                                            |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Jira site   | `deepdiveitsolutions.atlassian.net`, cloudId `f6a84dff-7c5f-4a00-8cf5-14db37af6fec`                                                        |
+| Project     | `DDCPQ`                                                                                                                                    |
+| Transitions | To Do `11` · In Progress `21` · In Review `31` · Done `41` · DEV Ready `42`                                                                |
+| Repo        | `deepdive-cpq-engine` only (CLAUDE.md rule 11)                                                                                             |
+| Base branch | `feat/ddcpq-api-parity`. PRs go there, never to `main`                                                                                     |
+| Org         | the dev org, currently `cpq-dev` — check the workspace memory/CLAUDE.md for the current alias — and only after its namespace reads `DDCPQ` |
 
 If a Jira call answers "The app is not installed on this instance", the
 connector has lost access. Stop and ask Venkat to re-authorise the Atlassian
@@ -110,8 +110,9 @@ Follow CLAUDE.md. The rules that most often bite:
 ## 6. Test and deploy
 
 1. Jest for every changed LWC. vitest and `tsc --noEmit` for MCP changes.
-2. Check the org: `sf data query -o cpq-dev -q "SELECT NamespacePrefix FROM Organization"` must return `DDCPQ`.
-3. While iterating: `sf project deploy start -o cpq-dev --ignore-conflicts -l RunSpecifiedTests -t <tests> -d <each changed path>`.
+2. Check the org (`<dev-org>` = the dev org alias from Fixed facts above):
+   `sf data query -o <dev-org> -q "SELECT NamespacePrefix FROM Organization"` must return `DDCPQ`.
+3. While iterating: `sf project deploy start -o <dev-org> --ignore-conflicts -l RunSpecifiedTests -t <tests> -d <each changed path>`.
    Always name paths with `-d`. An unfiltered deploy computes deletions.
    Deploy only changed classes. Deploying the whole classes folder is refused
    while scheduled jobs hold it.

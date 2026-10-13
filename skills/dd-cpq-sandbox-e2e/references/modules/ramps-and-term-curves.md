@@ -281,17 +281,17 @@ between the 24mo and 36mo points.
 ## Check it (Claude)
 
 ```bash
-sf data query -o cpq-pkg -q "SELECT Name, DDCPQ__Status__c FROM DDCPQ__RampMatrix__c WHERE Name = 'RT Ramp Set'"
+sf data query -o dd-e2e -q "SELECT Name, DDCPQ__Status__c FROM DDCPQ__RampMatrix__c WHERE Name = 'RT Ramp Set'"
 
-sf data query -o cpq-pkg -q "SELECT DDCPQ__Matrix__r.Name, DDCPQ__PeriodIndex__c, DDCPQ__AdjustmentType__c, DDCPQ__AdjustmentValue__c, DDCPQ__TargetProduct__r.Name FROM DDCPQ__RampSchedule__c WHERE DDCPQ__Matrix__r.Name = 'RT Ramp Set' ORDER BY DDCPQ__PeriodIndex__c"
+sf data query -o dd-e2e -q "SELECT DDCPQ__Matrix__r.Name, DDCPQ__PeriodIndex__c, DDCPQ__AdjustmentType__c, DDCPQ__AdjustmentValue__c, DDCPQ__TargetProduct__r.Name FROM DDCPQ__RampSchedule__c WHERE DDCPQ__Matrix__r.Name = 'RT Ramp Set' ORDER BY DDCPQ__PeriodIndex__c"
 
-sf data query -o cpq-pkg -q "SELECT Id, Product2.Name, Quantity, UnitPrice, DDCPQ__TermMonths__c, DDCPQ__DerivedListPrice__c, DDCPQ__RampAdjustedPrice__c, DDCPQ__NetPrice__c, DDCPQ__SegmentGroupKey__c, DDCPQ__SegmentIndex__c, DDCPQ__SegmentRoot__c, DDCPQ__SegmentSource__c FROM QuoteLineItem WHERE Quote.Name = 'RT Ramp Quote' ORDER BY DDCPQ__SegmentIndex__c"
+sf data query -o dd-e2e -q "SELECT Id, Product2.Name, Quantity, UnitPrice, DDCPQ__TermMonths__c, DDCPQ__DerivedListPrice__c, DDCPQ__RampAdjustedPrice__c, DDCPQ__NetPrice__c, DDCPQ__SegmentGroupKey__c, DDCPQ__SegmentIndex__c, DDCPQ__SegmentRoot__c, DDCPQ__SegmentSource__c FROM QuoteLineItem WHERE Quote.Name = 'RT Ramp Quote' ORDER BY DDCPQ__SegmentIndex__c"
 
-sf data query -o cpq-pkg -q "SELECT Name, DDCPQ__Status__c, DDCPQ__InterpolationMode__c FROM DDCPQ__TermDiscountCurve__c WHERE Name = 'RT Term Curve'"
+sf data query -o dd-e2e -q "SELECT Name, DDCPQ__Status__c, DDCPQ__InterpolationMode__c FROM DDCPQ__TermDiscountCurve__c WHERE Name = 'RT Term Curve'"
 
-sf data query -o cpq-pkg -q "SELECT DDCPQ__Curve__r.Name, DDCPQ__TermMonths__c, DDCPQ__DiscountPct__c, DDCPQ__TargetProduct__r.Name FROM DDCPQ__TermDiscountPoint__c WHERE DDCPQ__Curve__r.Name = 'RT Term Curve' ORDER BY DDCPQ__TermMonths__c"
+sf data query -o dd-e2e -q "SELECT DDCPQ__Curve__r.Name, DDCPQ__TermMonths__c, DDCPQ__DiscountPct__c, DDCPQ__TargetProduct__r.Name FROM DDCPQ__TermDiscountPoint__c WHERE DDCPQ__Curve__r.Name = 'RT Term Curve' ORDER BY DDCPQ__TermMonths__c"
 
-sf data query -o cpq-pkg -q "SELECT Id, Quantity, UnitPrice, DDCPQ__TermMonths__c, DDCPQ__DerivedListPrice__c, DDCPQ__TermAdjustedPrice__c, DDCPQ__TermDiscountPct__c, DDCPQ__NetPrice__c, DDCPQ__ARR__c FROM QuoteLineItem WHERE Quote.Name LIKE 'RT Term Quote%' ORDER BY DDCPQ__TermMonths__c"
+sf data query -o dd-e2e -q "SELECT Id, Quantity, UnitPrice, DDCPQ__TermMonths__c, DDCPQ__DerivedListPrice__c, DDCPQ__TermAdjustedPrice__c, DDCPQ__TermDiscountPct__c, DDCPQ__NetPrice__c, DDCPQ__ARR__c FROM QuoteLineItem WHERE Quote.Name LIKE 'RT Term Quote%' ORDER BY DDCPQ__TermMonths__c"
 ```
 
 All six ran clean against cpq-pkg on 2026-10-07 and returned the rows
@@ -315,7 +315,7 @@ below.
 ```
 
 ```bash
-sf api request rest "services/apexrest/DDCPQ/dd/v1/price?includeWaterfall=true" -o cpq-pkg --method POST --body @body.json
+sf api request rest "services/apexrest/DDCPQ/dd/v1/price?includeWaterfall=true" -o dd-e2e --method POST --body @body.json
 ```
 
 The response's `lines[]` will show three entries for one selection sent —

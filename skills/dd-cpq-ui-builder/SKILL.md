@@ -35,7 +35,9 @@ and hand it back with a working end-to-end sample they can iterate on.
 
 ## The DD CPQ API in one page
 
-**Base URL:** `{instanceUrl}/services/apexrest/dd/v1`
+**Base URL:** `{instanceUrl}/services/apexrest/dd/v1` in our unprefixed dev
+org. In an org where the DD CPQ managed package (namespace `DDCPQ`) is
+installed, the path is namespaced: `{instanceUrl}/services/apexrest/DDCPQ/dd/v1`.
 **Auth:** `Authorization: Bearer {salesforceAccessToken}` (see `docs/DD_CPQ_AUTH_GUIDE.html`)
 
 ### Discovery
@@ -164,6 +166,8 @@ beyond `fetch`. They copy, customize their branding, ship.
 import { useEffect, useState } from "react";
 
 // --- Config ---
+// Unprefixed in our dev org. If DD CPQ is installed as a managed package
+// (namespace DDCPQ) in the target org, use "/services/apexrest/DDCPQ/dd/v1".
 const API_BASE =
   import.meta.env.VITE_SF_INSTANCE_URL + "/services/apexrest/dd/v1";
 const TOKEN = () => localStorage.getItem("sf_token"); // set by your OAuth callback
@@ -332,4 +336,5 @@ Before handing the built UI back to the customer, verify:
 - [ ] Columns the customer asked for were tried as a Field Set change before any code was written
 - [ ] Auth uses Bearer token from Connected App OAuth (not embedded credentials)
 - [ ] `LineDraft` shape matches `docs/DD_CPQ_API_REFERENCE.html` exactly (no invented fields)
-- [ ] Sample renders end-to-end against `cpq-dev` before delivery
+- [ ] Sample renders end-to-end against the target org (ours is `cpq-dev`;
+      the customer's is whichever org they installed DD CPQ into) before delivery

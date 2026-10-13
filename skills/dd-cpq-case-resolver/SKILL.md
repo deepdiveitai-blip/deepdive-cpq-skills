@@ -17,10 +17,13 @@ wrongly — that is not a criticism, it is what a symptom looks like from the
 UI. The job is to get from symptom to cause with evidence, and the single
 most valuable outcome is discovering that five Cases are one bug.
 
+`<dev-org>` below = the dev org alias, currently `cpq-dev` — check the
+workspace memory/CLAUDE.md for the current alias if it has moved.
+
 ## 1. Pull the queue
 
 ```bash
-sf data query -o cpq-dev -q "SELECT CaseNumber, Subject, Status, Priority, Type, CreatedDate, Description FROM Case ORDER BY CaseNumber"
+sf data query -o <dev-org> -q "SELECT CaseNumber, Subject, Status, Priority, Type, CreatedDate, Description FROM Case ORDER BY CaseNumber"
 ```
 
 **Discard the noise first.** Cases whose Subject and Description are both a
@@ -35,13 +38,13 @@ screenshot. Never skip them, and never infer the bug from the Subject line.
 
 ```bash
 # list what is attached
-sf data query -o cpq-dev -q "SELECT CaseNumber, (SELECT ContentDocument.Title, ContentDocument.FileExtension FROM ContentDocumentLinks) FROM Case"
+sf data query -o <dev-org> -q "SELECT CaseNumber, (SELECT ContentDocument.Title, ContentDocument.FileExtension FROM ContentDocumentLinks) FROM Case"
 
 # find the ContentVersion ids
-sf data query -o cpq-dev -q "SELECT Id, Title FROM ContentVersion WHERE IsLatest = true"
+sf data query -o <dev-org> -q "SELECT Id, Title FROM ContentVersion WHERE IsLatest = true"
 
 # download one (VersionData is binary — curl it with the org token)
-INFO=$(sf org display -o cpq-dev --json)
+INFO=$(sf org display -o <dev-org> --json)
 TOKEN=$(...accessToken from INFO...); URL=$(...instanceUrl...)
 curl -s -H "Authorization: Bearer $TOKEN" \
   "$URL/services/data/v62.0/sobjects/ContentVersion/<068...>/VersionData" -o shot.png

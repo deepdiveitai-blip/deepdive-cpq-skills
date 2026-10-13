@@ -228,13 +228,13 @@ query below, not by anything in the cart.
 ## Check it (Claude)
 
 ```bash
-sf data query -o cpq-pkg -q "SELECT Name, DDCPQ__Account__r.Name, DDCPQ__CommitAmount__c, DDCPQ__CommitUnit__c, DDCPQ__FloorMode__c, DDCPQ__Status__c, DDCPQ__ConsumedAmount__c FROM DDCPQ__CommitmentContract__c WHERE DDCPQ__Account__r.Name = 'PC Commit Co'"
+sf data query -o dd-e2e -q "SELECT Name, DDCPQ__Account__r.Name, DDCPQ__CommitAmount__c, DDCPQ__CommitUnit__c, DDCPQ__FloorMode__c, DDCPQ__Status__c, DDCPQ__ConsumedAmount__c FROM DDCPQ__CommitmentContract__c WHERE DDCPQ__Account__r.Name = 'PC Commit Co'"
 
-sf data query -o cpq-pkg -q "SELECT Name, DDCPQ__TargetProduct__r.Name, DDCPQ__DiscountPct__c, DDCPQ__MinCommitAmount__c, DDCPQ__Status__c FROM DDCPQ__CommitmentDiscountRule__c WHERE DDCPQ__TargetProduct__r.Name = 'PC Commit Product'"
+sf data query -o dd-e2e -q "SELECT Name, DDCPQ__TargetProduct__r.Name, DDCPQ__DiscountPct__c, DDCPQ__MinCommitAmount__c, DDCPQ__Status__c FROM DDCPQ__CommitmentDiscountRule__c WHERE DDCPQ__TargetProduct__r.Name = 'PC Commit Product'"
 
-sf data query -o cpq-pkg -q "SELECT Product2.Name, Quantity, UnitPrice, DDCPQ__NetPrice__c, DDCPQ__Commitment__c, DDCPQ__CommitDiscountPct__c, DDCPQ__CommitDrawdownAmount__c FROM QuoteLineItem WHERE Quote.Name = 'PC Commit Quote'"
+sf data query -o dd-e2e -q "SELECT Product2.Name, Quantity, UnitPrice, DDCPQ__NetPrice__c, DDCPQ__Commitment__c, DDCPQ__CommitDiscountPct__c, DDCPQ__CommitDrawdownAmount__c FROM QuoteLineItem WHERE Quote.Name = 'PC Commit Quote'"
 
-sf data query -o cpq-pkg -q "SELECT DDCPQ__TargetProduct__r.Name, DDCPQ__IsPrepaidCredit__c, DDCPQ__DrawdownFromPlanId__r.DDCPQ__DisplayLabel__c, DDCPQ__MinimumCommitAmount__c, DDCPQ__MinCommitMonths__c FROM DDCPQ__RatePlan__c WHERE DDCPQ__IsPrepaidCredit__c = true OR DDCPQ__DrawdownFromPlanId__c != null"
+sf data query -o dd-e2e -q "SELECT DDCPQ__TargetProduct__r.Name, DDCPQ__IsPrepaidCredit__c, DDCPQ__DrawdownFromPlanId__r.DDCPQ__DisplayLabel__c, DDCPQ__MinimumCommitAmount__c, DDCPQ__MinCommitMonths__c FROM DDCPQ__RatePlan__c WHERE DDCPQ__IsPrepaidCredit__c = true OR DDCPQ__DrawdownFromPlanId__c != null"
 ```
 
 **Read-only what-ifs** — these are the two safe REST calls for this
@@ -251,7 +251,7 @@ Minimum-commitment floor projection:
 ```
 
 ```bash
-sf api request rest "services/apexrest/DDCPQ/dd/v1/commit/floor/evaluate" -o cpq-pkg --method POST --body @body.json
+sf api request rest "services/apexrest/DDCPQ/dd/v1/commit/floor/evaluate" -o dd-e2e --method POST --body @body.json
 ```
 
 Prepaid-credit burndown — either load a committed quote's deposit lines
@@ -274,7 +274,7 @@ with no quote at all:
 ```
 
 ```bash
-sf api request rest "services/apexrest/DDCPQ/dd/v1/commit/credit/simulate" -o cpq-pkg --method POST --body @body.json
+sf api request rest "services/apexrest/DDCPQ/dd/v1/commit/credit/simulate" -o dd-e2e --method POST --body @body.json
 ```
 
 Send the **usage plan's** Id in `hypotheticalUsage[].ratePlanId`, not the

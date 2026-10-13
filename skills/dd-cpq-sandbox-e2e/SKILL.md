@@ -101,9 +101,11 @@ standard single-currency org is fine; multi-currency is optional), and
 which deletes every DD CPQ record in the org. Never uninstall on your own;
 tell the tester to ask Venkat which build to use.
 
-The **DD CPQ connector** that comes with the dd-cpq plugin is wired to the
-DEV team's org, not the tester's. Do not use its tools here. Everything in
-this skill runs through the Salesforce CLI.
+The **DD CPQ connector** that comes with the dd-cpq plugin can now connect to
+the tester's own org — from build 0.1.0-12 they choose Sandbox or
+Production/Developer Edition at login. If it is connected, confirm with
+`dd_cpq_current_user` that its org is the same org as `dd-e2e` before using
+its tools here; otherwise use the Salesforce CLI as below.
 
 ## Changed since 0.1.0-9 — this table beats the modules
 

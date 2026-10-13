@@ -35,8 +35,10 @@ pipeline and golden test, and loads on its own every session.
 ## Prerequisites (do these once)
 
 1. **MCP server v0.10.0+** — has `dd_cpq_ask_warehouse` + all `dd_cpq_*` tools
-2. **Salesforce sandbox connected** — verify with `dd_cpq_list_orgs`;
-   `activeAlias` must not be null. Otherwise call `dd_cpq_connect_org`
+2. **Salesforce org connected** — verify with `dd_cpq_current_user`; it
+   returns the user and org. Tell the audience which org you are in
+   before the demo starts. If it errors, the hosted DD CPQ connector is
+   not connected — ask the user to connect it first.
 3. **For Wow #2 only**: the Python migrator FastAPI service must be running:
    ```powershell
    cd migrator
