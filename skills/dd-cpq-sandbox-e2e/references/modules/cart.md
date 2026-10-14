@@ -71,47 +71,63 @@ it entirely in Setup, with no code and no deploy.
   Commit."** — that sentence is the cart's whole safety model: every preview
   is free, nothing is destructive until the one Commit click.
 
-### Add products drawer
+### Add products window
 
-**Add products** opens a drawer that asks the engine's own catalog builder
-(`/dd/v1/catalog`, the same one `dd_cpq_list_products` uses) — so a rep sees
-exactly what an agent would see. What is offered is the intersection, in
-order, of:
+**Add products** opens a large window over the cart — titled "Add
+products", subtitled with the quote name, account and industry — fed by
+the engine's own catalog builder (`/dd/v1/catalog`, the same one
+`dd_cpq_list_products` uses), so a rep sees exactly what an agent would
+see. It closes on ×, Cancel, Esc, or a click outside, adding nothing.
+When the quote has Deal Blocks, an **Add to** selector in the window
+picks which block the add lands in; a block's own **+ Add products**
+button opens the same window pre-targeted at it (see Deal Blocks below).
+
+What is offered is the intersection, in order, of:
 
 1. **The quote's price book** — inherited from the Opportunity. A product
    with no active Pricebook Entry there is never offered.
 2. **The Eligibility Matrix**, evaluated against the Account and
    Opportunity — the same filter the engine itself applies, not a second
-   copy of it.
-3. **A Catalog**, only if the rep picks one.
+   copy of it. A product an Active rule hides is not simply missing: it
+   sits in a collapsed, greyed **"Not available for this customer (N)"**
+   group at the foot of the table, with the rule's reason on hover, and
+   cannot be selected.
+3. Whatever the rep has filtered on in the left panel — their own added
+   filters (from the fields an admin allowed in **DD CPQ Settings → Add
+   Products**), plus the three built-in ones: **Catalog**, **Kind**
+   (Bundle / Single product / Usage-metered) and **Family** — each with
+   live counts that move as the other filters change.
 
-A **Catalog** dropdown appears only once at least one Active `Catalog__c`
-record exists (hidden otherwise). It lists **All products** first, then each
-Active catalog with a count — how many of its `CatalogProduct__c` members
-survived the price book + eligibility filter — so the rep knows what picking
-it would cost before picking it. Switching catalogs is instant; no extra
-round trip. A product in no catalog is still sellable, just never shown
-under a named one. A `Featured__c` catalog member shows a **featured** tag.
+A **Catalog** is still a curated set (`Catalog__c` plus
+`CatalogProduct__c`) — "Core Selling", "Public Sector", "Rate Plan
+Fixtures" — a different question from pricing: the price book decides
+what a product _costs_ on this quote, the catalog decides whether you
+want it _shown_. The Catalog filter lists **All catalogs** first, then
+four catalogs with **Show all N catalogs** for the rest. A product in no
+catalog is still sellable, just never shown under a named one.
 
-**Search** matches the product list by name live. **Group by** controls what
-the chip row above the list groups on:
+The top bar's **Search** box has a **Search in** scope (All fields,
+Product name, Product code, Description, Family, and — when the admin
+turns them on — Bundle feature / Tier label) and a **Sort** (Name A–Z,
+Name Z–A, Family, Kind). Every row's **Kind** column reads like `BUNDLE ·
+Configurable`, `BUNDLE · Static` or `SINGLE PRODUCT` instead of a badge;
+there is no price column and no quantity column in this window. A row can
+carry **"In quote"** (it can still be added again) or **"Can't be priced
+yet"** (hover for why). Tick rows (or **Select all N shown**) and click
+**Add N to quote**: every selected product lands at **quantity 1** in
+**one** reprice, the window closes, the new lines are highlighted, and
+the toast reads **"N products added. Repriced once. Set quantities in the
+cart."** A selected bundle is added as a bundle, unconfigured — this
+window never opens the Bundle Studio; that happens afterward in the cart.
 
-| Group by   | Chips are                                         |
-| ---------- | ------------------------------------------------- |
-| **Family** | `Product2.Family`                                 |
-| **Kind**   | what adding the product _does_ — see badges below |
-
-Every row also carries a badge for what pressing **Add** will do:
-
-| Badge                   | Meaning                                                                                 | Add does                                                   |
-| ----------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| **Standalone SKU**      | no features                                                                             | one line                                                   |
-| **Configurable bundle** | at least one feature still has room to choose (`MinSelections__c` < `MaxSelections__c`) | adds a parent, then opens the Bundle Studio                |
-| **Static bundle**       | every feature fully constrained                                                         | adds a parent and its fixed children, nothing to configure |
-
-A bundle row's second line shows its feature/option counts, Pricing Mode and
-Header Treatment, or **"no bundle definition"** when the product has none
-(the legacy roll-up path).
+With 2–4 products selected, **Compare** shows them side by side (Kind,
+Family, Product code, Catalog(s), Tier label, On this quote, Can be
+priced) and keeps the selection on close. **Saved sets** lets a rep narrow
+the window to a named list of products ("★ Clinic pack · 3 products ·
+Shared with the team by Priya") and **☆ Save as set** turns the current
+selection into one, Only-me or Shared. If the price book holds more than
+2,000 products, a banner reads "Showing the first 2,000 products. Pick a
+catalog to see all of its products."
 
 ### Search and the command palette
 
@@ -377,7 +393,7 @@ stage list, or the pipeline order (CLAUDE.md "Engine pipeline" section).
 |                                              | `BlockDiscount__c`                                                                                                      | effective % applied by the block-discount stage (block + its parent combined)                             |
 |                                              | `BlockSortOrder__c`                                                                                                     | position inside the block, lowest first                                                                   |
 |                                              | `BlockedByFloor__c`                                                                                                     | set by `MarginFloorService` when a Block-action margin floor rule fires on this line                      |
-| Catalog (`Catalog__c`)                       | `Status__c`                                                                                                             | only `Active` catalogs appear in the Add-products drawer's Catalog dropdown                               |
+| Catalog (`Catalog__c`)                       | `Status__c`                                                                                                             | only `Active` catalogs appear in the Add products window's Catalog filter                                 |
 |                                              | `Description__c`                                                                                                        | shown in the picker                                                                                       |
 | Catalog Product (`CatalogProduct__c`)        | `Catalog__c` / `Product__c`                                                                                             | the junction — which products belong to which catalog                                                     |
 |                                              | `Featured__c`                                                                                                           | shows a **featured** tag on the product tile                                                              |
@@ -407,8 +423,9 @@ and the richer cart surface on top of that:
 2. Toolbar → **Build blocks ▾** → **New**. Name it `Expansion` (anything —
    this is your own cart exploration, not graded data). Kind **Phase**.
    Inside: top-level. Click **Create and add products**.
-3. In the Add products drawer that opens, add **Compliance Add-on**,
-   quantity 25. It lands inside the new block.
+3. In the Add products window that opens, tick **Compliance Add-on** →
+   **Add 1 to quote**. It lands inside the new block at quantity 1; back
+   in the grid, set its **Quantity** to 25.
 4. Back in the grid, tick the **CRM Suite Pro** bundle row (and nothing
    else) → the bulk banner appears → **Move to block…** → pick
    `Expansion`. Confirm: the bundle _and all four of its options_ move
@@ -472,17 +489,17 @@ same math, not a second pricing scenario.
 
 ## Troubleshooting
 
-| Symptom                                                                | Cause                                                                                                                                    | Fix                                                                                                                                                                                    |
-| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Configure Products does nothing / no tab opens                         | the active View's Surface could not be read, or no `DD CPQ Cart` tab visibility                                                          | confirm the user's permission set grants the Cart tab; the launcher falls back to the popup modal if the surface call fails, so a total blank screen points at a deeper access problem |
-| Opening the Cart tab directly shows "Open a quote" instead of the cart | the tab was opened with no `c__quoteId` in page state                                                                                    | pick the quote from the recent-quotes list, or re-open via Configure Products from the record                                                                                          |
-| A column you added to the field set never shows                        | Field-Level Security hides it from the running user — "Nothing announces it; that is the point for customer-facing views"                | grant FLS read access, or confirm that's the intended behaviour for that persona                                                                                                       |
-| Moving a bundle's option alone, not the whole bundle                   | not possible by design — ticking any child still moves the whole bundle: "a bundle moves whole, with its ramp years and sibling charges" | select and move the parent; options cannot be split from their bundle into a different block                                                                                           |
-| Commit refused after a block discount was set                          | a line in the block tripped the margin floor (`BlockedByFloor__c` true)                                                                  | open that line's waterfall; margin floor rules run after the block discount stage                                                                                                      |
-| `/dd/v1/cart` bootstrap returns 403                                    | `DdCpqAccess.AccessDeniedException` — the calling user lacks the permission set this feature checks                                      | assign `DDCPQ__DD_CPQ_Engine_Admin` or `DDCPQ__DD_CPQ_Engine_User`                                                                                                                     |
-| `/dd/v1/cart` bootstrap returns a generic 500 with a `type` field      | an unhandled server exception — read the `error` and `type` values verbatim, they are the real Apex exception message and class          | report the exact message; do not retry blindly                                                                                                                                         |
-| Catalog dropdown never appears in Add products                         | no `Catalog__c` record is `Active`                                                                                                       | an admin activates at least one catalog, or this org intentionally has none                                                                                                            |
-| A rep sees fewer products in Add products than expected                | the Eligibility Matrix or the Opportunity's price book is filtering them, same as the engine would                                       | check both — see `eligibility.md`                                                                                                                                                      |
+| Symptom                                                                | Cause                                                                                                                                                                                                     | Fix                                                                                                                                                                                    |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Configure Products does nothing / no tab opens                         | the active View's Surface could not be read, or no `DD CPQ Cart` tab visibility                                                                                                                           | confirm the user's permission set grants the Cart tab; the launcher falls back to the popup modal if the surface call fails, so a total blank screen points at a deeper access problem |
+| Opening the Cart tab directly shows "Open a quote" instead of the cart | the tab was opened with no `c__quoteId` in page state                                                                                                                                                     | pick the quote from the recent-quotes list, or re-open via Configure Products from the record                                                                                          |
+| A column you added to the field set never shows                        | Field-Level Security hides it from the running user — "Nothing announces it; that is the point for customer-facing views"                                                                                 | grant FLS read access, or confirm that's the intended behaviour for that persona                                                                                                       |
+| Moving a bundle's option alone, not the whole bundle                   | not possible by design — ticking any child still moves the whole bundle: "a bundle moves whole, with its ramp years and sibling charges"                                                                  | select and move the parent; options cannot be split from their bundle into a different block                                                                                           |
+| Commit refused after a block discount was set                          | a line in the block tripped the margin floor (`BlockedByFloor__c` true)                                                                                                                                   | open that line's waterfall; margin floor rules run after the block discount stage                                                                                                      |
+| `/dd/v1/cart` bootstrap returns 403                                    | `DdCpqAccess.AccessDeniedException` — the calling user lacks the permission set this feature checks                                                                                                       | assign `DDCPQ__DD_CPQ_Engine_Admin` or `DDCPQ__DD_CPQ_Engine_User`                                                                                                                     |
+| `/dd/v1/cart` bootstrap returns a generic 500 with a `type` field      | an unhandled server exception — read the `error` and `type` values verbatim, they are the real Apex exception message and class                                                                           | report the exact message; do not retry blindly                                                                                                                                         |
+| Catalog filter is empty in Add products                                | no `Catalog__c` record is `Active`                                                                                                                                                                        | an admin activates at least one catalog, or this org intentionally has none                                                                                                            |
+| A rep sees fewer products in Add products than expected                | the Eligibility Matrix or the Opportunity's price book is filtering them, same as the engine would; check the "Not available for this customer" group too — eligibility hides there, it doesn't disappear | check both — see `eligibility.md`                                                                                                                                                      |
 
 ## Limits and gotchas
 

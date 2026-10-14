@@ -473,37 +473,53 @@ commit response.
 
 ---
 
-## Family D3 · Add products — the catalog picker
+## Family D3 · Add products — the catalog window
 
-Since DDCPQ-CATALOG-01 the drawer is fed by the engine's own catalog
-builder, so it has a tool-readable twin: `dd_cpq_list_products` returns
-the same rows, and passing its `catalogId` narrows them the same way.
-Every claim on the screen can be checked against that call.
+Since DDCPQ-148..152 **Add products** opens a full window, not a drawer,
+and it is fed by the engine's own catalog builder: `dd_cpq_list_products`
+(or `GET /services/apexrest/dd/v1/catalog`) returns the same rows, the
+same `filterFields`, the same `notAvailable` list, and the same
+`truncated` / `unfilteredCount` flags the window renders. Every claim on
+the screen can be checked against that call.
 
-| On the screen                                   | Must match                                                                                                        |
-| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| A product is listed at all                      | an active PricebookEntry on the **quote's** price book (the Opportunity's wins), and the Eligibility Matrix       |
-| `Standalone SKU`                                | no ProductFeature__c children                                                                                     |
-| `Configurable bundle`                           | at least one feature with `MinSelections__c` < `MaxSelections__c` (or Max blank / 0)                              |
-| `Static bundle`                                 | features exist and every one has Min = Max — **or** an Active BundleDefinition__c saying `BundleType__c` = Static |
-| `N features · N options`                        | ProductFeature__c and ProductOption__c counts for that parent                                                     |
-| Pricing Mode / Header Treatment on a bundle row | the Active BundleDefinition__c picklist **labels**, not API values                                                |
-| `no bundle definition`                          | a bundle with no Active BundleDefinition__c — it is on the legacy roll-up path                                    |
-| The Catalog dropdown exists                     | at least one Active Catalog__c. No catalogs, no dropdown — that is correct, not a defect                          |
-| A catalog option's count                        | that catalog's products that ALSO survived price book + eligibility, never its raw CatalogProduct__c count        |
-| `featured` tag                                  | `CatalogProduct__c.Featured__c`                                                                                   |
+| On the screen                                                   | Must match                                                                                                                        |
+| --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| A product is listed at all                                      | an active PricebookEntry on the **quote's** price book (the Opportunity's wins), and the Eligibility Matrix                       |
+| `Kind` reads `BUNDLE · Configurable`                            | at least one feature with `MinSelections__c` < `MaxSelections__c` (or Max blank / 0)                                              |
+| `Kind` reads `BUNDLE · Static`                                  | features exist and every one has Min = Max — **or** an Active BundleDefinition__c saying `BundleType__c` = Static                 |
+| `Kind` reads `SINGLE PRODUCT`                                   | no ProductFeature__c children                                                                                                     |
+| The row's Family cell                                           | `Product2.Family`, or blank                                                                                                       |
+| `"Not available for this customer (N)"` collapsed group         | an Active EligibilityRule__c hides each listed product; the hover reason is that rule's `Message__c`                              |
+| A product is absent from **both** the table and that grey group | filtered out earlier — no active PricebookEntry, or not in the chosen Catalog/Kind/Family/custom filter                           |
+| `"In quote"` tag                                                | the product already has a line on this quote — it can still be selected and added again                                           |
+| `"Can't be priced yet"` tag                                     | no Active rate plan for that product on this quote's currency/price book                                                          |
+| The result line `"N products · M not available"`                | the response's product count and its `notAvailable` count                                                                         |
+| **Choose filters** list                                         | exactly the fields in **DD CPQ Settings → Add Products → Filters reps can add**, grouped by object, with value counts             |
+| A filter the rep added persists on the next quote they open     | `dd_cpq_get_picker_preferences`; the ticked values inside it do **not** persist                                                   |
+| Catalog filter: "4 shown, Show all N catalogs"                  | the org's count of Active `Catalog__c` records                                                                                    |
+| Kind filter counts / Family filter counts                       | recompute live as other filters narrow the list — a stale count after changing another filter is a defect                         |
+| `"Showing the first 2,000 products…"` banner                    | `truncated: true` and the price book has more than 2,000 products; picking a Catalog reloads that catalog in full                 |
+| **Select all N shown**                                          | selects exactly the rows the current filters show, and the selection survives a further filter change                             |
+| **Compare** (2–4 selected)                                      | Kind (+ bundle type), Family, Product code, Catalog(s), Tier label, On this quote, Can be priced — closing it keeps the selection |
+| Saved set banner `"★ name · N products · Shared by X"`          | `dd_cpq_saved_set_products`; only the set's owner or an admin can rename/delete it                                                |
+| **Add N to quote** result                                       | every selected product lands at **quantity 1**, in **one** reprice — never one reprice per product                                |
 
-**Group by is the answer to "why is this grouped like that".** Family
-groups on `Product2.Family`; Kind groups on the three types above. The
-chips carry counts and **All** is always first. Switching the grouping
-must clear the selected chip — a chip left selected from the other
-grouping would filter to a bucket that no longer exists, and that IS a
-defect.
+**The classic false positive:** a product the rep expects but cannot see
+anywhere, including the "Not available" group. Check the quote's price
+book and the rep's own active filters before writing it up — the window
+deliberately does not offer what the engine could not price, and the
+result line says which scope it is reporting. A product an eligibility
+rule hides is **not** a missing-product defect by itself — confirm it
+shows in the greyed "Not available for this customer" group with a
+reason; if it is silently absent from both the table and that group
+instead, that's the real bug.
 
-**The classic false positive:** a product the rep expects but cannot see.
-Check the quote's price book before writing it up. The drawer deliberately
-does not offer what the engine could not price, and the count line says
-which scope it is reporting.
+**A bundle never configures from this window.** Selecting a configurable
+bundle and clicking **Add N to quote** adds it as a bundle, unconfigured,
+for the Bundle Studio to pick afterwards in the cart — the window itself
+has no Add button per row and never opens the Studio. A bundle that opens
+the Studio straight from Add products is a regression to the old drawer
+behaviour.
 
 ## Family D2 · The Bundle Studio — the configure screen
 

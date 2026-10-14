@@ -225,8 +225,9 @@ Overage Rate.
 5. **Preview** → quantity `30` → per-unit **$4.333333** (10×$5 + 20×$4 = $130
    ÷ 30). Set **Status** to **Active** → **Save**.
 6. Build a quote on an Account/Opportunity of your own (e.g. `UP Test Co`)
-   and **Add products** → `UP Tiered Widget`, quantity **30**. Read the net
-   price against "Expected numbers" below. Note the line shows **no**
+   and **Add products** → tick `UP Tiered Widget` → **Add 1 to quote**.
+   Back in the cart, set its **Quantity** to **30**. Read the net price
+   against "Expected numbers" below. Note the line shows **no**
    NMR/MRR/ARR metric row — only the "variable · usage" ARR caption,
    because there is no `CommittedUsageMRR__c` floor on this plan.
 
@@ -236,8 +237,9 @@ Overage Rate.
 2. **Rate Plan Editor** → **Shape**: Charge type **Overage**, Pricing model
    **Per Unit**, Billing schedule **Monthly**, price **0.05** → **Active** →
    **Save**.
-3. **Add products** on the same test quote → `UP Overage Widget`, quantity
-   **20**. Net price **$0.05**, line total **$1.00**, MRR/ARR **$0**.
+3. **Add products** on the same test quote → tick `UP Overage Widget` →
+   **Add 1 to quote**. Back in the cart, set its **Quantity** to **20**.
+   Net price **$0.05**, line total **$1.00**, MRR/ARR **$0**.
 
 ### Scenario 3 — Minimum Commit + Overage Rate inside a bundle
 

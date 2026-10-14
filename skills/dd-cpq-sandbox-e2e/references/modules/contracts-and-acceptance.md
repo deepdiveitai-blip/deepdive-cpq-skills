@@ -251,7 +251,9 @@ Business`, Stage Proposal/Price Quote.
    (today + 30 days) — nobody typed it.
 4. **Set the term.** On the quote header, set **Subscription Start Date**
    to today and **Term (Months)** to **12**.
-5. **Add products** → Core Seat qty **20**, Add-on qty **5**. **Commit.**
+5. **Add products** → tick Core Seat and the Add-on → **Add 2 to quote**.
+   Both land at quantity 1. Back in the cart, set Core Seat's **Quantity**
+   to **20** and the Add-on's to **5**. **Commit.**
 6. Scroll to **Accept this sale** → click **"Accept and create what they
    have"**.
 7. Confirm the toast reads "Amendment accepted" with "2 changes, 2 applied,

@@ -272,7 +272,8 @@ Numbers below are what a correctly-built org gives — see "Expected numbers."
    Table** → Applies To Product **DS Widget**. Add tiers: Min **1** / Max
    **10** / Percent **5**; Min **30** (leave Max blank) / Percent **15**.
    Save, switch to **Active**.
-5. **Quote** — add **DS Widget**, quantity **5**. Net price should read
+5. **Quote** — **Add products** → tick **DS Widget** → **Add 1 to quote**.
+   Back in the cart, set its **Quantity** to **5**. Net price should read
    **$85.50** ($100 × 0.90 System × 0.95 Volume). Change quantity to **15**
    — net price jumps to **$90.00** (System only — the 10–29 gap has no
    volume tier). Change quantity to **30** — net price drops to **$76.50**

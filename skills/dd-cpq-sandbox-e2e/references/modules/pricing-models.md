@@ -279,8 +279,9 @@ touch CRM Suite Pro, Sales Cloud or the other golden-quote products.
    the Rate column here means the whole bracket's flat price, not a
    per-unit rate).
 8. Build a quote on an Account/Opportunity of your own (e.g. `PM Test Co`)
-   and **Add products** → each widget at quantity **25** (quantity **15**
-   for a second Volume test). Read the net price shown per line against
+   and **Add products** → tick all three widgets → **Add 3 to quote**.
+   Back in the cart, set each widget's **Quantity** to **25** (**15** for
+   a second Volume test). Read the net price shown per line against
    "Expected numbers" below.
 
 ## Check it (Claude)

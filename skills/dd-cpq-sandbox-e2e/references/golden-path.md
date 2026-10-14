@@ -197,13 +197,15 @@ and every rule must target Sales Cloud.
    Stage Proposal/Price Quote, any close date.
 3. From the Opportunity's Quotes list → **New Quote** `Q-0042 Acme`.
 4. Open the quote → **Configure Products**. The DD CPQ cart opens.
-5. **Add products** → CRM Suite Pro, quantity **100**. Its four options
-   come with it at 100 each.
-6. **Add products** → Compliance Add-on, quantity **100**.
-7. Read **Sales Cloud**: net price **$101.83**. Click the price to open
+5. **Add products** → tick **CRM Suite Pro** and **Compliance Add-on** →
+   **Add 2 to quote**. Both land at quantity 1 (its four options come with
+   the bundle). Back in the cart, set **Quantity** to **100** on CRM Suite
+   Pro (its options follow, since they are `= bundle qty`) and on
+   Compliance Add-on.
+6. Read **Sales Cloud**: net price **$101.83**. Click the price to open
    the waterfall: $150 list → $130 price rule → −5% → −3% → −15% volume →
    $101.83.
-8. **Commit.**
+7. **Commit.**
 
 **Check:**
 

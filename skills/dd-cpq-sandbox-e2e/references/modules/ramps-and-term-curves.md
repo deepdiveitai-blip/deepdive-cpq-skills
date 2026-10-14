@@ -241,9 +241,10 @@ Two scenarios, matching the verified numbers above.
      Value **10**, Applies To Product `RT Ramp Product` → Save.
 4. **Account** `RT Test Co` → **Opportunity** `RT Ramp Opp` → **New Quote**
    `RT Ramp Quote` → **Configure Products**.
-5. **Add products** → `RT Ramp Product`, quantity **10**, **Term (Months)
-   36** (set it on the line, or on the quote header if every line follows
-   the deal's term).
+5. **Add products** → tick `RT Ramp Product` → **Add 1 to quote**. Back in
+   the cart, set its **Quantity** to **10** and **Term (Months)** to **36**
+   (or set the term on the quote header if every line follows the deal's
+   term).
 6. The cart shows **three rows** for this one product add: Year 1 at
    $100, Year 2 at $110, Year 3 at $121 — look for the ramp icon
    ("Edit multi-year ramp") on the line to open the ramp editor and see
@@ -269,9 +270,10 @@ re-open the editor after saving to confirm Year 3 didn't move.
    Curve** tab + its Term Discount Points related list if Rules Studio
    isn't available yet — same object, same result.)
 4. **Account** `RT Test Co` → **Opportunity** `RT Term Opp` → **New Quote**
-   `RT Term Quote #1` → **Configure Products** → add `RT Term Product`,
-   quantity **5**, Term (Months) **24**. Net price reads **$90** (10% off).
-   **Commit.**
+   `RT Term Quote #1` → **Configure Products** → **Add products** → tick
+   `RT Term Product` → **Add 1 to quote**. Back in the cart, set its
+   **Quantity** to **5** and **Term (Months)** to **24**. Net price reads
+   **$90** (10% off). **Commit.**
 5. A second quote, same product/quantity, Term (Months) **36**. Net price
    reads **$85** (15% off). **Commit.**
 

@@ -203,7 +203,8 @@ off one product, as long as their commitment is at least $50,000.
    - Status **Active** → Save.
 5. **Opportunity** `PC Commit Opp` on that account → **New Quote**
    `PC Commit Quote` → **Configure Products**.
-6. **Add products** → `PC Commit Product`, quantity **1,000**.
+6. **Add products** → tick `PC Commit Product` → **Add 1 to quote**. Back
+   in the cart, set its **Quantity** to **1,000**.
 7. Read the line: net price **$92.00** (list $100 → −8% commit discount).
    Open the waterfall — the last two rows before Net both read 92, with a
    `CommitDiscount` row noting _"Commit COMMIT-00001 locked rate 8.00%
