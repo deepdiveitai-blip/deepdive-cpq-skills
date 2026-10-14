@@ -231,9 +231,10 @@ Two scenarios, matching the verified numbers above.
 
 1. **Product** `RT Ramp Product`, Active, Standard Price **$100**. Give it a
    Rate Plan: Recurring / Per unit / Monthly / **$100**, Active.
-2. **Ramp Rule Sets tab → New**: Name `RT Ramp Set`, Status **Active** →
-   Save.
-3. On that record, related list **Ramp Schedules → New** (twice):
+2. **Rules Studio → Ramps → New rule set**: Name `RT Ramp Set`, Status
+   **Active** → Save. (Since DDCPQ-142 rules are created only in Rules
+   Studio; the old tab and the related list's New button are gone.)
+3. In that rule set, **+ Add rule** (twice):
    - Period Index **1**, Adjustment Type **Percent Increase**, Adjustment
      Value **10**, Applies To Product `RT Ramp Product` → Save.
    - Period Index **2**, Adjustment Type **Percent Increase**, Adjustment

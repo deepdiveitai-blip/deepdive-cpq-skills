@@ -195,7 +195,8 @@ off one product, as long as their commitment is at least $50,000.
    - Start Date today, End Date 12 months out
    - Floor Mode **Drawdown (prepaid burn)**
    - Status **Active** → Save.
-4. **Commitment Discount Rules tab → New**:
+4. **Rules Studio → Commitment Discounts → New rule** (since DDCPQ-142
+   rules are created only in Rules Studio; the old tab is hidden):
    - Applies To Product `PC Commit Product`
    - Discount % **8**
    - Min Commit Amount **50000**
