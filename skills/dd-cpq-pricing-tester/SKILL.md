@@ -171,10 +171,10 @@ tests" without specifying.
 **Read this before you enumerate anything.** There are two static
 baselines, historically seeded in different internal orgs:
 
-| Baseline                      | Internal org (history) | Status                                   |
-| ----------------------------- | ---------------------- | ---------------------------------------- |
-| Rate Plan Coverage (16 plans) | `cpq-dev`              | **current — use this if the org has it** |
-| The 21 PW scenarios           | `cpq-scratch-v3`       | retired, not re-seeded anywhere          |
+| Baseline                      | Internal org (history)         | Status                                                                    |
+| ----------------------------- | ------------------------------ | ------------------------------------------------------------------------- |
+| Rate Plan Coverage (16 plans) | `cpq-dev` (expired 2026-10-14) | **current — use this if the org has it.** Not re-seeded in `cpq-dev2` yet |
+| The 21 PW scenarios           | `cpq-scratch-v3`               | retired, not re-seeded anywhere                                           |
 
 The [PW scenario table](#pw-scenario-table) further down is kept for
 history. Check first whether the connected org has the `Rate Plan
@@ -248,9 +248,12 @@ price to `PricingModelService` labelled as a per-unit rate, so qty 100
 billed $17.64M. Fixed 2026-09-14 (DDCPQ-QA-PKG). If those totals come
 back ~100× high, that fix has regressed.
 
-Package lines deliberately carry no ramp modulation, no first-period
-proration, no cliff warning and no per-bracket SubRows. Do not report
-their absence as a finding.
+Package lines deliberately carry no ramp modulation, no cliff warning
+and no per-bracket SubRows. Do not report their absence as a finding.
+**Since DDCPQ-153 (2026-10-14) a Recurring Package line IS prorated** when
+it starts billing mid-period: the first-period amount is the bracket's
+flat price × the fraction (a 500 bracket from the 15th = 266.67, 16 of
+30 days), never a per-unit rate × quantity.
 
 #### Tier bounds are INCLUSIVE and must not share a boundary
 
@@ -528,8 +531,8 @@ every finding into the report's [Rate-plan seed compliance section].
 ### Pass 3 · Timeline + Spread
 
 **Only runs on scenarios that touch Timeline-critical modifiers**
-(trial, ramp, prepay, multi-currency) OR OneTime lines with an
-active amortization schedule.
+(trial, ramp, prepay, multi-currency, a mid-period billing start) OR
+OneTime lines with an active amortization schedule.
 
 Use **`dd_cpq_timeline_preview`** (new in MCP 0.33) to compute the
 Timeline aggregation server-side + get a pre-scored invariant list:
@@ -646,7 +649,8 @@ For a Recurring line with `TrialDays__c > 0`:
   UNCHANGED by trial)
 
 **Test**: verify `TrialEndDate__c` is stamped and equals
-`EffectiveDate__c + TrialDays`. Verify the reduced TCV matches sum
+`BillingStartDate__c + TrialDays` (DDCPQ-153: the trial runs from when
+billing starts; for a ServiceStart line that is `EffectiveDate__c`). Verify the reduced TCV matches sum
 of Timeline cells within ±$0.02.
 
 ### Invariant TL-05 · PercentOfBasis skipped from cell math
@@ -801,11 +805,18 @@ finding. Any field NOT surfaced is a coverage gap (record separately).
   `UpfrontForTerm` / `OneTime`, defaults to `Monthly` (Bessemer/Zuora
   invoicing cadence). Null on OneTime lines (picklist has no value
   for it). If you see a Usage/Overage line with `null`, log finding.
-- `EffectiveDate__c` — **F-12 (2026-09-10)**: ProrationService now
-  stamps this on every Recurring draft (was only stamping when
-  proration math actually fired). On a fresh reprice, every Recurring
-  QLI should carry a date. Null → finding (unless line was written
-  pre-fix and never reconciled).
+- `EffectiveDate__c` — labelled **Service Start Date** since DDCPQ-153:
+  the term clock, not the billing start. Every Recurring QLI should
+  carry a date after a reprice (F-12); null → finding. It follows the
+  Deal Block or quote start unless `EffectiveDateOverridden__c`
+  ("Start Date Set By Rep") is ticked.
+- **Billing start (DDCPQ-153):** `BillingTrigger__c`,
+  `BillingStartDate__c` (null on a Provisioning / GoLive /
+  CustomerAcceptance line until the event), `BillingOffsetDays__c`,
+  `LongStopDays__c`, `LongStopDate__c`, `ExpectedBillingStartDate__c`,
+  `BillingStartSource__c`, `BillingStartApprovalRequired__c`,
+  `BillingStartOverridden__c` ("Billing Start Set By Rep"). A line with
+  no trigger set bills from its service start.
 - `ChargeType__c` (Recurring / OneTime / Usage / Overage)
 - `PricingModel__c`
 - `RatePlan__c` (lookup — should be non-null in DDCPQ-2027 era)
@@ -817,10 +828,16 @@ finding. Any field NOT surfaced is a coverage gap (record separately).
 - `PaymentTerms__c`, `PaymentTermDiscountPct__c` (payment terms)
 - `IsProrated__c`, `ProratedDays__c`, `ProratedFirstPeriodAmount__c`
   (prorate). **F-10 (2026-09-10)**: BoundaryScale (Usage/Overage
-  tier proration) now stamps all three fields — previously only
-  ProrationService (Recurring path) did. On PW-17 with
+  tier proration) stamps all three fields. On PW-17 with
   `EffectiveDate__c = 2026-09-16` expect `true / 15 / $480.00`.
-  Missing = finding.
+  Missing = finding. **DDCPQ-153 (2026-10-14):** Recurring lines were
+  never actually prorated before (ProrationService ran before any price
+  existed). Now a Recurring line whose billing starts mid-period gets
+  `IsProrated__c = true`, `ProratedDays__c` = days left of a 30-day
+  month (15th → 16) and `ProratedFirstPeriodAmount__c` = net price ×
+  quantity × days / 30, from the FINAL net price. A start on the 1st is
+  not prorated. MRR, ARR and net price do not change. Amendment lines
+  keep the amendment's own amount (MrrDelta × ProrationFactor__c).
 
 **Spread / amortization** (DDCPQ-058):
 
@@ -1144,6 +1161,9 @@ Invariants SP-01…SP-05 (columns)`, cells `✓` / `✗` / `—`.
     `~/Downloads/dd-cpq-*-*.html`, parse its Overall column and
     diff. Which scenarios flipped green? Which are still red? Which
     are newly red? If no prior report, note "First run — no baseline".
+    Runs before 2026-10-14 show no proration on Recurring lines; a
+    mid-month line flipping to `IsProrated = true` with a smaller
+    first-period amount is the DDCPQ-153 fix, not a regression.
 
 13. **Green scenarios** — one line, comma-separated Keyword list,
     small grey font. For completeness.

@@ -55,7 +55,7 @@ Before writing an item down, verify it. Use the repo and the org, not memory:
 
 - `grep`/`Glob` the Apex, LWC and metadata for the thing being discussed
 - `sf data query -o <dev-org>` for org state (`<dev-org>` = the dev org
-  alias, currently `cpq-dev` — check the workspace memory/CLAUDE.md for
+  alias, currently `cpq-dev2` — check the workspace memory/CLAUDE.md for
   the current alias)
 - `dd_cpq_*` MCP tools for engine behaviour and live numbers
 - `CLAUDE.md` for the hard rules

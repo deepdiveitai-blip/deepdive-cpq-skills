@@ -68,7 +68,7 @@ builds.
 ## Before you start: seeded baseline
 
 The "Known facts" section below was verified against our internal dev org
-(`cpq-dev`) and its data. A tester's or customer's org will not have this
+(`cpq-dev`, expired 2026-10-14; not re-verified on `cpq-dev2`) and its data. A tester's or customer's org will not have this
 baseline unless it was built there. Before Phase 1, confirm which org you
 are pointed at (`sf data query -q "SELECT NamespacePrefix FROM
 Organization"`), and re-run the row-count/describe checks against that org
@@ -95,7 +95,7 @@ and what "done" looks like. For this pillar the shapes are at least:
 ### Phase 1 · Platform facts, from the org
 
 Run against `<org>` — the alias of the org you are researching against (ask
-the user, or `sf org list`; our internal dev org is `cpq-dev`, historically).
+the user, or `sf org list`; our internal dev org is `cpq-dev2`, and was `cpq-dev` until 2026-10-14).
 Check the namespace first — `SELECT NamespacePrefix FROM Organization`:
 
 - `sf sobject describe -s <Object>` for `Asset`, `AssetRelationship`,
@@ -123,6 +123,15 @@ Check the namespace first — `SELECT NamespacePrefix FROM Organization`:
   `TermMonths__c` / `BillingFrequency__c`, `QuoteLineItem.EndDate__c` (formula),
   `TermIsDerived__c`, `IndependentTerm__c`, `CoTermMode__c` — see the memories
   `project_ddcpq_term_dates_quote_header` and `project_ddcpq_coterm_and_line_dates`.
+- Billing start (DDCPQ-153, 2026-10-14): `EffectiveDate__c` is the **service
+  start** (term clock) and follows the block/quote start unless
+  `EffectiveDateOverridden__c` is set; billing can start later per
+  `BillingTrigger__c`, `BillingStartDate__c`, `LongStopDays__c` /
+  `LongStopDate__c`, with `Quote.AcceptedDate__c` / `ExpectedGoLiveDate__c`
+  and the `BillingEvent__c` object for post-sale events. `ProrationService`
+  now runs after the final net price and measures the first period from the
+  billing start. See `docs/DDCPQ_BILLING_START_DESIGN.html` and the memory
+  `project_ddcpq_billing_start_design`.
 - Prior design documents that this one must build on, not contradict:
   `docs/DDCPQ_TRANSACTION_TYPE_DESIGN.pdf` (Quote.TransactionType__c, derived
   `LineAction__c`, `ReplacesLine__c`; ends on "nothing populates the source

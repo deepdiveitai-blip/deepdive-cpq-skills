@@ -336,5 +336,5 @@ Before handing the built UI back to the customer, verify:
 - [ ] Columns the customer asked for were tried as a Field Set change before any code was written
 - [ ] Auth uses Bearer token from Connected App OAuth (not embedded credentials)
 - [ ] `LineDraft` shape matches `docs/DD_CPQ_API_REFERENCE.html` exactly (no invented fields)
-- [ ] Sample renders end-to-end against the target org (ours is `cpq-dev`;
+- [ ] Sample renders end-to-end against the target org (ours is `cpq-dev2`;
       the customer's is whichever org they installed DD CPQ into) before delivery

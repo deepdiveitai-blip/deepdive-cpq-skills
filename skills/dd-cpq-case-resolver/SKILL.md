@@ -17,7 +17,7 @@ wrongly — that is not a criticism, it is what a symptom looks like from the
 UI. The job is to get from symptom to cause with evidence, and the single
 most valuable outcome is discovering that five Cases are one bug.
 
-`<dev-org>` below = the dev org alias, currently `cpq-dev` — check the
+`<dev-org>` below = the dev org alias, currently `cpq-dev2` — check the
 workspace memory/CLAUDE.md for the current alias if it has moved.
 
 ## 1. Pull the queue

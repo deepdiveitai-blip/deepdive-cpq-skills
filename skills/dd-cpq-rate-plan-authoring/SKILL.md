@@ -190,7 +190,9 @@ Emit 3 upserts, all with the same `planGroupKey`. Mark ONE `isDefaultInGroup: tr
 
 ### Trial (Phase D)
 
-Add `trialDays` + `trialUnitPrice`. MRR calc uses the LIST unit price (Bessemer-clean); trial is transient.
+Add `trialDays` + `trialUnitPrice`. MRR calc uses the LIST unit price (Bessemer-clean); trial is transient. Since DDCPQ-153 the trial window starts when the line starts billing (its service start unless a billing trigger delays it).
+
+`RatePlan__c.DefaultBillingTrigger__c` / `DefaultLongStopDays__c` (DDCPQ-153) are **not** settable through `upsert_rate_plan` yet; set them on the rate plan record.
 
 ```json
 { "plan": { ..., "unitPrice": 12.50, "trialDays": 14, "trialUnitPrice": 0 } }

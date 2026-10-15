@@ -5,9 +5,9 @@ description: >-
   in status "DEV Ready", lists them, then builds the ones Venkat picks, one at
   a time: reads the story, moves it to In Progress, branches off
   feat/ddcpq-api-parity, builds LWC + REST + MCP within governor limits and
-  AppExchange security, tests, deploys to cpq-dev, commits, pushes, opens a
+  AppExchange security, tests, deploys to cpq-dev2, commits, pushes, opens a
   PR, comments the evidence on the issue and moves it to In Review. Never
-  merges, never closes an issue, never deploys anywhere but cpq-dev.
+  merges, never closes an issue, never deploys anywhere but cpq-dev2.
 
   Trigger on: "/dd-cpq-dev-ready", "tackle dev ready", "what is in DEV
   Ready", "pick up the dev ready stories", "work DDCPQ-nn".
@@ -24,14 +24,14 @@ Claude Code, and works the issues he names.
 
 ## Fixed facts
 
-|             |                                                                                                                                            |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Jira site   | `deepdiveitsolutions.atlassian.net`, cloudId `f6a84dff-7c5f-4a00-8cf5-14db37af6fec`                                                        |
-| Project     | `DDCPQ`                                                                                                                                    |
-| Transitions | To Do `11` · In Progress `21` · In Review `31` · Done `41` · DEV Ready `42`                                                                |
-| Repo        | `deepdive-cpq-engine` only (CLAUDE.md rule 11)                                                                                             |
-| Base branch | `feat/ddcpq-api-parity`. PRs go there, never to `main`                                                                                     |
-| Org         | the dev org, currently `cpq-dev` — check the workspace memory/CLAUDE.md for the current alias — and only after its namespace reads `DDCPQ` |
+|             |                                                                                                                                                                                              |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Jira site   | `deepdiveitsolutions.atlassian.net`, cloudId `f6a84dff-7c5f-4a00-8cf5-14db37af6fec`                                                                                                          |
+| Project     | `DDCPQ`                                                                                                                                                                                      |
+| Transitions | To Do `11` · In Progress `21` · In Review `31` · Done `41` · DEV Ready `42`                                                                                                                  |
+| Repo        | `deepdive-cpq-engine` only (CLAUDE.md rule 11)                                                                                                                                               |
+| Base branch | `feat/ddcpq-api-parity`. PRs go there, never to `main`                                                                                                                                       |
+| Org         | the dev org, currently `cpq-dev2` (since 2026-10-12; `cpq-dev` expired 2026-10-14) — check the workspace memory/CLAUDE.md for the current alias — and only after its namespace reads `DDCPQ` |
 
 If a Jira call answers "The app is not installed on this instance", the
 connector has lost access. Stop and ask Venkat to re-authorise the Atlassian
@@ -135,7 +135,7 @@ Follow CLAUDE.md. The rules that most often bite:
 
 `addCommentToJiraIssue` (markdown), written for a junior tester:
 
-- **Built and deployed to cpq-dev:** commit, PR link, test count.
+- **Built and deployed to cpq-dev2:** commit, PR link, test count.
 - **What changed**, in plain words.
 - **Numbers:** SOQL, DML and CPU before and after.
 - **Differences from the story**, if any, and why.

@@ -96,7 +96,7 @@ deep-link and Standard Quote page URL. Never call
    Products, or two RatePlans match the user's phrasing, list them
    numbered and stop. If a required input is missing (quantity, term,
    currency for a multi-currency org, effective date on a mid-period
-   line), ask. Never fabricate a default that isn't documented.
+   line, what starts billing on a go-live or provisioning line), ask. Never fabricate a default that isn't documented.
 
 8. **Preflight the catalogue ONCE per session.** Before your first
    write, call `dd_cpq_list_catalogs`. An empty result means the org
@@ -256,6 +256,16 @@ already done. This phase is about **narration**:
   `update_line({qliId, manualDiscountPct})` to persist.
 - Qty change: `update_line({qliId, quantity})`.
 - Plan swap: `rate_plan_alternatives` → `update_line({qliId, ratePlanId})`.
+- **Billing start** (DDCPQ-153): `update_line({qliId, billingTrigger,
+…})`. Triggers: `ServiceStart` (default), `Signature`, `FixedDate`
+  (+ `billingStartDate`), `Offset` (+ `billingOffsetDays`), and the
+  event triggers `Provisioning` / `GoLive` / `CustomerAcceptance`
+  (+ `longStopDays`, the days after which billing starts anyway, and
+  optional `expectedBillingStartDate`). The term still runs from the
+  service start. `update_line({qliId, billingStartOverridden: false})`
+  hands it back to the plan/quote/org defaults. `add_line_item` takes
+  the same five. Set it on the leader: bundle options, hybrid siblings
+  and later ramp years follow it.
 - Delete line: `update_line({qliId, delete: true})`.
 - **Timeline-critical:** if any line has trial / ramp / prepay /
   multi-currency, call `timeline_preview({quoteId})` and show the
@@ -305,14 +315,17 @@ tell me what to change.
 
 - `dd_cpq_update_quote_header({quoteId, expirationDate})`
   — default: ExpirationDate = today + 30d. Ask the user before
-  overriding it. Billing and shipping addresses are also accepted.
+  overriding it. Billing and shipping addresses are also accepted, and
+  so are the deal terms `startDate`, `termMonths`, `billingFrequency`
+  and (DDCPQ-153) `expectedGoLiveDate` / `longStopDays`, the defaults
+  for lines billed on an event.
 
-  **There is no contract-start or sales-rep field on Quote.** Both
-  parameters were removed on 2026-09-14: neither field exists in the
-  packaged data model, so every call that set one failed with
-  INVALID_FIELD. The contract term lives on the rate plan, not the
-  quote header. If a rep asks when the subscription starts, that is
-  the line's effective date, not a header field.
+  **There is no sales-rep field on Quote** (removed 2026-09-14; it never
+  existed). If a rep asks when the subscription starts, there are two
+  answers: the **service start** (`effectiveDate`, which follows the
+  quote's `startDate` unless the line sets its own) and the **billing
+  start** (`billingTrigger` / `billingStartDate` on the line, from
+  `list_quote_lines`). Say both when they differ.
 
 - If the user wants it as the Primary quote on the Opp: OPTIONALLY
   patch `Opportunity.SyncedQuoteId` (deferred to a follow-up MCP
@@ -461,20 +474,21 @@ an EUR RatePlan via dd-cpq-rate-plan-authoring for next time.
 
 ## Degraded-mode fallback table
 
-| If this fails                                     | Do this instead                                                                                                                             |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| find_accounts returns 0                           | Ask for a different spelling OR the AccountNumber. Do NOT create a new Account unilaterally.                                                |
-| find_accounts returns >1                          | Present numbered list with Industry + BillingCountry. Stop until user picks.                                                                |
-| find_opportunities returns 0                      | Offer to auto-create via create_quote(opportunityName). Ask user to confirm the Opp name.                                                   |
-| Preflight v2 check fails                          | STOP. Tell the rep pricing will silently degrade. Do NOT proceed.                                                                           |
-| Product not found                                 | Suggest the 3 closest matches from a broader find_products query. Never guess.                                                              |
-| Bundle passed to add_line_item                    | It self-rejects with a steer. Follow the error → call configure_bundle instead.                                                             |
-| Commit fails (savepoint rollback)                 | The engine returns the exception. Report it verbatim to the rep. Do NOT retry silently.                                                     |
-| Timeline_preview shows anomaly (TCV != Σ cells)   | Regression — escalate to Vijay. Do NOT commit.                                                                                              |
-| submit_for_approval returns NO_APPLICABLE_PROCESS | Tell the rep the org has no active Approval Process on Quote OR they're not a valid submitter. Point them at Setup → Approval Processes.    |
-| MarginFloor blocks a line                         | Do NOT auto-override. Tell the rep the floor was hit and by how much; ask if they want to raise the ask price OR escalate to their manager. |
-| currency fallback fires                           | Info-only — surface the badge, tell the rep, offer to route to dd-cpq-rate-plan-authoring.                                                  |
-| MCP OAuth expired mid-workflow                    | STOP. Ask the user to re-authenticate the dd-cpq connector. Do not silent-retry.                                                            |
+| If this fails                                     | Do this instead                                                                                                                                                                                                                                                                                                  |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| find_accounts returns 0                           | Ask for a different spelling OR the AccountNumber. Do NOT create a new Account unilaterally.                                                                                                                                                                                                                     |
+| find_accounts returns >1                          | Present numbered list with Industry + BillingCountry. Stop until user picks.                                                                                                                                                                                                                                     |
+| find_opportunities returns 0                      | Offer to auto-create via create_quote(opportunityName). Ask user to confirm the Opp name.                                                                                                                                                                                                                        |
+| Preflight v2 check fails                          | STOP. Tell the rep pricing will silently degrade. Do NOT proceed.                                                                                                                                                                                                                                                |
+| Product not found                                 | Suggest the 3 closest matches from a broader find_products query. Never guess.                                                                                                                                                                                                                                   |
+| Bundle passed to add_line_item                    | It self-rejects with a steer. Follow the error → call configure_bundle instead.                                                                                                                                                                                                                                  |
+| Commit fails (savepoint rollback)                 | The engine returns the exception. Report it verbatim to the rep. Do NOT retry silently.                                                                                                                                                                                                                          |
+| Commit refused with BILLING_START (400)           | Read the line's warning. `BILLING_LONG_STOP_MISSING`: an event-triggered line has no long-stop and the org blocks that; ask the rep for `longStopDays` (on the line or the header). `BILLING_AFTER_LINE_END`: billing would start after the line ends; ask for an earlier date or trigger. Never invent a value. |
+| Timeline_preview shows anomaly (TCV != Σ cells)   | Regression — escalate to Vijay. Do NOT commit.                                                                                                                                                                                                                                                                   |
+| submit_for_approval returns NO_APPLICABLE_PROCESS | Tell the rep the org has no active Approval Process on Quote OR they're not a valid submitter. Point them at Setup → Approval Processes.                                                                                                                                                                         |
+| MarginFloor blocks a line                         | Do NOT auto-override. Tell the rep the floor was hit and by how much; ask if they want to raise the ask price OR escalate to their manager.                                                                                                                                                                      |
+| currency fallback fires                           | Info-only — surface the badge, tell the rep, offer to route to dd-cpq-rate-plan-authoring.                                                                                                                                                                                                                       |
+| MCP OAuth expired mid-workflow                    | STOP. Ask the user to re-authenticate the dd-cpq connector. Do not silent-retry.                                                                                                                                                                                                                                 |
 
 ## Escalate to a human when
 
