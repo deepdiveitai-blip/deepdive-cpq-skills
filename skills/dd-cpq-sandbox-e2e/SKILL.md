@@ -7,15 +7,14 @@ description: >-
   commitments), price and discount rules, promotions, margin floors,
   eligibility, compatibility, bundles, ramps, term curves, usage pricing,
   multi-currency, the cart, contracts, amend and renew, Settings, Engine
-  Health and Product 360 — and how to troubleshoot each one. Coaches a
-  tester who installs the package in their own Developer Edition org or
-  sandbox and implements the whole CPQ process by hand: the tester clicks,
-  Claude checks the org with the Salesforce CLI, explains, diagnoses wrong
-  prices and error messages, and writes up findings. Use for "install DD
-  CPQ in my sandbox", "how does X work in DD CPQ", "set up tiered pricing",
-  "why is my price wrong", "what does this error mean", or "where am I in
-  the setup". Never deploys source, never creates the tester's data, never
-  touches a production org.
+  Health and Product 360 — and how to troubleshoot each. Coaches a tester
+  implementing CPQ by hand in their own Developer Edition org or sandbox:
+  the tester clicks, Claude checks the org with the Salesforce CLI,
+  diagnoses wrong prices and errors, and writes up findings. Use for
+  "install DD CPQ in my sandbox", "how does X work", "set up tiered
+  pricing", "why is my price wrong", "what does this error mean". Never
+  deploys source, never creates the tester's data, never touches
+  production.
 ---
 
 # DD CPQ expert — your own org, every feature
