@@ -23,7 +23,21 @@ and the settings around it.
 
 ## How it works
 
-### The button, exactly
+### How a rep signs a quote — depends on the build
+
+| Build in the org                       | How a new-business quote is signed                                                                                                                                                        |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| After 0.1.0-12 (DDCPQ-156 + DDCPQ-162) | Set the Quote's **Status** to **Accepted** (Mark Status as Complete, or edit Status) and save. That runs the same accept as below. The cart has **no** Accept this sale section any more. |
+| 0.1.0-12 and earlier                   | The cart's **Accept this sale** section, described next. Setting Status to Accepted there signs **nothing**: Accepted Date stays blank and no install-base rows are written.              |
+
+On a build after 0.1.0-12, signing by Status:
+
+- covers every quote type: new business, amendment, renewal, cancellation and restructure;
+- refuses the save when the quote can't be signed, with the reason, and leaves Status unchanged. Examples: an amendment with drift ("accept it from the account's Install Base tab"), a quote with no lines, or more than 2 quotes in one save;
+- does not sign twice when Status goes Accepted → Draft → Accepted;
+- does not sign a quote inserted with Status = Accepted.
+
+### The button, exactly (0.1.0-12 and earlier)
 
 The cart (`cpqLedger`) shows a section titled **Accept this sale** only on a
 **New Business** quote (`Quote.TransactionType__c` blank or `New Business`).
@@ -254,10 +268,13 @@ Business`, Stage Proposal/Price Quote.
 5. **Add products** → tick Core Seat and the Add-on → **Add 2 to quote**.
    Both land at quantity 1. Back in the cart, set Core Seat's **Quantity**
    to **20** and the Add-on's to **5**. **Commit.**
-6. Scroll to **Accept this sale** → click **"Accept and create what they
-   have"**.
-7. Confirm the toast reads "Amendment accepted" with "2 changes, 2 applied,
-   0 pending" (the word "Amendment" is generic copy, not an error).
+6. **Sign it.** On a build after 0.1.0-12: open the Quote, set **Status** to
+   **Accepted**, and save. Then confirm **Accepted Date** is today. On 0.1.0-12
+   and earlier: in the cart, scroll to **Accept this sale** and click **"Accept
+   and create what they have"**.
+7. On the older build, confirm the toast reads "Amendment accepted" with "2
+   changes, 2 applied, 0 pending". The word "Amendment" is generic copy, not
+   an error. On either build, the next steps check the result.
 8. Go to the **Account** → open the **Account Install Base** record page
    (if it is not the default page shown, use the gear icon → **Edit Page**
    once, or App Launcher search for the Account and switch Lightning page to

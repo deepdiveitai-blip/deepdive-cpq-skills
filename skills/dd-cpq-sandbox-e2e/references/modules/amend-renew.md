@@ -41,12 +41,15 @@ Owner mode the change is copied onto the `Asset` at once, or immediately if
 its effective date is today or earlier.
 
 **Where it starts**: every install base begins with an **accepted
-new-business quote**. Accepting (`Accept and create what they have` in the
-cart, or `accept` on `/dd/v1/installbase`) turns each line into an `Add` row
+new-business quote**. Accepting turns each line into an `Add` row
 in the change ledger and, for the `Native` provider, an `Asset` — bundle
 options nest under their bundle's Asset. A quote accepts exactly once; a
 second `accept` call is refused. An Amendment or Renewal quote that was not
-started from Install Base 360 has no Baseline and is refused.
+started from Install Base 360 has no Baseline and is refused. You can accept in three ways:
+
+- set the Quote's Status to **Accepted**, on builds after 0.1.0-12 (DDCPQ-162);
+- `Accept and create what they have` in the cart, on 0.1.0-12 and earlier;
+- `accept` on `/dd/v1/installbase`, or `dd_cpq_accept_amendment`, on any build.
 
 **Lots and position**: every `Add` or `Increase` is a _lot_ — its own
 quantity, start date, end date, price. What the customer has on any date is
