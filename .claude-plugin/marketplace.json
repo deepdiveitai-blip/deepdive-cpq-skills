@@ -14,16 +14,7 @@
       "author": {
         "name": "DeepDive IT"
       },
-      "source": "./skills",
-      "skills": [
-        "./"
-      ],
-      "mcpServers": {
-        "dd-cpq": {
-          "type": "http",
-          "url": "https://dd-cpq-mcp.deepdiveit-ai.workers.dev/mcp"
-        }
-      }
+      "source": "./plugins/dd-cpq"
     },
     {
       "name": "dd-cpq-readonly",
@@ -33,16 +24,7 @@
       "author": {
         "name": "DeepDive IT"
       },
-      "source": "./skills",
-      "skills": [
-        "./"
-      ],
-      "mcpServers": {
-        "dd-cpq-readonly": {
-          "type": "http",
-          "url": "https://dd-cpq-mcp.deepdiveit-ai.workers.dev/mcp-readonly"
-        }
-      }
+      "source": "./plugins/dd-cpq-readonly"
     }
   ]
 }

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DD CPQ — Pricing Waterfall</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --border: #334155;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #22d3ee;
+    --up: #22c55e;
+    --down: #ef4444;
+    --neutral: #64748b;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+    min-height: 100vh;
+  }
+  header {
+    padding: 24px 40px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  }
+  header h1 { font-size: 20px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  header .subtitle { color: var(--muted); font-size: 13px; }
+  main { padding: 32px 40px; max-width: 1400px; margin: 0 auto; }
+  .line-selector {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    padding: 16px 0 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .line-chip {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--panel);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+  .line-chip:hover { color: var(--text); border-color: var(--accent); }
+  .line-chip.active {
+    background: var(--accent);
+    color: #0f172a;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  #chart-container {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    min-height: 500px;
+  }
+  .stage-detail {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-top: 32px;
+  }
+  .stage-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    transition: all 0.15s;
+  }
+  .stage-card.hovered { border-color: var(--accent); transform: translateY(-2px); }
+  .stage-card .stage-name {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  .stage-card .stage-value {
+    font-size: 22px; font-weight: 600; margin-bottom: 4px;
+  }
+  .stage-card .stage-value.up { color: var(--up); }
+  .stage-card .stage-value.down { color: var(--down); }
+  .stage-card .stage-rule {
+    font-size: 13px; color: var(--muted);
+    margin-top: 8px; padding-top: 8px;
+    border-top: 1px solid var(--border);
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+  svg .bar { cursor: pointer; transition: opacity 0.15s; }
+  svg .bar:hover { opacity: 0.8; }
+  svg .stage-label { fill: var(--muted); font-size: 11px; text-anchor: middle; }
+  svg .value-label { fill: var(--text); font-size: 13px; font-weight: 600; text-anchor: middle; }
+  svg .connector { stroke: var(--border); stroke-dasharray: 3 3; fill: none; }
+  .footer {
+    padding: 40px; text-align: center; color: var(--muted); font-size: 12px;
+  }
+  .empty {
+    text-align: center; padding: 60px 20px; color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>DD CPQ — Live Pricing Waterfall</h1>
+    <div class="subtitle" id="subtitle">Quote QUOTE_ID_PLACEHOLDER</div>
+  </div>
+  <div class="subtitle">Rendered by Claude via dd_cpq_explain_price</div>
+</header>
+
+<main>
+  <div class="line-selector" id="line-selector"></div>
+  <div id="chart-container">
+    <svg id="chart" width="100%" height="480"></svg>
+  </div>
+  <div class="stage-detail" id="stage-detail"></div>
+</main>
+
+<div class="footer">
+  Green bar = discount applied · Red bar = uplift applied · Grey = no rule fired at this stage
+</div>
+
+<script>
+// This JSON is injected by the demo skill from dd_cpq_explain_price output.
+// Expected shape: { quoteId: "0Q0...", lines: [{ localKey, productName, waterfall: [{ stage, value, delta, ruleName }], net }] }
+const EXPLAIN_DATA = LINE_DATA_JSON_PLACEHOLDER;
+
+// -------- rendering --------
+
+const svg = d3.select('#chart');
+const stageDetail = document.getElementById('stage-detail');
+const lineSelector = document.getElementById('line-selector');
+
+let activeLineIdx = 0;
+
+function renderLineSelector() {
+  lineSelector.innerHTML = '';
+  if (!EXPLAIN_DATA.lines || EXPLAIN_DATA.lines.length === 0) return;
+  EXPLAIN_DATA.lines.forEach((line, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'line-chip' + (i === activeLineIdx ? ' active' : '');
+    chip.textContent = line.productName || `Line ${i + 1}`;
+    chip.onclick = () => { activeLineIdx = i; render(); };
+    lineSelector.appendChild(chip);
+  });
+}
+
+function render() {
+  if (!EXPLAIN_DATA.lines || EXPLAIN_DATA.lines.length === 0) {
+    svg.selectAll('*').remove();
+    document.getElementById('chart-container').innerHTML = '<div class="empty">No pricing decomposition returned by dd_cpq_explain_price. Check that the quote has committed line items.</div>';
+    return;
+  }
+  renderLineSelector();
+  const line = EXPLAIN_DATA.lines[activeLineIdx];
+  drawChart(line);
+  drawDetail(line);
+}
+
+function drawChart(line) {
+  const stages = line.waterfall || [];
+  const width = document.getElementById('chart-container').clientWidth - 64;
+  const height = 480;
+  const marginTop = 40, marginBottom = 80, marginLeft = 60, marginRight = 60;
+  const innerW = width - marginLeft - marginRight;
+  const innerH = height - marginTop - marginBottom;
+
+  svg.attr('viewBox', `0 0 ${width} ${height}`).selectAll('*').remove();
+
+  if (stages.length === 0) return;
+
+  const maxVal = Math.max(...stages.map(s => Math.abs(s.value || 0)), 1);
+  const x = d3.scaleBand()
+    .domain(stages.map((_, i) => i))
+    .range([0, innerW])
+    .padding(0.2);
+  const y = d3.scaleLinear()
+    .domain([0, maxVal * 1.15])
+    .range([innerH, 0]);
+
+  const g = svg.append('g')
+    .attr('transform', `translate(${marginLeft},${marginTop})`);
+
+  // Bars
+  stages.forEach((stage, i) => {
+    const val = stage.value || 0;
+    const delta = stage.delta || 0;
+    const color = delta > 0 ? '#ef4444' : delta < 0 ? '#22c55e' : '#64748b';
+    const barH = innerH - y(Math.abs(val));
+
+    g.append('rect')
+      .attr('class', 'bar')
+      .attr('x', x(i))
+      .attr('y', y(Math.abs(val)))
+      .attr('width', x.bandwidth())
+      .attr('height', barH)
+      .attr('fill', color)
+      .attr('rx', 4)
+      .on('mouseenter', () => highlightStage(i, true))
+      .on('mouseleave', () => highlightStage(i, false));
+
+    // Value label above bar
+    g.append('text')
+      .attr('class', 'value-label')
+      .attr('x', x(i) + x.bandwidth() / 2)
+      .attr('y', y(Math.abs(val)) - 8)
+      .text(fmtMoney(val));
+
+    // Stage label below x-axis
+    g.append('text')
+      .attr('class', 'stage-label')
+      .attr('x', x(i) + x.bandwidth() / 2)
+      .attr('y', innerH + 20)
+      .text(stage.stage);
+
+    // Delta label
+    if (delta !== 0) {
+      g.append('text')
+        .attr('class', 'stage-label')
+        .attr('x', x(i) + x.bandwidth() / 2)
+        .attr('y', innerH + 38)
+        .attr('fill', color)
+        .style('font-weight', '600')
+        .text((delta > 0 ? '+' : '') + fmtMoney(delta));
+    }
+  });
+
+  // Connector lines between bar tops (bridge look)
+  for (let i = 0; i < stages.length - 1; i++) {
+    const v1 = Math.abs(stages[i].value || 0);
+    const v2 = Math.abs(stages[i+1].value || 0);
+    g.append('line')
+      .attr('class', 'connector')
+      .attr('x1', x(i) + x.bandwidth())
+      .attr('x2', x(i+1))
+      .attr('y1', y(v1))
+      .attr('y2', y(v2));
+  }
+}
+
+function drawDetail(line) {
+  stageDetail.innerHTML = '';
+  (line.waterfall || []).forEach((stage, i) => {
+    const card = document.createElement('div');
+    card.className = 'stage-card';
+    card.dataset.stageIdx = i;
+    const val = stage.value || 0;
+    const delta = stage.delta || 0;
+    const cls = delta > 0 ? 'up' : delta < 0 ? 'down' : '';
+    card.innerHTML = `
+      <div class="stage-name">${escapeHtml(stage.stage)}</div>
+      <div class="stage-value ${cls}">${fmtMoney(val)}</div>
+      ${delta !== 0 ? `<div class="stage-value ${cls}" style="font-size:14px">${delta > 0 ? '+' : ''}${fmtMoney(delta)}</div>` : ''}
+      <div class="stage-rule">${stage.ruleName ? '📜 ' + escapeHtml(stage.ruleName) : 'no rule fired'}</div>
+    `;
+    stageDetail.appendChild(card);
+  });
+}
+
+function highlightStage(idx, on) {
+  document.querySelectorAll('.stage-card').forEach((c, i) => {
+    if (i === idx) c.classList.toggle('hovered', on);
+  });
+}
+
+function fmtMoney(v) {
+  return '$' + (v || 0).toFixed(2);
+}
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// initial render
+render();
+window.addEventListener('resize', render);
+</script>
+</body>
+</html>

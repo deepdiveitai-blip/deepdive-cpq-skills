@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DD CPQ — Amendments Lifecycle</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --panel: #131a2b;
+    --panel-2: #1a2338;
+    --border: #2a3550;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --dim: #64748b;
+    --up: #22c55e;
+    --down: #ef4444;
+    --renew: #3b82f6;
+    --suspend: #f59e0b;
+    --reverse: #a855f7;
+    --accent: #22d3ee;
+    --highlight: rgba(34, 211, 238, 0.15);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+    min-height: 100vh;
+  }
+  header {
+    padding: 24px 40px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #131a2b 0%, #0a0e1a 100%);
+  }
+  header .kicker {
+    color: var(--accent);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .asset-header {
+    display: grid;
+    grid-template-columns: 1fr repeat(4, auto);
+    gap: 32px;
+    align-items: end;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .asset-header .asset-name {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .asset-header .asset-sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  .stat {
+    text-align: right;
+  }
+  .stat .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .stat .value {
+    font-size: 20px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 40px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 32px;
+  }
+  @media (max-width: 1000px) {
+    main { grid-template-columns: 1fr; }
+  }
+
+  .timeline-panel, .side-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .panel-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  #timeline-svg {
+    width: 100%;
+    height: 260px;
+    display: block;
+  }
+  .scrubber-container {
+    margin: 20px 0 8px;
+  }
+  .scrubber-container label {
+    font-size: 12px;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 8px;
+  }
+  input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    background: transparent;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    border-radius: 10px;
+    background: var(--accent);
+    margin-top: -8px;
+    cursor: pointer;
+    border: 3px solid #0a0e1a;
+  }
+  .asof-display {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+  .asof-display .asof-value {
+    color: var(--accent);
+    font-weight: 600;
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+
+  .replay-state {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 16px;
+    background: var(--panel-2);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .replay-state .stat { text-align: left; }
+
+  svg .dot {
+    cursor: pointer;
+    transition: r 0.15s, opacity 0.15s;
+  }
+  svg .dot:hover { opacity: 0.85; }
+  svg .dot.selected { stroke: white; stroke-width: 2px; }
+  svg .reversal-link {
+    stroke: var(--reverse);
+    stroke-dasharray: 3 3;
+    fill: none;
+    opacity: 0.5;
+  }
+  svg .axis text { fill: var(--muted); font-size: 11px; }
+  svg .axis line, svg .axis path { stroke: var(--border); }
+  svg .as-of-marker { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 4 4; }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 5px;
+  }
+
+  .ledger-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 13px;
+  }
+  .ledger-table th {
+    text-align: left;
+    padding: 12px 10px;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+  .ledger-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .ledger-table tr.selected { background: var(--highlight); }
+  .ledger-table tr:hover { background: rgba(255, 255, 255, 0.02); cursor: pointer; }
+  .ledger-table .txn-type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .proration-detail {
+    padding: 16px;
+    background: var(--panel-2);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-top: 16px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .proration-detail .math {
+    font-family: 'SF Mono', Consolas, monospace;
+    color: var(--accent);
+    background: var(--bg);
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-top: 8px;
+    display: block;
+    overflow-x: auto;
+  }
+  .empty-detail { color: var(--muted); font-size: 13px; font-style: italic; }
+
+  footer {
+    padding: 24px 40px;
+    text-align: center;
+    color: var(--dim);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="asset-header">
+    <div>
+      <div class="kicker">Asset · Amendment Ledger</div>
+      <div class="asset-name" id="asset-name">Asset</div>
+      <div class="asset-sub" id="asset-sub"></div>
+    </div>
+    <div class="stat">
+      <div class="label">Current Qty</div>
+      <div class="value" id="stat-qty">—</div>
+    </div>
+    <div class="stat">
+      <div class="label">Unit Price</div>
+      <div class="value" id="stat-price">—</div>
+    </div>
+    <div class="stat">
+      <div class="label">Amendments</div>
+      <div class="value" id="stat-amend">—</div>
+    </div>
+    <div class="stat">
+      <div class="label">Ledger Rows</div>
+      <div class="value" id="stat-rows">—</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="timeline-panel">
+    <div class="panel-title">Lifecycle Timeline</div>
+    <svg id="timeline-svg"></svg>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:var(--up)"></span>Increase</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--down)"></span>Decrease / Cancel</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--renew)"></span>Renew</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--suspend)"></span>Suspend / Resume</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--reverse)"></span>Reversal</div>
+    </div>
+
+    <div class="scrubber-container">
+      <label>Time-travel scrubber (client-side ledger fold — no round-trip)</label>
+      <input type="range" id="scrubber" min="0" max="100" value="100" step="1">
+      <div class="asof-display">
+        <span>Timeline start</span>
+        <span>As of: <span class="asof-value" id="asof-label">—</span></span>
+        <span>Today</span>
+      </div>
+    </div>
+
+    <div class="replay-state">
+      <div class="stat">
+        <div class="label">Quantity at that date</div>
+        <div class="value" id="asof-qty">—</div>
+      </div>
+      <div class="stat">
+        <div class="label">Unit price at that date</div>
+        <div class="value" id="asof-price">—</div>
+      </div>
+    </div>
+
+    <table class="ledger-table">
+      <thead>
+        <tr>
+          <th>Seq</th>
+          <th>Effective</th>
+          <th>Type</th>
+          <th>Qty Δ</th>
+          <th>Net Δ</th>
+          <th>Proration</th>
+        </tr>
+      </thead>
+      <tbody id="ledger-body"></tbody>
+    </table>
+  </div>
+
+  <div class="side-panel">
+    <div class="panel-title">Transaction Detail</div>
+    <div id="detail-body">
+      <div class="empty-detail">Click any ledger row or timeline dot to see the LifecycleMatrix decision, proration math, and reversal linkage.</div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  Rendered from <code style="color:var(--accent)">dd_cpq_replay_asset</code> + AssetTransaction__c SOQL ·
+  All ledger writes are append-only immutable · Reversals never edit, they compensate
+</footer>
+
+<script>
+// ---- injected by the demo skill ----
+const ASSET_HEADER = ASSET_HEADER_JSON_PLACEHOLDER;
+const LEDGER       = LEDGER_JSON_PLACEHOLDER;   // rows sorted by SequenceNumber__c asc
+const REPLAY_POINTS = REPLAY_POINTS_JSON_PLACEHOLDER; // array of {asOfDate, quantity, unitPrice, transactionsFolded}
+
+// ---- Header ----
+document.getElementById('asset-name').textContent =
+  (ASSET_HEADER.productName || 'Asset') + (ASSET_HEADER.name ? ` — ${ASSET_HEADER.name}` : '');
+document.getElementById('asset-sub').textContent =
+  [ASSET_HEADER.accountName, ASSET_HEADER.assetId].filter(Boolean).join(' · ');
+document.getElementById('stat-qty').textContent = fmtNum(ASSET_HEADER.currentQuantity);
+document.getElementById('stat-price').textContent = fmtMoney(ASSET_HEADER.currentUnitPrice);
+document.getElementById('stat-amend').textContent =
+  LEDGER.filter(r => r.transactionType !== 'Reversal').length;
+document.getElementById('stat-rows').textContent = LEDGER.length;
+
+// ---- Client-side ledger fold ----
+function foldLedger(asOfMs) {
+  let qty = 0, price = null, folded = 0;
+  const activeReversalIds = new Set(LEDGER.filter(r => r.reversalOf).map(r => r.reversalOf));
+  for (const row of LEDGER) {
+    const t = new Date(row.effectiveDate).getTime();
+    if (t > asOfMs) break;
+    // Skip a row IF a reversal for it has also happened by the as-of date.
+    // The reversal itself is applied separately as its own row.
+    qty += Number(row.quantityDelta || 0);
+    if (row.unitPriceAfter != null) price = Number(row.unitPriceAfter);
+    folded++;
+  }
+  return { qty, price, folded };
+}
+
+// ---- Timeline SVG ----
+const svgEl = document.getElementById('timeline-svg');
+const svg = d3.select(svgEl);
+
+function renderTimeline() {
+  const rect = svgEl.getBoundingClientRect();
+  const W = rect.width, H = rect.height;
+  const M = { top: 24, right: 24, bottom: 40, left: 24 };
+  const innerW = W - M.left - M.right;
+  const innerH = H - M.top - M.bottom;
+
+  svg.attr('viewBox', `0 0 ${W} ${H}`).selectAll('*').remove();
+  if (LEDGER.length === 0) {
+    svg.append('text')
+      .attr('x', W / 2).attr('y', H / 2)
+      .attr('text-anchor', 'middle').attr('fill', 'var(--muted)')
+      .text('No amendments yet — the timeline lights up as ledger rows accumulate.');
+    return;
+  }
+
+  const dates = LEDGER.map(r => new Date(r.effectiveDate));
+  const minD = d3.min(dates);
+  const maxD = d3.max([...dates, new Date()]);
+  const domain = [d3.timeDay.offset(minD, -3), d3.timeDay.offset(maxD, 3)];
+  const x = d3.scaleTime().domain(domain).range([0, innerW]);
+  const g = svg.append('g').attr('transform', `translate(${M.left},${M.top})`);
+
+  // Baseline
+  g.append('line')
+    .attr('x1', 0).attr('x2', innerW)
+    .attr('y1', innerH / 2).attr('y2', innerH / 2)
+    .attr('stroke', 'var(--border)')
+    .attr('stroke-width', 1);
+
+  // Axis
+  const axis = d3.axisBottom(x).ticks(6).tickFormat(d3.timeFormat('%b %d'));
+  g.append('g')
+    .attr('class', 'axis')
+    .attr('transform', `translate(0,${innerH})`)
+    .call(axis);
+
+  // Reversal links (drawn behind dots)
+  LEDGER.filter(r => r.reversalOf).forEach(rev => {
+    const orig = LEDGER.find(o => o.id === rev.reversalOf);
+    if (!orig) return;
+    const x1 = x(new Date(orig.effectiveDate));
+    const x2 = x(new Date(rev.effectiveDate));
+    g.append('path')
+      .attr('class', 'reversal-link')
+      .attr('d', d3.line().curve(d3.curveBumpY)([[x1, innerH / 2 - 20], [x2, innerH / 2 - 20]]));
+  });
+
+  // Dots
+  const colorByType = {
+    Increase: 'var(--up)',
+    Decrease: 'var(--down)',
+    Cancel: 'var(--down)',
+    Swap: 'var(--suspend)',
+    Renew: 'var(--renew)',
+    Suspend: 'var(--suspend)',
+    Resume: 'var(--suspend)',
+    Reversal: 'var(--reverse)'
+  };
+  LEDGER.forEach(row => {
+    const cx = x(new Date(row.effectiveDate));
+    const stagger = ((row.sequenceNumber || 0) % 3) * 12 - 12;
+    const cy = innerH / 2 + stagger;
+    g.append('circle')
+      .attr('class', 'dot')
+      .attr('data-id', row.id)
+      .attr('cx', cx).attr('cy', cy).attr('r', 8)
+      .attr('fill', colorByType[row.transactionType] || 'var(--dim)')
+      .on('click', () => selectTransaction(row.id));
+  });
+
+  // as-of marker
+  const asOfMs = getAsOfMs();
+  g.append('line')
+    .attr('class', 'as-of-marker')
+    .attr('x1', x(new Date(asOfMs))).attr('x2', x(new Date(asOfMs)))
+    .attr('y1', 0).attr('y2', innerH);
+
+  return { x, innerH };
+}
+
+// ---- Ledger table ----
+function renderLedgerTable() {
+  const body = document.getElementById('ledger-body');
+  body.innerHTML = '';
+  const colorByType = {
+    Increase: '#166534', Decrease: '#7f1d1d', Cancel: '#7f1d1d',
+    Swap: '#78350f', Renew: '#1e3a8a', Suspend: '#78350f',
+    Resume: '#78350f', Reversal: '#581c87'
+  };
+  LEDGER.forEach(row => {
+    const tr = document.createElement('tr');
+    tr.dataset.id = row.id;
+    tr.onclick = () => selectTransaction(row.id);
+    tr.innerHTML = `
+      <td>#${row.sequenceNumber}</td>
+      <td>${row.effectiveDate}</td>
+      <td><span class="txn-type-badge" style="background:${colorByType[row.transactionType] || '#334155'};color:white">${row.transactionType}</span></td>
+      <td style="color:${row.quantityDelta > 0 ? 'var(--up)' : row.quantityDelta < 0 ? 'var(--down)' : 'var(--muted)'}">${row.quantityDelta > 0 ? '+' : ''}${row.quantityDelta}</td>
+      <td style="color:${row.netAmountDelta > 0 ? 'var(--up)' : row.netAmountDelta < 0 ? 'var(--down)' : 'var(--muted)'}">${row.netAmountDelta != null ? fmtMoney(row.netAmountDelta) : '—'}</td>
+      <td style="color:var(--muted)">${row.prorationMethod || '—'}${row.prorationFactor != null ? ` (×${(+row.prorationFactor).toFixed(3)})` : ''}</td>
+    `;
+    body.appendChild(tr);
+  });
+}
+
+// ---- Detail panel ----
+function selectTransaction(id) {
+  document.querySelectorAll('.ledger-table tr').forEach(r => r.classList.toggle('selected', r.dataset.id === id));
+  document.querySelectorAll('svg .dot').forEach(d => d.classList.toggle('selected', d.getAttribute('data-id') === id));
+
+  const row = LEDGER.find(r => r.id === id);
+  const detail = document.getElementById('detail-body');
+  if (!row) { detail.innerHTML = ''; return; }
+
+  const isReversal = !!row.reversalOf;
+  const origRow = isReversal ? LEDGER.find(r => r.id === row.reversalOf) : null;
+
+  detail.innerHTML = `
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:0.05em">Sequence #${row.sequenceNumber} · ${row.transactionType}</div>
+      <div style="font-size:18px;font-weight:600;margin-top:4px">${row.effectiveDate}</div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;text-transform:uppercase;color:var(--muted)">LifecycleMatrix decision</div>
+      <div style="font-size:13px">Rule ${escapeHtml(row.matchedRuleId || '—')}</div>
+    </div>
+
+    <div class="proration-detail">
+      <div><strong>Quantity Δ:</strong> ${row.quantityDelta > 0 ? '+' : ''}${row.quantityDelta}</div>
+      <div><strong>Unit price used:</strong> ${row.unitPriceAfter != null ? fmtMoney(row.unitPriceAfter) : '—'}</div>
+      <div><strong>Proration method:</strong> ${row.prorationMethod || '—'}</div>
+      <div><strong>Proration factor:</strong> ${row.prorationFactor != null ? (+row.prorationFactor).toFixed(4) : '—'}</div>
+      <div><strong>Net Δ:</strong> <span style="color:${row.netAmountDelta > 0 ? 'var(--up)' : 'var(--down)'};font-weight:600">${row.netAmountDelta != null ? fmtMoney(row.netAmountDelta) : '—'}</span></div>
+      ${row.prorationFactor != null && row.unitPriceAfter != null ? `
+        <div class="math">${Math.abs(row.quantityDelta)} × ${fmtMoney(row.unitPriceAfter)} × ${(+row.prorationFactor).toFixed(4)} = ${fmtMoney(Math.abs(row.netAmountDelta))}</div>
+      ` : ''}
+    </div>
+
+    ${isReversal && origRow ? `
+      <div class="proration-detail" style="border-left:3px solid var(--reverse)">
+        <div style="font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:0.05em">Reversal of #${origRow.sequenceNumber}</div>
+        <div style="margin-top:6px">Original: ${origRow.transactionType} on ${origRow.effectiveDate} (${origRow.quantityDelta > 0 ? '+' : ''}${origRow.quantityDelta}, ${fmtMoney(origRow.netAmountDelta)})</div>
+      </div>
+    ` : ''}
+
+    ${row.notes ? `
+      <div style="margin-top:14px;padding:12px;background:var(--bg);border-radius:8px;font-size:13px;color:var(--muted);font-style:italic">
+        "${escapeHtml(row.notes)}"
+      </div>
+    ` : ''}
+  `;
+}
+
+// ---- Scrubber ----
+function getAsOfMs() {
+  const scrubber = document.getElementById('scrubber');
+  const dates = LEDGER.map(r => new Date(r.effectiveDate).getTime());
+  const minMs = Math.min(...dates, Date.now());
+  const maxMs = Math.max(...dates, Date.now());
+  const pct = +scrubber.value / 100;
+  return minMs + (maxMs - minMs) * pct;
+}
+function onScrub() {
+  const asOfMs = getAsOfMs();
+  const asOfDate = new Date(asOfMs).toISOString().slice(0, 10);
+  document.getElementById('asof-label').textContent = asOfDate;
+  const { qty, price, folded } = foldLedger(asOfMs);
+  document.getElementById('asof-qty').textContent = fmtNum(qty);
+  document.getElementById('asof-price').textContent = price != null ? fmtMoney(price) : '—';
+  renderTimeline();
+}
+document.getElementById('scrubber').addEventListener('input', onScrub);
+
+// ---- Utils ----
+function fmtNum(v) { return v == null ? '—' : Number(v).toLocaleString(); }
+function fmtMoney(v) {
+  if (v == null) return '—';
+  const n = Number(v);
+  return (n < 0 ? '-' : '') + '$' + Math.abs(n).toFixed(2);
+}
+function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+// ---- Initial render ----
+renderLedgerTable();
+onScrub();
+renderTimeline();
+window.addEventListener('resize', renderTimeline);
+</script>
+
+</body>
+</html>
