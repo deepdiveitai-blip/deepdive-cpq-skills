@@ -284,6 +284,14 @@ Before offering Commit, gather the full picture:
 - `dd_cpq_validate_quote({quoteId})` — anything that would refuse the
   commit (a required attribute left blank, a missing rate plan, a
   rule refusal). Fix or report each one before offering Commit.
+  Its `attributes.findings` list each line's attribute problems:
+  `ATTRIBUTE_CONSTRAINT` is an Attribute Rule. When `data.suggestions` is
+  present, offer that answer and set it with `dd_cpq_update_line` once the
+  user agrees. When `data.targetProductId` is present, the rule needs that
+  product on the quote: ask before adding it with `dd_cpq_add_line_item`,
+  and never add it silently. `ATTRIBUTE_AUTOSET` only says a rule filled an
+  answer; mention it, it is not a problem. `dd_cpq_list_attribute_rules`
+  explains a rule when the user asks why.
 - `dd_cpq_evaluate_commit_floor({accountId, hypotheticalUsage})` —
   only if the Account has an active MonthlyFloor CommitmentContract.
 - `dd_cpq_list_active_commitments({accountId})` — surface any active

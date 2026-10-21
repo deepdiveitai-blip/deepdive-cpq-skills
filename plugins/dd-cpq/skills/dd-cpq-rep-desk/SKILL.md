@@ -111,9 +111,12 @@ wrong with my St. Aurelia quote":
 
 - `dd_cpq_validate_quote({quoteId})` lists rule refusals (missing
   companion, exclusion, a Requires rule).
-- Attribute problems (a required answer left blank) are not visible to
-  Claude yet. Tell the rep to open the quote's cart: a red
-  "Attributes · fix to commit" tag marks the line.
+- Its `attributes.findings` list attribute problems per line: a required
+  answer left blank, an answer the plan does not offer, and Attribute Rules
+  (`ATTRIBUTE_CONSTRAINT`, for example "On-Prem units carry a 36-month
+  warranty"). A `blocking` one stops the commit. Hand the fix to the
+  quoting agent; in the cart the line shows a red "Attributes · fix to
+  commit" tag with a one-click fix.
 
 ## Examples
 

@@ -4,7 +4,8 @@ description: >-
   Writes DD CPQ pricing rules from a plain-English request, through the dd-cpq
   MCP tools only: price rules, discounts, promotions, volume tiers, contract
   prices, channel and commitment discounts, ramps, eligibility,
-  compatibility, margin floors, renewal uplift and amend/renew rules. Drafts
+  compatibility, margin floors, renewal uplift, amend/renew rules and
+  attribute rules (one answer needs, rules out or sets another). Drafts
   the rule, checks it with the org's own validator, reads it back with the
   sentence Rules Studio shows, previews which products it covers, saves it
   ONLY as a Draft and tells the admin how to check it on a real quote. Never activates a
@@ -52,6 +53,24 @@ do.
 
 If nothing fits, say so and stop. Do not force a request into the nearest
 type.
+
+**One answer needs, rules out or fills in another** ("On-Prem needs a
+36-month warranty", "Cloud cannot take the on-site setup", "EU hosting sets
+Data Residency to EU") is an Attribute Rule. It is not a ruleType: Rules
+Studio only lists these rules, and they are written per product.
+
+1. `dd_cpq_product_attributes({productId})` — the questions and answer
+   codes the product really has. Never guess a code.
+2. `dd_cpq_list_attribute_rules({productId})` — reuse or change a rule that
+   already covers the same "when".
+3. `dd_cpq_save_attribute_rule` with `status: "Draft"`: `conditionField`
+   such as `Line.Attribute.deployment` with its `conditionValue`, or
+   `conditions` for several; `action` Require / Exclude / Set; the target
+   as `targetAttributeApiName` + `targetValueCode` (or `targetLiteral` for
+   yes/no), or `targetProductId` for a product on the quote; `scope` Line /
+   Bundle / Quote; `severity`; and the `message` the rep reads.
+4. Report the returned `sentence` and any `problems`. The admin activates
+   the rule in Product Attributes → the product → Rules.
 
 **A bigger discount for a longer contract** is a term curve, which is not a
 ruleType: it is saved as a whole, curve and points together.
