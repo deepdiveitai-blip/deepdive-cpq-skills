@@ -17,7 +17,8 @@ description: >-
 
   Skip for: authoring rate plans (dd-cpq-rate-plan-authoring),
   regression testing (dd-cpq-pricing-tester), defect analysis
-  (dd-cpq-defect-analyst), full-org demos (dd-cpq-demo).
+  (dd-cpq-case-resolver), full-org demos (dd-cpq-demo), the rest of
+  a rep's day — deals, tasks, renewals, approvals (dd-cpq-rep-desk).
 ---
 
 # DD CPQ Quoting Agent · operating guide
@@ -278,12 +279,11 @@ Before offering Commit, gather the full picture:
 - `dd_cpq_list_quote_lines({quoteId})` — the source of truth.
 - `dd_cpq_explain_price({quoteId})` — reliable audit path against
   a committed quote (accepts quoteId, self-hydrates).
-- **`dd_cpq_run_deal_score` and `dd_cpq_check_laws` NO LONGER WORK.**
-  Deal Scoring and Constitutional CPQ were cut from v1 on 2026-09-13,
-  and the endpoints behind both tools went with them. Calling either
-  now fails. Read the waterfall from `explain_price` instead — it
-  carries every stage, the rule Id behind each one, and is the
-  authoritative account of how the price was reached.
+  Read the waterfall from it: it carries every stage and the rule
+  behind each one, and is the authoritative account of the price.
+- `dd_cpq_validate_quote({quoteId})` — anything that would refuse the
+  commit (a required attribute left blank, a missing rate plan, a
+  rule refusal). Fix or report each one before offering Commit.
 - `dd_cpq_evaluate_commit_floor({accountId, hypotheticalUsage})` —
   only if the Account has an active MonthlyFloor CommitmentContract.
 - `dd_cpq_list_active_commitments({accountId})` — surface any active
@@ -300,8 +300,7 @@ Lines (N):
 
 Totals: TotalNet $17,600 · TotalMRR $17,100 · TotalARR $205,200
 
-Deal score: 82 / 100 (Good). Drivers: healthy margin, low churn risk.
-Laws: 0 red · 1 amber (manual discount 5% above Healthcare vertical baseline — approve if not standard).
+Checks: validate_quote clean · 1 line over 15% manual discount (needs approval).
 Floor: no active MonthlyFloor commitment on this Account.
 Timeline: no trial / ramp / prepay — flat MRR the whole term.
 
@@ -348,6 +347,9 @@ Suggested next steps:
      Quote approval process (needs your OK first).
   3. Or: **generate_pdf** (coming soon).
 ```
+
+For the rest of the rep's day (deals, tasks, meetings, renewals,
+approvals), hand over to **dd-cpq-rep-desk**.
 
 ## Sample scenarios (rehearsable demo scripts)
 
@@ -479,7 +481,6 @@ an EUR RatePlan via dd-cpq-rate-plan-authoring for next time.
 | find_accounts returns 0                           | Ask for a different spelling OR the AccountNumber. Do NOT create a new Account unilaterally.                                                                                                                                                                                                                     |
 | find_accounts returns >1                          | Present numbered list with Industry + BillingCountry. Stop until user picks.                                                                                                                                                                                                                                     |
 | find_opportunities returns 0                      | Offer to auto-create via create_quote(opportunityName). Ask user to confirm the Opp name.                                                                                                                                                                                                                        |
-| Preflight v2 check fails                          | STOP. Tell the rep pricing will silently degrade. Do NOT proceed.                                                                                                                                                                                                                                                |
 | Product not found                                 | Suggest the 3 closest matches from a broader find_products query. Never guess.                                                                                                                                                                                                                                   |
 | Bundle passed to add_line_item                    | It self-rejects with a steer. Follow the error → call configure_bundle instead.                                                                                                                                                                                                                                  |
 | Commit fails (savepoint rollback)                 | The engine returns the exception. Report it verbatim to the rep. Do NOT retry silently.                                                                                                                                                                                                                          |
