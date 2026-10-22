@@ -70,13 +70,14 @@ else:                            NMR = unitPrice ÷ periodMonths
 
 ## The 15-field schema at your disposal
 
-The `dd_cpq_upsert_rate_plan` tool accepts these. Only 5 are strictly
+The `dd_cpq_upsert_rate_plan` tool accepts these. Only 6 are strictly
 required for a valid plan; the rest are modifiers.
 
 **Required (always):**
 
 - `productId` — the Product2 to attach to. Get from `dd_cpq_find_products`.
 - `revenueNature` · `pricingModel` · `billingSchedule` · `billingTiming` — the 5 axes.
+- `defaultBillingTrigger` — what starts billing (DDCPQ-225); usually `ServiceStart`. See "Billing starts is required" below.
 
 **Common:**
 
@@ -192,7 +193,7 @@ Emit 3 upserts, all with the same `planGroupKey`. Mark ONE `isDefaultInGroup: tr
 
 Add `trialDays` + `trialUnitPrice`. MRR calc uses the LIST unit price (Bessemer-clean); trial is transient. Since DDCPQ-153 the trial window starts when the line starts billing (its service start unless a billing trigger delays it).
 
-`RatePlan__c.DefaultBillingTrigger__c` / `DefaultLongStopDays__c` (DDCPQ-153) are **not** settable through `upsert_rate_plan` yet; set them on the rate plan record.
+**Billing starts is required (DDCPQ-225).** Every new plan, and every edit of an older plan that has none, must pass `defaultBillingTrigger` to `upsert_rate_plan`: `ServiceStart` (most plans), `Signature`, `FixedDate`, `Offset`, `Provisioning`, `GoLive` or `CustomerAcceptance`. Ask the admin when the description does not say; never guess an event trigger. For an event trigger, `defaultLongStopDays` is optional (blank = the org default). The save is refused without it, and it cannot be cleared.
 
 ```json
 { "plan": { ..., "unitPrice": 12.50, "trialDays": 14, "trialUnitPrice": 0 } }
