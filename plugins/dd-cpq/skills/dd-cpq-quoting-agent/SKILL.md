@@ -33,8 +33,8 @@ with an explicit user confirmation.
 ## Quickstart · one paragraph you must never forget
 
 For a build-from-scratch quote, do these in order: `find_accounts` →
-(confirm with user) → `find_opportunities` or `create_quote` (with
-opportunityName to auto-create) → `find_products` / `get_bundle_structure`
+(confirm with user) → `find_opportunities` (the Opportunity must exist) →
+`quote_prechecks` → `create_quote` → `find_products` / `get_bundle_structure`
 → `add_line_item` (standalone) or `configure_bundle` (bundles) →
 `explain_price` (summarise waterfall, and read the stages for anything
 worth flagging) → **wait for user Commit confirm** →
@@ -61,7 +61,7 @@ deep-link and Standard Quote page URL. Never call
    about to call `dd_cpq_soql` to write anything QLI-related, STOP.
 
 3. **Ground before you write.** Same rule as #1, restated in terms of
-   the workflow: no `create_quote` without an `accountId` first; no
+   the workflow: no `create_quote` without an existing `opportunityId` first; no
    `add_line_item` without a `productId` from `find_products`; no
    `configure_bundle` without a `bundleProductId` where
    `isBundle=true` from `get_bundle_structure`; no plan-swap in
@@ -150,10 +150,23 @@ Chat output after Phase 1: `**Discover** · Account: "Acme Corp" (001…, Health
 
 - If an existing Draft Quote already exists on the Opp:
   `dd_cpq_find_quote({opportunityId})` and reuse it (ask user first).
-- Otherwise: `dd_cpq_create_quote({accountId, opportunityId, quoteName})`.
-- Auto-created Opps: `create_quote` accepts `opportunityName` and
-  auto-creates the Opp — surface `autoCreatedOpportunity` back to the
-  user so they know a new record now exists.
+- Otherwise, first `dd_cpq_quote_prechecks({opportunityId})`: the org's
+  Quote Creation Pre-check rules. If `blocked`, show the rep each failed
+  Hard stop's reason and fix steps, and stop until they say it is fixed.
+  Failed Warnings: tell the rep, then carry on.
+- `dd_cpq_quote_creation_options({opportunityId})` shows the Details
+  fields the admin set, which are required, and their defaults (Term,
+  Start Date, Billing Frequency, Contact...). Ask the rep only for what
+  differs from the defaults.
+- Then `dd_cpq_create_quote({opportunityId, name?, details?, startFrom?,
+lines?})`. It needs an existing Opportunity and never creates one; it
+  runs the pre-checks again and refuses on a failed Hard stop, saving
+  nothing. `details` takes Quote field API names, e.g.
+  `{"TermMonths__c": 24}`; `startFrom` can copy another quote on the
+  Opportunity, add a Deal Block template or a saved product set.
+  Surface `warnings` (e.g. an inactive price book) and `precheckWarnings`.
+- No Opportunity yet: ask the rep to create it in Salesforce; this skill
+  does not create Opportunities.
 
 Chat output: `**Draft** · Quote 00000178 (0Q0…) created on Opp "Acme Q4 Renewal". Open in Salesforce: [link].`
 
@@ -488,7 +501,8 @@ an EUR RatePlan via dd-cpq-rate-plan-authoring for next time.
 | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | find_accounts returns 0                           | Ask for a different spelling OR the AccountNumber. Do NOT create a new Account unilaterally.                                                                                                                                                                                                                     |
 | find_accounts returns >1                          | Present numbered list with Industry + BillingCountry. Stop until user picks.                                                                                                                                                                                                                                     |
-| find_opportunities returns 0                      | Offer to auto-create via create_quote(opportunityName). Ask user to confirm the Opp name.                                                                                                                                                                                                                        |
+| find_opportunities returns 0                      | Ask the rep to create the Opportunity in Salesforce (create_quote needs an existing one), or widen the search.                                                                                                                                                                                                   |
+| create_quote refused by a pre-check               | Show each failed Hard stop with its reason and fix steps, verbatim. Do not retry until the rep says it is fixed; dd_cpq_quote_prechecks confirms.                                                                                                                                                                |
 | Product not found                                 | Suggest the 3 closest matches from a broader find_products query. Never guess.                                                                                                                                                                                                                                   |
 | Bundle passed to add_line_item                    | It self-rejects with a steer. Follow the error → call configure_bundle instead.                                                                                                                                                                                                                                  |
 | Commit fails (savepoint rollback)                 | The engine returns the exception. Report it verbatim to the rep. Do NOT retry silently.                                                                                                                                                                                                                          |
@@ -513,7 +527,9 @@ an EUR RatePlan via dd-cpq-rate-plan-authoring for next time.
 Existing tools (read-only unless noted):
 
 - Discover: `dd_cpq_find_quote`
-- Draft: `dd_cpq_create_quote` (**WRITE** — auto-creates Opp)
+- Draft: `dd_cpq_quote_prechecks`, `dd_cpq_quote_creation_options`,
+  `dd_cpq_create_quote` (**WRITE** — needs an existing Opportunity;
+  refuses on a failed Hard stop pre-check)
 - Configure: `dd_cpq_list_catalogs`, `dd_cpq_find_products`,
   `dd_cpq_get_bundle_structure`, `dd_cpq_rate_plan_alternatives`,
   `dd_cpq_add_line_item` (**WRITE**, rejects bundles),
