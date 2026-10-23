@@ -305,6 +305,13 @@ Before offering Commit, gather the full picture:
   and never add it silently. `ATTRIBUTE_AUTOSET` only says a rule filled an
   answer; mention it, it is not a problem. `dd_cpq_list_attribute_rules`
   explains a rule when the user asks why.
+- `dd_cpq_preview_line_change({quoteId, qliId, ratePlanId?, attributes?,
+quantity?})` — before changing a saved line's rate plan, attribute
+  answers or quantity, show what it would cost: the net price per unit
+  before and after, the quote's ARR before and after, and any warning the
+  change raises (`blocked=true` means Commit would refuse it). Nothing is
+  saved. Apply it with `dd_cpq_update_line` and the same inputs once the
+  user agrees.
 - `dd_cpq_evaluate_commit_floor({accountId, hypotheticalUsage})` —
   only if the Account has an active MonthlyFloor CommitmentContract.
 - `dd_cpq_list_active_commitments({accountId})` — surface any active
