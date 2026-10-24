@@ -305,6 +305,12 @@ Before offering Commit, gather the full picture:
   and never add it silently. `ATTRIBUTE_AUTOSET` only says a rule filled an
   answer; mention it, it is not a problem. `dd_cpq_list_attribute_rules`
   explains a rule when the user asks why.
+- `dd_cpq_reconfigure_bundle({quoteId, parentQliId, selections?,
+bundleQuantity?})` — change a bundle already on the quote (DDCPQ-234):
+  `selections` is the full option set it should have (kept, added,
+  removed). `dd_cpq_configure_bundle` would add a second bundle instead.
+  Dry run first, show the options and price before and after, save after
+  a yes.
 - `dd_cpq_update_lines({quoteId, target, patch | copyAnswersFromQliId |
 delete})` — one change to many lines in one save (DDCPQ-233), e.g. 10%
   off a Deal Block, 24 months on every line, one answer on every
