@@ -305,6 +305,13 @@ Before offering Commit, gather the full picture:
   and never add it silently. `ATTRIBUTE_AUTOSET` only says a rule filled an
   answer; mention it, it is not a problem. `dd_cpq_list_attribute_rules`
   explains a rule when the user asks why.
+- `dd_cpq_update_lines({quoteId, target, patch | copyAnswersFromQliId |
+delete})` — one change to many lines in one save (DDCPQ-233), e.g. 10%
+  off a Deal Block, 24 months on every line, one answer on every
+  workstation. Run it with `dryRun: true` first and show the rep each
+  line before and after; save only after a yes. More than 25 lines: ask
+  again, then send `confirmManyLines: true`. Never loop
+  `dd_cpq_update_line` over many lines instead.
 - `dd_cpq_preview_line_change({quoteId, qliId, ratePlanId?, attributes?,
 quantity?})` — before changing a saved line's rate plan, attribute
   answers or quantity, show what it would cost: the net price per unit
