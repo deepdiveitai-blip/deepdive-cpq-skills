@@ -1,0 +1,8 @@
+{
+  "name": "dd-quoting-agent",
+  "version": "1.1.29",
+  "description": "For sales reps: a digital colleague that builds and changes quotes, explains prices, and runs your day, renewals and approvals in DD CPQ. It asks before every save and can undo its last change. Shortcuts: /quote, /my-day, /renewals, /approvals, /setup.",
+  "author": {
+    "name": "DeepDive IT"
+  }
+}

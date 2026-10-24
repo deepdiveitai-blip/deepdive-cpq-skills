@@ -7,6 +7,16 @@
   },
   "plugins": [
     {
+      "name": "dd-quoting-agent",
+      "displayName": "DD Quoting Agent",
+      "description": "For sales reps: a digital colleague that builds and changes quotes, explains prices, and runs your day, renewals and approvals in DD CPQ. It asks before every save and can undo its last change. Shortcuts: /quote, /my-day, /renewals, /approvals, /setup.",
+      "category": "sales",
+      "author": {
+        "name": "DeepDive IT"
+      },
+      "source": "./plugins/dd-quoting-agent"
+    },
+    {
       "name": "dd-cpq",
       "displayName": "DD CPQ",
       "description": "Every DD CPQ skill (rule authoring, quoting, bundles, rate plans, testing, dev workflow) and the DD CPQ connector, which signs you in to Salesforce as yourself.",

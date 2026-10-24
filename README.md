@@ -8,8 +8,8 @@ engine repo on every merge; changes made here are overwritten.
 ## Install
 
 - **Cowork:** Customize → Plugins → Add marketplace → Add from a repository →
-  `deepdiveitai-blip/deepdive-cpq-skills`, then install **DD CPQ** (testers:
-  **DD CPQ (read-only)**).
+  `deepdiveitai-blip/deepdive-cpq-skills`, then install **DD Quoting Agent**
+  (sales reps), **DD CPQ** (admins) or **DD CPQ (read-only)** (testers).
 - **Claude Code:** `/plugin marketplace add deepdiveitai-blip/deepdive-cpq-skills`,
   then `/plugin install dd-cpq@deepdive-cpq`.
 
