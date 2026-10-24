@@ -367,10 +367,22 @@ tell me what to change.
   start** (`billingTrigger` / `billingStartDate` on the line, from
   `list_quote_lines`). Say both when they differ.
 
-- If the user wants it as the Primary quote on the Opp: OPTIONALLY
-  patch `Opportunity.SyncedQuoteId` (deferred to a follow-up MCP
-  tool; today, tell the user to click Sync on the Standard Quote
-  page).
+- **Who the quote is for and where it stands (DDCPQ-215).** The same
+  tool sets `contactId` (find one with `dd_cpq_find_contacts`; several
+  matches → numbered list, the rep chooses), `status`, `email`,
+  `phone`, `fax`, `tax`, `shippingHandling`, the Quote To and
+  Additional names and addresses, and `otherFields` for any other Quote
+  field the rep may edit. A refusal names the field and why (unknown,
+  read-only, a value outside the list, a contact of another account):
+  tell the rep and nothing was written.
+- **Accepted creates the customer's assets and contract.** Ask twice
+  ("This creates <account>'s assets and contract. Mark it Accepted?",
+  then "Confirm: Accepted?"), and only then send `status: "Accepted"`
+  with `acceptConfirmed: true`. On an amendment quote use
+  `dd_cpq_accept_amendment` instead.
+- If the rep wants the Opportunity to follow this quote:
+  `dd_cpq_sync_quote_to_opportunity({quoteId})` after a yes (one quote
+  per Opportunity syncs; `sync: false` stops it).
 
 ### Phase 8 · Handoff
 
