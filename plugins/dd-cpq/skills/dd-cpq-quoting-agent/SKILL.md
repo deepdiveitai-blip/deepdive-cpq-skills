@@ -305,6 +305,11 @@ Before offering Commit, gather the full picture:
   and never add it silently. `ATTRIBUTE_AUTOSET` only says a rule filled an
   answer; mention it, it is not a problem. `dd_cpq_list_attribute_rules`
   explains a rule when the user asks why.
+- `dd_cpq_set_ramp_years({quoteId, qliId, mode: set | reset, years?})` —
+  save a ramp's year edits (DDCPQ-235): `years: [{year: 2, quantity: 150,
+price: 105}]` makes the ramp Manual; `reset` goes back to the ramp rule.
+  Dry run first and show every year; afterwards `dd_cpq_explain_price`
+  shows each year's ramp step.
 - `dd_cpq_reconfigure_bundle({quoteId, parentQliId, selections?,
 bundleQuantity?})` — change a bundle already on the quote (DDCPQ-234):
   `selections` is the full option set it should have (kept, added,
