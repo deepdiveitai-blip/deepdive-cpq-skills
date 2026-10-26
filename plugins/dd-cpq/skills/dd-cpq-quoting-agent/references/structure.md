@@ -76,6 +76,12 @@ quantity?, price?, discountPct?}], dryRun})`: save edited years (the ramp
   own dates. One line can opt out with `independentTerm: true`.
 - A co-termed line shorter than its plan's minimum term is raised to the
   minimum at commit: say so.
+- A Deal Block with its own start date is its own window: its lines end at
+  the block's start plus the block's term (the deal's term when the block has
+  none), and `AlignToDealEnd` does not pull them back to the deal's end. To
+  end a later site with the deal, give the block a term
+  (`dd_cpq_save_deal_block({termMonths})`): Clinic East from 2027-07-01 in a
+  deal ending 2029-12-31 needs 30 months.
 
 ## When billing starts
 

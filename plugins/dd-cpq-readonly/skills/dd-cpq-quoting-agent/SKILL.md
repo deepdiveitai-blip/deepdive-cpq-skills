@@ -88,12 +88,12 @@ Go?
 
 **Where to build.** A quote that was ever Presented, Approved or sent is the
 customer's offer: build a risky plan on a **scenario copy**
-(`dd_cpq_create_quote` with `startFrom: {kind: "copy", quoteId}`, named
+(`dd_cpq_create_quote` with `startFrom: {kind: "copy", quoteId, scenario: true}`, named
 `<quote name> — scenario: <what> (Claude)`), and edit the copy. A Draft that
 was never presented may be edited in place. When the rep picks a winner,
 sync it (`dd_cpq_sync_quote_to_opportunity`). You may discard only a scenario
-quote you created: with `dd_cpq_discard_scenario_quote` when the connector
-offers it; otherwise ask the rep to delete it in Salesforce.
+quote you created, with `dd_cpq_discard_scenario_quote`: DD CPQ refuses any
+other quote, and you never delete one another way.
 
 **3. One yes.** Ask once for the whole plan. A change of mind is a new plan.
 

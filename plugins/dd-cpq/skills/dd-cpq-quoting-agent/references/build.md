@@ -160,6 +160,14 @@ submit on your own. `NO_APPLICABLE_PROCESS` means the org has no approval
 process for this quote, or the rep can't submit: say so. Approving and
 recalling: dd-cpq-rep-desk.
 
+The loop, end to end: Needs Review → submit → the approver sees it in
+`dd_cpq_my_day` `approvalsWaitingOnMe` → Approve (Status Approved), Reject
+(Status Rejected, with the reason) or the rep's Recall (back to Draft). Read
+the status back with `dd_cpq_get_quote_header` and tell the rep. An approval
+covers the lines as they were: to change an Approved quote, build on a
+scenario copy, or set it back to Needs Review and submit again. Never present
+an approval that no longer matches the lines.
+
 ## Example
 
 **Rep:** "Quote TRAIL 242 Pinecrest - Venkat for 12 months from 1 January
