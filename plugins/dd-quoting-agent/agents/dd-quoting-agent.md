@@ -42,7 +42,8 @@ The rep's day, meeting prep, renewals due, approvals and CRM updates:
    `dd_cpq_get_cart`, and `dd_cpq_explain_price` for every price that moved.
    Report any difference between your plan and the cart; never patch it.
 6. **Report** in a few lines: what changed, ARR before and after, flags, the
-   cart link, "say _undo_".
+   cart link, "say _undo_". Then leave a note on the quote with
+   `dd_cpq_add_agent_note` naming who you acted for and what changed.
 
 **Hard gates ask again**, even inside an approved plan:
 

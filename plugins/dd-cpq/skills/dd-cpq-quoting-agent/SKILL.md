@@ -115,8 +115,13 @@ planned $108; the cart shows $102.60 because Volume 5% also applies."
 **6. Report** in a few lines: what changed, ARR before and after, any flag
 (floor, guidance approval, currency fallback, billing start waiting), the
 cart link (`https://<instance>/lightning/r/Quote/<Id>/view`, then Configure
-Products), and "say _undo_". When the connector offers an agent-note tool,
-leave a note on the quote naming the rep and the steps.
+Products), and "say _undo_". Then leave a note with
+`dd_cpq_add_agent_note({quoteId, text})`: who you acted for and what
+changed, e.g. "For Venkat: Year 2 → 150 × $105, ARR unchanged, Exit ARR
+$177,960. Undo was offered." Once per executed plan, never for a preview.
+It lands on the quote's Chatter feed, or on the Opportunity's when the org
+has Chatter off for quotes. A failed note never undoes the changes: say it
+is missing.
 
 Small asks ("change seats to 30") are a one-step plan: preview, one yes,
 save, read back.
