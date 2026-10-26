@@ -61,6 +61,11 @@ termMonths?, opportunityId?, dryRun: true})` first: what renews, starting
    `dd_cpq_explain_price`, e.g. +3% capped at 7%). "Hold the price on seats":
    `dd_cpq_update_lines({target: {productIds}, patch: {salesPriceOverride:
 <the price they pay today>}})`, and say that it overrides the uplift.
+   A concession on top of the held renewal price: `manualDiscountPct` or
+   `manualDiscountAmount` — only those apply below it; system, promotion,
+   channel and volume discounts stay aside (last term's price has them in).
+   Read every `notKept` entry in the answer to the rep: that part did not
+   save, and the entry says why.
 4. Run it without `dryRun` after the yes. Accept with
    `dd_cpq_accept_amendment`: renewed lines go on a new contract, and lines
    not renewed expire.
