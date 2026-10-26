@@ -1,6 +1,6 @@
 {
   "name": "dd-cpq-readonly",
-  "version": "1.1.29",
+  "version": "1.1.30",
   "description": "For testers: every DD CPQ skill with the read-only DD CPQ connector. It can look up quotes, prices and rules but cannot change anything.",
   "author": {
     "name": "DeepDive IT"
