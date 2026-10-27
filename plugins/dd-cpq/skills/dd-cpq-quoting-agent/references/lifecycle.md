@@ -10,7 +10,10 @@ ledger is never edited afterwards. Plan carefully, preview everything.
 - `dd_cpq_list_contracts({accountId})`: contracts with dates, MRR and lines
   (bundle components under their header).
 - `dd_cpq_install_base({accountId})`: everything they own, MRR, next renewal,
-  changes still pending, recent changes.
+  changes still pending, recent changes. Each line carries the attribute
+  answers they own (`attributeSummary`, e.g. "Deployment: Cloud · Warranty:
+  36 months") and `attributeCharge`, what those added per unit as accepted:
+  use them to explain a price or plan an upgrade.
 - `dd_cpq_list_pending_changes({accountId, status?})`: the change ledger,
   newest first.
 - `dd_cpq_contract_lineage({contractId})`: where a contract came from and
