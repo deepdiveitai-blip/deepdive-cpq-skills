@@ -93,7 +93,9 @@ customer's offer: build a risky plan on a **scenario copy**
 was never presented may be edited in place. When the rep picks a winner,
 sync it (`dd_cpq_sync_quote_to_opportunity`). You may discard only a scenario
 quote you created, with `dd_cpq_discard_scenario_quote`: DD CPQ refuses any
-other quote, and you never delete one another way.
+other quote, and you never delete one another way. Changing the lines of an
+Approved quote puts it back to Draft (warning `APPROVAL_RESET`): say so, and
+resubmit with `dd_cpq_submit_for_approval` only after the rep's yes.
 
 **3. One yes.** Ask once for the whole plan. A change of mind is a new plan.
 
