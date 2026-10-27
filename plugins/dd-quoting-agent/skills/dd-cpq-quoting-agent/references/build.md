@@ -10,9 +10,14 @@ Speed matters, and so does never quoting something the customer can't buy.
    create it in Salesforce.
 2. Is there already a Draft on it? `dd_cpq_find_quote({opportunityId})`; ask
    before reusing it.
-3. `dd_cpq_quote_prechecks({opportunityId})`: the org's Quote Creation
-   Pre-check rules. `blocked: true` → show each failed Hard stop's reason and
-   fix steps, stop. Failed Warnings: say them, carry on.
+3. `dd_cpq_quote_prechecks({opportunityId, startFrom?})`: the org's Quote
+   Creation Pre-check rules. Pass `startFrom` (blank, copy, template,
+   savedSet) once you know how the quote starts: a rule can run for only one
+   way of starting (its `runsFor`). `blocked: true` → show each failed Hard
+   stop's reason and fix steps, stop. Blocked for one start only
+   (`blockedFor`) → say which and offer the starts that are open. Failed
+   Warnings: say them, carry on. A copy (`startFrom {kind: copy}`) takes the
+   copied quote's header, so it needs only a name.
 4. `dd_cpq_quote_creation_options({opportunityId})`: the fields the admin put
    on the Create screen, which are required, their defaults (term, start date,
    billing frequency, contact). Ask only for what differs from the defaults.
