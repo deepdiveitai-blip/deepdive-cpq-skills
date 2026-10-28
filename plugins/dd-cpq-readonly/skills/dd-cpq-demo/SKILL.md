@@ -1,16 +1,17 @@
 ---
 name: dd-cpq-demo
 description: >-
-  Run stunning live demos of DeepDive CPQ (DD CPQ) in Claude Cowork —
-  Wow #1 (live pricing waterfall visualization), Wow #2 (Ask the
-  Warehouse scrollytelling), Wow #3 (Amendments Lifecycle time-travel),
-  Wow #4 (Constitutional Auditor), Wow #5 (Deal Risk X-Ray), Wow #6
-  (voice-driven configurator + autonomous migration). Use ANY time the
-  user says "demo", "show me", "make this visual", "wow moment",
-  "presentation", "prospect meeting", "amendment demo", "renewal demo",
-  or asks to render pricing / rules / warehouse output as a chart or
-  dashboard. Skip for regular dev work — CLAUDE.md carries the build
-  rules and loads automatically.
+  Run live demos of DD CPQ for prospects and presentations: the live pricing
+  waterfall visualisation, the amendment lifecycle time-travel, Deal Risk
+  X-Ray and the voice-driven configurator.
+
+  Trigger only when a demo is asked for: "demo", "run a demo", "demo the
+  waterfall", "prospect meeting", "wow moment", "presentation", "amendment
+  demo", "renewal demo".
+
+  Skip for showing or changing a real quote, including "show me the … quote"
+  and "show me a version with …" (dd-cpq-quoting-agent), test reports (the
+  tester skills), building a UI (dd-cpq-ui-builder), regular dev work.
 ---
 
 # DD CPQ Demo Choreography

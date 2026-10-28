@@ -1,25 +1,23 @@
 ---
 name: dd-cpq-pricing-tester
 description: >-
-  Comprehensive DD CPQ pricing + cart + Invoice Timeline + OneTime
-  Spread regression testing on Claude Cowork. Covers every real-world
-  rate-plan combination (5-axis × trial/prepay/paymentTerm/ramp/
-  prorate × multi-currency), verifies Timeline invariants + full
-  back-end SOQL fields on QLI + Quote, and checks rate-plan seed
-  compliance (PlanGroupKey NOT NULL). Current policy: REPORT-ONLY
-  — no Salesforce Cases filed; every finding lands in a self-
-  contained HTML report.
+  Comprehensive DD CPQ pricing + cart + Invoice Timeline + OneTime Spread
+  regression testing. Covers every real-world rate-plan combination (5-axis
+  × trial/prepay/paymentTerm/ramp/prorate × multi-currency), verifies
+  Timeline invariants and back-end SOQL fields on QLI + Quote, and checks
+  rate-plan seed compliance (PlanGroupKey NOT NULL). REPORT-ONLY: files no
+  Cases and never modifies code; every finding lands in a self-contained
+  HTML report.
 
-  Trigger when the user says: "run the pricing tests", "run
-  comprehensive pricing tests", "test everything — waterfall +
-  timeline + spread", "run PW scenarios", "verify pricing against
-  Notion / Slack / OpenAI / etc.", "check for pricing regressions",
-  "generate dynamic pricing tests", "test the Invoice Timeline",
-  "test OneTime Spread / Amortization".
+  Trigger on: "run the pricing tests", "run comprehensive pricing tests",
+  "test everything — waterfall + timeline + spread", "run PW scenarios",
+  "verify pricing against Notion / Slack / OpenAI", "check for pricing
+  regressions", "test the Invoice Timeline", "test OneTime Spread /
+  Amortization".
 
-  Skip for authoring production rate plans, fixing bugs (that's
-  Vijay's job — this skill NEVER modifies code), demoing DD CPQ
-  (use dd-cpq-demo).
+  Skip for authoring rate plans (dd-cpq-rate-plan-authoring), configurator
+  testing (dd-cpq-configurator-tester), fixing bugs (dd-cpq-case-resolver),
+  demos (dd-cpq-demo).
 ---
 
 # DD CPQ Pricing Tester · operating guide

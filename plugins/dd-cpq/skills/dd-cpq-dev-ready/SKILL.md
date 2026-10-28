@@ -2,18 +2,20 @@
 name: dd-cpq-dev-ready
 description: >-
   On-demand developer for DD CPQ Jira work. Queries project DDCPQ for issues
-  in status "DEV Ready", lists them, then builds the ones Venkat picks, one at
-  a time: reads the story, moves it to In Progress, branches off
+  in status "DEV Ready", lists them, then builds the ones Venkat picks, one
+  at a time: reads the story, moves it to In Progress, branches off
   feat/ddcpq-api-parity, builds LWC + REST + MCP within governor limits and
   AppExchange security, tests, deploys to cpq-dev2, commits, pushes, opens a
   PR, comments the evidence on the issue and moves it to In Review. Never
   merges, never closes an issue, never deploys anywhere but cpq-dev2.
 
   Trigger on: "/dd-cpq-dev-ready", "tackle dev ready", "what is in DEV
-  Ready", "pick up the dev ready stories", "work DDCPQ-nn".
+  Ready", "pick up the dev ready stories", "build DDCPQ-nn".
 
-  Skip for filing issues (dd-cpq-issue-reporter) and tester bug Cases in
-  Salesforce (dd-cpq-case-resolver).
+  A bare "work DDCPQ-nn" is ambiguous: ask "build it or research it?" before
+  choosing this skill or dd-cpq-story-research. Skip for researching a story
+  (dd-cpq-story-research), filing issues (dd-cpq-issue-reporter), tester bug
+  Cases (dd-cpq-case-resolver).
 ---
 
 # DEV Ready: on demand, one issue at a time

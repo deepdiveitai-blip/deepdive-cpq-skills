@@ -1,13 +1,20 @@
 ---
 name: dd-cpq-meeting-actions
 description: >-
-  Turn a Zoom meeting transcript, caption file or AI Companion summary
-  into checked action items for DD CPQ. Reads the transcript from a
-  pasted block, a local file, or the Google Drive "Meeting recordings"
-  folder. Every decision is verified against the actual repo and org
-  before it is written down, so a meeting that agreed something already
-  done, already impossible, or contradicting a hard rule says so. Emits
-  owner-tagged actions, a contradictions list, and draft memory entries.
+  Turn a Zoom meeting transcript, caption file or AI Companion summary into
+  checked action items for DD CPQ. Reads the transcript from a pasted block,
+  a local file, or the Google Drive "Meeting recordings" folder. Every
+  decision is verified against the repo and org before it is written down,
+  so a meeting that agreed something already done, impossible, or against a
+  hard rule says so. Emits owner-tagged actions, a contradictions list, and
+  draft memory entries.
+
+  Trigger on: "here's the transcript", "action items from the meeting",
+  "what did we agree in the call", "process the Zoom recording", "turn these
+  meeting notes into actions".
+
+  Skip for logging a sales call on an Account or prepping for a customer
+  meeting (dd-cpq-rep-desk).
 ---
 
 # Meeting → verified action items

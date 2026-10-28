@@ -2,21 +2,21 @@
 name: dd-cpq-rep-desk
 description: >-
   A sales rep's chief of staff in Salesforce with DD CPQ. Runs the rep's
-  day: what is on their plate (deals needing a push, tasks due, today's
-  meetings, quotes expiring or waiting for approval, pipeline this
-  quarter), prepares them for a customer meeting (Account 360), lists
-  renewals at risk, and chases or acts on approvals. Reads through the DD
-  CPQ connector; writes to contacts, tasks, calls, events and opportunity
-  fields only through Salesforce's own connector and only after the rep
-  confirms. Hands quote building to dd-cpq-quoting-agent.
+  day: deals needing a push, tasks due, today's meetings, quotes expiring or
+  awaiting approval, pipeline this quarter; preps them for a customer
+  meeting (Account 360); lists renewals at risk; chases or acts on
+  approvals. Writes to contacts, tasks, calls, events and opportunity fields
+  only through Salesforce's own connector and only after the rep confirms.
+  Hands quote building to dd-cpq-quoting-agent.
 
-  Trigger when the user says: "what's on my plate", "my day", "prep me for
-  my meeting with …", "what do I know about <account>", "which renewals
-  are at risk", "chase my approvals", "approve <quote>", "log a call with
-  …", "move the opp to …", "push the close date".
+  Trigger on: "what's on my plate", "my day", "prep me for my meeting with
+  …", "what do I know about <account>", "which renewals are at risk", "chase
+  my approvals", "approve <quote>", "log a call with …", "move the opp to
+  …", "push the close date".
 
-  Skip for: building or changing a quote (dd-cpq-quoting-agent), rate
-  plans, rules, bundles, testing DD CPQ itself.
+  Skip for building or changing a quote, including submitting it for
+  approval (dd-cpq-quoting-agent), internal meeting transcripts
+  (dd-cpq-meeting-actions), rate plans, rules, bundles, testing.
 ---
 
 # DD CPQ Rep Desk

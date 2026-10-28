@@ -1,6 +1,16 @@
 ---
 name: dd-cpq-scratch-refresh
-description: Spin up a fresh DD CPQ scratch org from scratch — create, deploy all metadata, set active v2 constitution, run demo seeds, verify pricing model math. Use when the current scratch org is expiring, when the org is corrupted, or when a new dev needs their own copy. Repeatable in ~10 minutes end-to-end.
+description: >-
+  Spin up a fresh DD CPQ scratch org for development: create, deploy all
+  metadata, run demo seeds, verify the pricing math. Use when the current
+  scratch org is expiring or corrupted, or when a new dev needs their own
+  copy. About 10 minutes end to end.
+
+  Trigger on: "new scratch org", "the scratch org is expiring", "refresh the
+  org", "rebuild the dev org".
+
+  Skip for a tester's own sandbox or Developer Edition org
+  (dd-cpq-sandbox-e2e).
 ---
 
 # DD CPQ scratch org refresh — the repeatable playbook
@@ -47,6 +57,7 @@ name only once the new org is fully verified.
 
 **Grab a memorable password immediately** (default password is CLI-generated
 and long):
+
 ```powershell
 sf org generate password --target-org cpq-scratch-v2 --length 12
 sf org display --target-org cpq-scratch-v2 --verbose  # capture URL + username + password + expiration
@@ -122,6 +133,7 @@ Copy-Item "$env:TEMP\DD_CPQ_Admin.bak" $permset -Force
 ```
 
 Then assign it:
+
 ```powershell
 sf org assign permset --target-org cpq-scratch-v2 --name DD_CPQ_Selling
 sf org assign permset --target-org cpq-scratch-v2 --name DD_CPQ_Admin
@@ -186,13 +198,14 @@ $apex | sf apex run --target-org cpq-scratch-v2 2>&1 | Select-String 'RESULT'
 ```
 
 **Expected output** (list=$2K, qty=10 for all):
-| Model | Expected total |
-|---|---|
-| Flat Fee | $2,000 |
-| Per Unit | $20,000 |
-| Tiered | $17,500 |
-| Volume | $15,000 |
-| Package | $18,000 |
+
+| Model    | Expected total |
+| -------- | -------------- |
+| Flat Fee | $2,000         |
+| Per Unit | $20,000        |
+| Tiered   | $17,500        |
+| Volume   | $15,000        |
+| Package  | $18,000        |
 
 If ALL 5 match — org is ready. If any two match or any number is wrong,
 check `PolicyConstitution.Status__c = 'Active'` and
@@ -205,9 +218,9 @@ One thing you cannot deploy from source — **the Anthropic API key value**:
 1. **`ApiKey` authentication parameter.** The `Default` principal itself now
    deploys in Wave 1, and the `x-api-key` header is wired in source to
    `{!$Credential.Anthropic_API.ApiKey}`. But the `Custom` auth protocol does
-   **not** accept an `AuthParameter` via metadata (deploy error: *"The
+   **not** accept an `AuthParameter` via metadata (deploy error: _"The
    authentication protocol Custom doesn't support the following external
-   credential parameter type(s): AuthParameter"*), so the parameter is created
+   credential parameter type(s): AuthParameter"_), so the parameter is created
    together with its secret value in the UI:
 
    Setup -> Named Credentials -> **External Credentials** tab -> Anthropic API

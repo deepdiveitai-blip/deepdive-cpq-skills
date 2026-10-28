@@ -1,23 +1,21 @@
 ---
 name: dd-cpq-lifecycle-research
 description: >-
-  Research-and-design skill for the DD CPQ post-sale lifecycle pillar:
-  amendments, renewals, cancellations, co-terming, proration and the
-  install base — including every client shape where Salesforce is NOT
-  the system of record (billing, ERP, legacy Steelbrick, spreadsheets).
-  Produces an HTML design proposal in the house style, grounded in the
-  live org, the engine repo and cited vendor documentation. READ-ONLY:
-  NEVER WRITES CODE, METADATA, ORG DATA OR A DEPLOY. The output is a
-  document for review, never an implementation.
+  Research-and-design skill for the DD CPQ post-sale lifecycle: amendments,
+  renewals, cancellations, co-terming, proration and the install base,
+  including clients where Salesforce is NOT the system of record (billing,
+  ERP, legacy Steelbrick, spreadsheets). Produces an HTML design proposal
+  grounded in the live org, the engine repo and cited vendor docs.
+  READ-ONLY: never writes code, metadata, org data or a deploy.
 
-  Trigger on: "design amendments", "how should renewals work",
-  "install base research", "system of record for contracts", "amend and
-  renew design", "lifecycle pillar", "co-term / proration design",
-  "update the lifecycle design".
+  Trigger on: "design amendments", "how should renewals work", "how should
+  co-terming work", "install base research", "system of record for
+  contracts", "amend and renew design", "lifecycle pillar", "update the
+  lifecycle design".
 
-  Skip for building any of it (that is a separate, approved build task),
-  quoting (dd-cpq-quoting-agent), rate plans (dd-cpq-rate-plan-authoring),
-  bundles (dd-cpq-bundle-architect), defects (dd-cpq-case-resolver).
+  Skip for a Jira story key (dd-cpq-story-research), building any of it,
+  renewing or amending a real quote (dd-cpq-quoting-agent), the rep's
+  renewals list (dd-cpq-rep-desk), defects (dd-cpq-case-resolver).
 ---
 
 # DD CPQ · Lifecycle research — operating guide

@@ -1,19 +1,22 @@
 ---
 name: dd-cpq-rate-plan-authoring
 description: >-
-  Author, update, or clone a DeepDive CPQ Rate Plan (RatePlan__c) from a
-  plain-English description, using ONLY grounded MCP tool calls — never
-  fabricating Product2, RatePlan, or credit-pool Ids. Covers every pattern
-  the DDCPQ-2027 rebuild ships: Slack per-seat, Zoom prepay (UpfrontForTerm),
-  hybrid Datadog (Recurring + Overage), Snowflake prepaid credits +
-  drawdown, Stripe percent-of-basis, trial modifiers, payment-term
-  early-pay discounts, and multi-currency variants. Use when the user asks
-  to "add a plan", "author pricing", "create a rate plan", "draft a
+  Author, update, or clone a DD CPQ Rate Plan (RatePlan__c) from plain
+  English, using ONLY grounded MCP tool calls — never fabricating Product2,
+  RatePlan or credit-pool Ids. Covers every DDCPQ-2027 pattern: Slack
+  per-seat, Zoom prepay (UpfrontForTerm), hybrid Datadog (Recurring +
+  Overage), Snowflake prepaid credits + drawdown, Stripe percent-of-basis,
+  trial modifiers, payment-term early-pay discounts, price bands and
+  multi-currency variants.
+
+  Trigger on: "create a rate plan", "add a plan", "author pricing", "draft a
   pricing model", "add a prepay tier", "wire credits", "set up drawdown",
-  or names any Zoom/Slack/Snowflake/Stripe-style pattern. Skip for
-  quote-side operations (Add product to quote, Apply discount, Commit
-  lines) — those live in dd_cpq.list_products / configure / commit tools,
-  not here.
+  "add a trial", "early-pay discount", "price drops to $X above N units", or
+  any Zoom/Slack/Snowflake/Stripe-style pattern.
+
+  Skip for quote-side work (dd-cpq-quoting-agent), discounts or promotions
+  across products or segments (dd-cpq-rule-author), "how do I set up …"
+  coaching in a tester's org (dd-cpq-sandbox-e2e).
 ---
 
 # DD CPQ · Rate Plan authoring — zero-hallucination operating guide

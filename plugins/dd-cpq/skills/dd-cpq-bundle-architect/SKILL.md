@@ -1,23 +1,23 @@
 ---
 name: dd-cpq-bundle-architect
 description: >-
-  Bundle architect for DD CPQ. Turns a spreadsheet, screenshot, Word doc
-  or plain-English brief into a saved bundle — infers the column mapping,
-  resolves every product against the catalogue, composes one draft,
-  validates and previews it, then renders an HTML review for sign-off
-  before anything is written. NEVER INVENTS AN ID, NEVER CREATES A
-  PRODUCT WITHOUT AN EXPLICIT YES, AND NEVER OVERWRITES AN EXISTING
-  BUNDLE WITHOUT SHOWING THE ADDS, CHANGES AND DELETES FIRST.
+  Bundle architect for DD CPQ. Turns a spreadsheet, screenshot, doc or
+  plain-English brief into a saved bundle definition: infers the column
+  mapping, resolves every product against the catalogue, validates and
+  previews it, and renders an HTML review for sign-off before anything is
+  written. Never invents an Id, never creates a product without an explicit
+  yes, shows the adds, changes and deletes before overwriting a bundle.
 
-  Trigger on: "build a bundle from this spreadsheet", "turn this
-  screenshot into a bundle", "import this sheet as a bundle", "make a
-  bundle called …", "re-import the bundle sheet", "update the bundle from
-  this doc", "here is the bundle spec", "add an option to", "delete
-  this feature", "reorder the options", "add an exclude rule".
+  Trigger on: "build a bundle from this spreadsheet", "turn this screenshot
+  into a bundle", "import this sheet as a bundle", "make a bundle called …",
+  "update the bundle from this doc", "add an option to the … bundle",
+  "delete this feature", "reorder the options", "Option A excludes Option B
+  in this bundle".
 
-  Skip for configuring or quoting an existing bundle
-  (dd-cpq-quoting-agent), testing one (dd-cpq-configurator-tester),
-  pricing it (dd-cpq-rate-plan-authoring), demos (dd-cpq-demo).
+  Skip for quoting or configuring an existing bundle (dd-cpq-quoting-agent),
+  rules across quote lines or products (dd-cpq-rule-author), testing a
+  bundle (dd-cpq-configurator-tester), pricing it
+  (dd-cpq-rate-plan-authoring).
 ---
 
 # DD CPQ · Bundle architect — operating guide

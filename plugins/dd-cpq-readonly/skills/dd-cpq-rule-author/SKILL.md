@@ -1,20 +1,23 @@
 ---
 name: dd-cpq-rule-author
 description: >-
-  Writes DD CPQ pricing rules from a plain-English request, through the dd-cpq
-  MCP tools only: price rules, discounts, promotions, volume tiers, contract
-  prices, channel and commitment discounts, ramps, eligibility,
-  compatibility, margin floors, renewal uplift, amend/renew rules and
-  attribute rules (one answer needs, rules out or sets another). Drafts
-  the rule, checks it with the org's own validator, reads it back with the
-  sentence Rules Studio shows, previews which products it covers, saves it
-  ONLY as a Draft and tells the admin how to check it on a real quote. Never activates a
-  rule, never guesses a field, product or value the org does not have.
+  Writes DD CPQ pricing rules from plain English through the dd-cpq MCP
+  tools only: price rules, discounts, promotions, volume tiers, contract
+  prices, channel and commitment discounts, eligibility, compatibility
+  across lines, margin floors, renewal uplift, amend/renew and attribute
+  rules. Validates the draft, reads it back with Rules Studio's sentence,
+  previews coverage, saves it ONLY as a Draft. Never activates a rule or
+  guesses a field, product or value.
 
   Trigger on: "write a rule", "create a pricing rule", "make a promotion",
-  "set up a discount for", "10% off … for …", "block/require a product",
-  "margin floor", "renewal uplift", text pasted from Rules Studio's "Ask
-  Claude" panel ("Help me create a DD CPQ rule in Rules Studio …").
+  "10% off … for <segment>", "block/require a product when …", "margin
+  floor", "renewal uplift", text pasted from Rules Studio's "Ask Claude"
+  panel.
+
+  Skip for a discount on one quote, line or block (dd-cpq-quoting-agent),
+  price bands, trials or early-pay on a product's plan
+  (dd-cpq-rate-plan-authoring), option rules inside one bundle
+  (dd-cpq-bundle-architect), testing rules (dd-cpq-configurator-tester).
 ---
 
 # DD CPQ rule author

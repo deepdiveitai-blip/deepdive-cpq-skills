@@ -3,16 +3,19 @@ name: dd-cpq-issue-reporter
 description: >-
   File a DD CPQ problem as a Jira Bug with every technical detail attached.
   Takes the DD-XXXXXX reference a user was shown (or a quote), pulls the
-  issue packet from the org with dd_cpq_issue_packet (error, stack, limits,
-  the run's pipeline flow, rules fired, quote lines and waterfalls,
-  settings, build), checks Jira for the same root cause first, and either
-  adds a "seen again" comment to the existing issue or drafts a new Bug,
-  shows it, and creates it only after the person says yes. Trigger on:
-  "file this", "raise a Jira for DD-", "log this bug", "report this error",
-  "create a defect from this reference", "I hit an error on a quote". Skip
-  for working or fixing an existing Case or Jira (dd-cpq-case-resolver),
-  exploratory testing (dd-cpq-pricing-tester, dd-cpq-configurator-tester)
-  and story research (dd-cpq-story-research).
+  issue packet with dd_cpq_issue_packet (error, stack, limits, pipeline
+  flow, rules fired, lines and waterfalls, settings, build), checks Jira for
+  the same root cause first, and either adds a "seen again" comment or
+  drafts a new Bug, shows it, and creates it only after the person says yes.
+
+  Trigger on: "file this", "I got error DD-…", "raise a Jira for DD-", "log
+  this bug", "report this error", "create a defect from this reference", "I
+  hit an error on a quote".
+
+  Skip for an existing Case (dd-cpq-case-resolver), a tester troubleshooting
+  their own org (dd-cpq-sandbox-e2e), exploratory testing
+  (dd-cpq-pricing-tester, dd-cpq-configurator-tester), posting story
+  findings (dd-cpq-story-research).
 ---
 
 # Filing a DD CPQ issue from a reference

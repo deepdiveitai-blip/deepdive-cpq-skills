@@ -1,22 +1,22 @@
 ---
 name: dd-cpq-story-research
 description: >-
-  Work one DD CPQ Jira rule story from start to Venkat's review, in Claude
-  Cowork. Reads the story from Jira, validates what the rule does today in
-  the connected org with the read-only dd-cpq tools, researches how other CPQ vendors
-  handle the same rule, merges the tester's findings from other AI tools,
-  writes a gap analysis and a design, maps the design onto the real code
-  and metadata in the org, then posts it all to the Jira story and moves it
-  to In Review for Venkat.
+  Work one DD CPQ Jira rule story from start to Venkat's review. Reads the
+  story, validates what the rule does today in the connected org with the
+  read-only dd-cpq tools, researches how other CPQ vendors handle it, merges
+  the tester's findings from other AI tools, writes a gap analysis and a
+  design mapped onto the real code and metadata, posts it to the story and
+  moves it to In Review. READ-ONLY on Salesforce; writes only to Jira.
 
-  READ-ONLY on Salesforce: never writes records, rules or code. Writes only
-  to Jira (comments, status, assignee).
+  Trigger on: "research DDCPQ-", "research this story", "start my rule
+  story", "gap analysis for", "design for DDCPQ-", "post my findings to
+  Jira".
 
-  Trigger on: "work DDCPQ-", "research this story", "start my rule story",
-  "gap analysis for", "design for DDCPQ-", "post my findings to Jira".
-
-  Skip for regression runs (dd-cpq-pricing-tester), configurator bug hunts
-  (dd-cpq-configurator-tester), building quotes (dd-cpq-quoting-agent).
+  A bare "work DDCPQ-nn" is ambiguous: ask "build it or research it?" before
+  choosing this skill or dd-cpq-dev-ready. Skip for building a story
+  (dd-cpq-dev-ready), lifecycle design with no story
+  (dd-cpq-lifecycle-research), filing a bug (dd-cpq-issue-reporter), test
+  runs, quotes.
 ---
 
 # DD CPQ Story Research · operating guide

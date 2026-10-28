@@ -1,6 +1,17 @@
 ---
 name: dd-cpq-ui-builder
-description: Scaffold a custom Quote / Cart / Configurator UI on top of the DeepDive CPQ public API, or configure the shipped schema-driven cart (cpqLedger) instead of building one. Use when a customer says "build me a healthcare quote UI", "make a mobile ordering app on DD CPQ", "generate a React storefront that calls DD", or asks for any custom UI that consumes the /dd/v1 REST surface. Ships with the DD CPQ public API surface documented inline so you don't need to guess endpoint shapes.
+description: >-
+  Scaffold a custom Quote / Cart / Configurator UI on the DD CPQ public API,
+  or configure the shipped schema-driven cart (cpqLedger) instead of
+  building one. Ships with the /dd/v1 REST surface documented inline so
+  endpoint shapes are not guessed.
+
+  Trigger on: "build me a … quote UI", "React storefront on DD", "mobile
+  ordering app on DD CPQ", "custom UI on the /dd/v1 API", "configure the
+  cart columns".
+
+  Skip for testing the cart display (dd-cpq-configurator-tester), demos
+  (dd-cpq-demo), building a quote (dd-cpq-quoting-agent).
 ---
 
 # DD CPQ UI Builder Skill

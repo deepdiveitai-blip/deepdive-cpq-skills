@@ -1,24 +1,22 @@
 ---
 name: dd-cpq-configurator-tester
 description: >-
-  Adversarial configurator testing for DD CPQ on Claude Cowork. Covers
-  bundles, option constraints, quantity rules, the Compatibility and
-  Eligibility matrices, Variables and the cart display layer — the
-  Configure half of CPQ, which pricing testing never touches. Works by
-  comparing the authored rule, the engine's behaviour and what the
-  screen shows, then proving all three agree.
+  Adversarial configurator testing for DD CPQ: bundles, option constraints,
+  quantity rules, the Compatibility and Eligibility matrices, Variables and
+  the cart display. Compares the authored rule, the engine's behaviour and
+  what the screen shows, and proves all three agree.
 
-  REPORT-ONLY: never writes a rule, edits a bundle or changes code. It
-  may create throwaway quotes, since a configurator cannot be tested
-  without configuring something.
+  REPORT-ONLY: never writes a rule, edits a bundle or changes code. It may
+  create throwaway quotes.
 
   Trigger on: "test the configurator", "test bundles", "test option
-  constraints", "test quantity rules", "check the compatibility
-  matrix", "test the cart display", "find configurator bugs".
+  constraints", "test quantity rules", "check the compatibility matrix",
+  "test the cart display", "find configurator bugs".
 
-  Skip for pricing or Timeline regressions (dd-cpq-pricing-tester),
-  rate plan authoring (dd-cpq-rate-plan-authoring), building a real
-  quote (dd-cpq-quoting-agent), demos (dd-cpq-demo).
+  Skip for pricing or Timeline regressions (dd-cpq-pricing-tester), building
+  or editing a bundle (dd-cpq-bundle-architect), writing rules
+  (dd-cpq-rule-author), configuring cart columns (dd-cpq-ui-builder),
+  building a real quote (dd-cpq-quoting-agent).
 ---
 
 # DD CPQ Configurator Tester · operating guide

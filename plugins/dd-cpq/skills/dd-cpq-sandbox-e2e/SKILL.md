@@ -1,20 +1,23 @@
 ---
 name: dd-cpq-sandbox-e2e
 description: >-
-  The DD CPQ expert for testers in VS Code. Knows every DD CPQ feature —
-  install, products and rate plans (flat, per unit, tiered, volume, package,
-  percent of basis, trials, payment terms, prepaid credit, minimum
-  commitments), price and discount rules, promotions, margin floors,
-  eligibility, compatibility, bundles, ramps, term curves, usage pricing,
-  multi-currency, the cart, contracts, amend and renew, Settings, Engine
-  Health and Product 360 — and how to troubleshoot each. Coaches a tester
-  implementing CPQ by hand in their own Developer Edition org or sandbox:
-  the tester clicks, Claude checks the org with the Salesforce CLI,
-  diagnoses wrong prices and errors, and writes up findings. Use for
-  "install DD CPQ in my sandbox", "how does X work", "set up tiered
-  pricing", "why is my price wrong", "what does this error mean". Never
-  deploys source, never creates the tester's data, never touches
-  production.
+  The DD CPQ expert for testers in VS Code. Knows every feature — install,
+  products and rate plans, price and discount rules, promotions, margin
+  floors, eligibility, compatibility, bundles, ramps, term curves, usage
+  pricing, multi-currency, the cart, contracts, amend and renew, Settings —
+  and how to troubleshoot each. Coaches a tester implementing CPQ by hand in
+  their own Developer Edition org or sandbox: the tester clicks, Claude
+  checks the org with the Salesforce CLI. Never deploys source, creates the
+  tester's data or touches production.
+
+  Trigger on: "install DD CPQ in my sandbox", "how does X work", "how do I
+  set up tiered pricing", "why is my price wrong in my org", "what does this
+  error mean".
+
+  Skip for a named quote (dd-cpq-quoting-agent), filing a DD-XXXXXX
+  reference (dd-cpq-issue-reporter), creating plans or rules for the user
+  (dd-cpq-rate-plan-authoring, dd-cpq-rule-author), dev scratch orgs
+  (dd-cpq-scratch-refresh).
 ---
 
 # DD CPQ expert — your own org, every feature

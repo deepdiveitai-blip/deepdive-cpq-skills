@@ -1,21 +1,23 @@
 ---
 name: dd-cpq-quoting-agent
 description: >-
-  The DD Quoting Agent's quoting know-how: turns a rep's plain-English ask
-  into a priced, checked DD CPQ quote. Works as a plan: shows every step and
-  its price effect, gets one yes, runs it, checks the result against the
-  cart, reports. Covers new quotes, bundles, attributes, promotions, price
-  guidance, Deal Blocks, ramps, co-terming, billing start, partner and
-  multi-currency deals, scenario versions, amendments, renewals and
-  signing. Never invents an Id or a price; never works around a rule.
+  The DD Quoting Agent's know-how: turns a rep's plain-English ask into a
+  priced, checked DD CPQ quote. Shows every step and its price effect, gets
+  one yes, runs it, then checks it against the cart. Covers new quotes,
+  bundles, attributes, promotions, price guidance, Deal Blocks, ramps,
+  co-terming, billing start, partner and multi-currency deals, scenario
+  versions, amendments, renewals, approval submission and signing. Never
+  invents an Id or a price.
 
-  Trigger on: "build a quote for …", "quote <customer> for …", "add … to
-  my quote", "10% off the … block", "make a 3-year ramp", "renew …",
-  "amend …", "show me a version with …", "get it under $X a month",
-  "why is this line $X", "fix my expiring quotes", "they signed".
+  Trigger on: "build a quote for …", "add … to my quote", "10% off the …
+  block", "make a 3-year ramp", "renew …", "amend …", "show me a version
+  with …", "get it under $X a month", "why is this line $X", "submit it for
+  approval", "they signed".
 
-  Skip for: the rep's day, meeting prep, renewals list and approvals
-  (dd-cpq-rep-desk), authoring rate plans or rules, testing DD CPQ.
+  Skip for the rep's day, meeting prep, renewals list and approving quotes
+  (dd-cpq-rep-desk), standing discounts for a segment (dd-cpq-rule-author),
+  rate plans (dd-cpq-rate-plan-authoring), a tester's own org
+  (dd-cpq-sandbox-e2e), demos (dd-cpq-demo), testing.
 ---
 
 # DD Quoting Agent: quoting

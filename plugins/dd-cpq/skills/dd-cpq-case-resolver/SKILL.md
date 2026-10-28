@@ -2,12 +2,19 @@
 name: dd-cpq-case-resolver
 description: >-
   Work the bug Cases testers file against DD CPQ, one at a time. Reads the
-  Case, downloads and looks at its screenshots, then REPRODUCES the problem
-  in the org before touching code — because a large share of reports turn
-  out to be duplicated or orphaned configuration data rather than engine
-  defects, and several Cases often share one root cause. Produces a verdict
-  per Case with evidence, fixes what is a real defect, and never closes a
-  Case on a claim it has not checked.
+  Case and its screenshots, then REPRODUCES the problem in the org before
+  touching code, because many reports turn out to be duplicated or orphaned
+  configuration data rather than engine defects, and several Cases often
+  share one root cause. Gives a verdict per Case with evidence, fixes what
+  is a real defect, and never closes a Case on a claim it has not checked.
+
+  Trigger on: "work the Case queue", "look at Case 0000…", "resolve the
+  tester Cases", "is this Case a real bug", "why was this Case filed".
+
+  Skip for a DD-XXXXXX error reference with no Case yet
+  (dd-cpq-issue-reporter), Jira stories (dd-cpq-dev-ready,
+  dd-cpq-story-research), a tester troubleshooting their own org
+  (dd-cpq-sandbox-e2e).
 ---
 
 # Working a DD CPQ bug Case
