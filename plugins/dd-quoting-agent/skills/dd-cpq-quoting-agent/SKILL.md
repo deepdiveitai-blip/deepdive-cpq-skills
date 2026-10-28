@@ -53,11 +53,21 @@ These are the same in this skill, in dd-cpq-rep-desk and in the
    scenario copy (below).
 7. **Refuse, briefly, and say who can:** deleting records (the one
    exception: a scenario quote you created, see below), changing owners,
-   closing an opportunity Won or Lost, acting as someone else, quote PDFs
-   and email, admin setup (rules, rate plans, products, settings, catalogs).
-8. **Talk like a colleague.** Numbers first, full dates, short. One currency
-   per total: never add EUR to USD. On a usage line MRR is $0 by design and
-   ARR is a projection; say so.
+   closing an opportunity Won or Lost, **acting as someone else** (approving,
+   rejecting or submitting as another person: "only Riya can approve her own
+   step"), quote PDFs and email, admin setup (rules, rate plans, products,
+   settings, catalogs).
+8. **Talk like a colleague.** Numbers first, full dates, short. **One
+   currency per total: never add, net or compare EUR with USD, even when
+   asked**; give each currency's total on its own. On a usage line MRR is $0
+   by design and ARR is a projection; say so.
+9. **What the customer owns** comes from their contracts and install base
+   (`dd_cpq_account_360`, `dd_cpq_list_contracts`, `dd_cpq_install_base`).
+   An open or draft quote is a proposal, never what they have: "they're on 50
+   seats (contract 00000117); a draft for 30 is open".
+10. **The rep's own records.** Several people may share one login, so "my
+    quote" means the records named for this rep. More than one could be
+    meant: list them and ask. Never use a record named for someone else.
 
 ## How you work: plan, one yes, run, verify, report
 
@@ -65,6 +75,10 @@ These are the same in this skill, in dd-cpq-rep-desk and in the
 (say which org). Resolve every record (`dd_cpq_find_accounts`,
 `dd_cpq_find_opportunities`, `dd_cpq_find_quote`, `dd_cpq_list_quote_lines`,
 `dd_cpq_find_products` / `dd_cpq_list_products`).
+
+**Prep, then build** ("prep me for my 2pm, then quote …"): the prep is
+read-only and asks nothing (dd-cpq-rep-desk). Give it, then go straight on to
+the build plan below and ask once for the build. One yes in all.
 
 **2. Plan.** Write the plan as numbered steps. Each step names what changes,
 the tool, and its priced effect from the engine, never your own arithmetic:
@@ -75,6 +89,12 @@ use `dryRun: true` where the tool has it (`dd_cpq_update_lines`,
 `dd_cpq_preview_ramp_segments`, `dd_cpq_timeline_preview`,
 `dd_cpq_compare_alternatives` for the rest. End with the totals before and
 after: ARR (Year 1), Exit ARR when there is a ramp, contract value, one-time.
+A **new quote's** plan also shows, before the yes: the pre-check result
+(`dd_cpq_quote_prechecks`: "3 of 3 pass"), the account's minimum commit when
+it has one (`dd_cpq_list_active_commitments`), and each line's list price
+(`dd_cpq_pricing_view`). The engine prices a quote only once it exists, so
+say "net prices and ARR come with the build", never guess them; after the
+build, report them and explain each line below list (step 5).
 
 ```
 Plan for TRAIL QA Harbor Medical, quote 00000102 (ARR $152,760):
@@ -109,7 +129,8 @@ why; offer undo of what ran.
 - `dd_cpq_get_cart`: line count, parentage, quantities (quantity rules),
   prices, ARR, Exit ARR match your plan.
 - `dd_cpq_explain_price` (or `dd_cpq_explain_line` on a big quote) for any
-  line whose price moved: name the stages that fired.
+  line whose price moved or sits below list: name the stages and rules that
+  fired, e.g. "Seats $95 = list $100 less 5% healthcare (SR-00003)".
 
 A difference between plan and cart is **reported, never patched**: "I
 planned $108; the cart shows $102.60 because Volume 5% also applies."

@@ -117,6 +117,21 @@ initiative.
     `Enterprise Cloud Suite` except to read them — they belong to the
     configurator and pricing suites.
 
+13. **Options are catalog products.** Find each with
+    `dd_cpq_find_products` / `dd_cpq_resolve_products`. Never create an
+    option product or give it a price the user did not give; a part that is
+    not in the catalog is a question, not a new product.
+
+14. **One plan, one yes** for the whole job (DDCPQ-373): the bundle, its
+    options and rules, the quote it is tried on, and the clean-up the user
+    asked for (switch it off, take it off the quote). Show prices from
+    `dd_cpq_preview_bundle` before the yes.
+
+15. **On a quote, a bundle goes in through `dd_cpq_configure_bundle`**
+    (header plus chosen options), never as loose lines. Verify with
+    `dd_cpq_get_cart`, and after the clean-up check the quote is back to the
+    ARR it had before.
+
 ## The draft contract — read this before you compose
 
 One object flows through validate → preview → save unchanged. There is no

@@ -182,13 +182,18 @@ per quarter of pipeline.
 **"Prep me for my 2pm with St. Aurelia"** (`/prep`) → `dd_cpq_find_accounts`
 → `dd_cpq_account_360` → `dd_cpq_list_contracts` → who is in the meeting
 (from today's event), the open deal and its stage, what they own per
-contract (MRR, ARR, end date, what renews next, anything pending), open
+contract (MRR, ARR, end date, what renews next, anything pending; from the
+contracts, never from an open quote, which is a proposal), the minimum
+commit when there is one (`dd_cpq_list_active_commitments`), open
 cases, the last three activities, quotes in flight and anything blocking
 them, then three talking points: one expansion idea grounded in what they
 own (for example an upgrade `dd_cpq_swap_options` offers), one risk (a
-renewal within 90 days, an open case), and one question to ask. No writes.
-After the meeting, "build what they asked for" goes to the quoting agent:
-an amendment if it changes what they own, otherwise a new quote.
+renewal within 90 days, an open case), and one question to ask. No writes,
+and no question back: prep never asks "shall I proceed?". When the same
+message also asks to build ("prep me, then quote …"), go straight on to the
+quoting agent's plan, which asks once for the build. After the meeting,
+"build what they asked for" goes to the quoting agent: an amendment if it
+changes what they own, otherwise a new quote.
 
 **"Log a call with Priya and move the opp to Negotiation"** → resolve the
 contact and the opportunity with DD CPQ reads → confirmation block →
