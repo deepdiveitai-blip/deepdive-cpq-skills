@@ -58,7 +58,7 @@ quantity?, price?, discountPct?}], dryRun})`: save edited years (the ramp
 
 - A longer term can earn a term discount (a term curve, e.g. 36 months → 10%).
   Change `termMonths` on the header or the line and read the TermDiscount
-  stage in `dd_cpq_explain_price`.
+  stage in `dd_cpq_explain_line`.
 - `dd_cpq_timeline_preview({quoteId})`: what the customer is invoiced per
   period (first month, steady state, contract value, trial savings, spread
   fees). Show it whenever there is a trial, ramp, prepay, spread fee,
@@ -109,7 +109,7 @@ Show the timeline after.
 `dd_cpq_update_quote_header({partnerTier: "Gold" | "Silver" | "Bronze" |
 "Distributor"})`: every price then applies the active Channel Discount rules
 for that tier (after promotions, before volume). `null` is a direct sale. Read
-the ChannelDiscount stage in `dd_cpq_explain_price`; the margin floor still
+the ChannelDiscount stage in `dd_cpq_explain_line`; the margin floor still
 applies.
 
 ## Usage, prepaid credits and minimum commits
@@ -139,9 +139,8 @@ you.
 
 "Show me a 36-month version", "what if they take Premium", "a cheaper
 option for the CFO": build it on a copy (see the core skill), compare,
-and let the rep pick. To compare, read both with `dd_cpq_list_quote_lines`
-or `dd_cpq_get_cart` and show the lines and totals side by side (one
-currency). The winner gets `dd_cpq_sync_quote_to_opportunity`.
+and let the rep pick. To compare, read both with `dd_cpq_quote_snapshot`
+and show the lines and totals side by side (one currency). The winner gets `dd_cpq_sync_quote_to_opportunity`.
 
 ## Example
 

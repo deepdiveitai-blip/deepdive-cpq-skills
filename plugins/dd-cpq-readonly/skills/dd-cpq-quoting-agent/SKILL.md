@@ -75,12 +75,29 @@ These are the same in this skill, in dd-cpq-rep-desk and in the
 
 **1. Understand and ground.** `dd_cpq_current_user` once per conversation
 (say which org). Resolve every record (`dd_cpq_find_accounts`,
-`dd_cpq_find_opportunities`, `dd_cpq_find_quote`, `dd_cpq_list_quote_lines`,
-`dd_cpq_find_products` / `dd_cpq_list_products`).
+`dd_cpq_find_opportunities`, `dd_cpq_find_quote`,
+`dd_cpq_find_products` / `dd_cpq_list_products`). Read a quote with
+`dd_cpq_quote_snapshot`: header totals and one row per line (qliId,
+productId, ratePlanId, block, qty, list, net, discounts, ARR, flags) in a
+fraction of the tokens a full cart takes. Read it once; it stays in the
+chat.
 
 **Prep, then build** ("prep me for my 2pm, then quote …"): the prep is
 read-only and asks nothing (dd-cpq-rep-desk). Give it, then go straight on to
 the build plan below and ask once for the build. One yes in all.
+
+**Changing a quote that exists: one tool.** Line changes (quantity, plan,
+discount, price, term, dates, remove), Deal Blocks (create, rename, block
+discount, optional, move lines in), header term / start / partner tier /
+co-term and promotion codes all go in ONE `dd_cpq_apply_change_plan` call,
+however many the rep asked for. `mode: "preview"` prices them together and
+saves nothing: its `markdown` is the plan you show, with ARR before and
+after, and "Go?". After the yes, the same `ops` with `mode: "apply"` and
+`note` save everything; its result is the verify (`verify.differences`,
+`notKept`) and carries one `revert.token` for the whole plan. Example:
+"10% off Year 1, seats to 30, hardware into a Clinics block" is four ops,
+two calls. The single-change tools below are for what the plan cannot do
+(bundles, ramps, billing start, amendments, renewals, new quotes).
 
 **2. Plan.** Write the plan as numbered steps. Each step names what changes,
 the tool, and its priced effect from the engine, never your own arithmetic:
@@ -125,22 +142,29 @@ resubmit with `dd_cpq_submit_for_approval` only after the rep's yes.
 at the first blocking warning or refusal: report what ran, what did not, and
 why; offer undo of what ran.
 
-**5. Verify** against what the rep will see, every time:
+**5. Verify** with what the save itself returned. Every line-changing tool
+reads the saved lines back from the engine and returns them (quantity, net
+price, ARR before and after, `notKept`, warnings, `revert.token`): compare
+that answer with your plan. That is the check; do not re-read the quote to
+repeat it.
 
-- `dd_cpq_validate_quote`: nothing would refuse the commit.
-- `dd_cpq_get_cart`: line count, parentage, quantities (quantity rules),
-  prices, ARR, Exit ARR match your plan.
-- `dd_cpq_explain_price` (or `dd_cpq_explain_line` on a big quote) for any
-  line whose price moved or sits below list: name the stages and rules that
-  fired, e.g. "Seats $95 = list $100 less 5% healthcare (SR-00003)".
+- Read `dd_cpq_quote_snapshot` once, only when the save's answer does not
+  show something the plan promised (a new quote's net prices and ARR, a
+  bundle's children, a block subtotal, Exit ARR).
+- `dd_cpq_explain_line` only for a line whose saved price differs from the
+  plan, a non-empty `notKept`, or when the rep asks why: name the stages and
+  rules, e.g. "Seats $95 = list $100 less 5% healthcare (SR-00003)".
+- `dd_cpq_validate_quote` when the rep asks "will this commit?" or before
+  submitting for approval. A save already refuses what would not commit.
 
-A difference between plan and cart is **reported, never patched**: "I
-planned $108; the cart shows $102.60 because Volume 5% also applies."
+A difference between plan and saved result is **reported, never patched**:
+"I planned $108; the engine saved $102.60 because Volume 5% also applies."
 
 **6. Report** in a few lines: what changed, ARR before and after, any flag
 (floor, guidance approval, currency fallback, billing start waiting), the
 cart link (`https://<instance>/lightning/r/Quote/<Id>/view`, then Configure
-Products), and "say _undo_". Then leave a note with
+Products), and "say _undo_". When you read a snapshot, show its `markdown`
+table as it is rather than retyping the numbers. Then leave a note with
 `dd_cpq_add_agent_note({quoteId, text})`: who you acted for and what
 changed, e.g. "For Venkat: Year 2 → 150 × $105, ARR unchanged, Exit ARR
 $177,960. Undo was offered." Once per executed plan, never for a preview.
@@ -148,8 +172,9 @@ It lands on the quote's Chatter feed, or on the Opportunity's when the org
 has Chatter off for quotes. A failed note never undoes the changes: say it
 is missing.
 
-Small asks ("change seats to 30") are a one-step plan: preview, one yes,
-save, read back.
+Small asks ("change seats to 30") are a one-step plan in two turns: the
+priced preview and "Go?" in one message, then the save and its own answer
+as the report. No extra reads.
 
 ## Which job is this? Read the reference first
 

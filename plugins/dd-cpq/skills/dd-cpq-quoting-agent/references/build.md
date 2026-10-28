@@ -34,7 +34,8 @@ templateId}` a Deal Block template's empty blocks.
 
 "Same as last time": `dd_cpq_find_quote` for the old quote, then `startFrom:
 copy` when it is on the same Opportunity; otherwise read its products with
-`dd_cpq_list_quote_lines` and add them. "Our usual starter pack":
+`dd_cpq_quote_snapshot` (each row carries productId and ratePlanId) and add
+them. "Our usual starter pack":
 `dd_cpq_list_saved_sets` → `startFrom: savedSet`.
 
 ## Adding products
@@ -75,8 +76,9 @@ parentQliId, selections?, bundleQuantity?, dryRun})`. `selections` is the
 | option-driven     | another option's quantity × `quantityMultiplier` |
 
 `quantityEditable: false` means a rep's quantity is not honoured. After
-saving, read the quantities back (`dd_cpq_get_cart`) and tell the rep any
-that differ, with the rule.
+saving, compare the quantities the save returned (or `dd_cpq_quote_snapshot`
+for children it did not return) and tell the rep any that differ, with the
+rule.
 
 ## Attributes
 

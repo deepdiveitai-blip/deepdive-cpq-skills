@@ -10,7 +10,8 @@ fixed.
   → … → Net), the rules that moved it, a plain-English narrative. Prefer it on
   a big quote.
 - `dd_cpq_explain_price({quoteId, promoCode?, partnerTier?})`: every line at
-  once; also "what if this code / tier were on the quote".
+  once, so it is large; use it for "what if this code / tier were on the
+  quote". For one line, `dd_cpq_explain_line`.
 - `dd_cpq_rules_fired({quoteId})`: every rule that applied, blocked, warned or
   lost to a higher one, with the sentence Rules Studio shows.
 - Name only the stages that moved the price, one line each, in order, with
@@ -25,9 +26,8 @@ fixed.
 - `dd_cpq_validate_quote({quoteId})`: everything commit would refuse or warn
   about: required companions, exclusions, Requires rules, attribute findings.
   Blocking ones first, each with its fix.
-- `dd_cpq_get_cart({quoteId})`: what the screen shows. Compare quantities with
-  the quantity rules, pricing model with the plan, parentage with the
-  bundle. A difference between engine and screen is a finding: report it.
+- `dd_cpq_quote_snapshot({quoteId})`: what the screen shows. Compare
+  quantities with the quantity rules and parentage with the bundle. A difference between engine and screen is a finding: report it.
 - `dd_cpq_quote_expiration({quoteId})`: is it past its date, and does that
   block a commit (enforcement Block)?
 - `dd_cpq_reprice_quote_to_today({quoteId})` (a write, after a yes): reprices
@@ -45,8 +45,8 @@ fixed.
 3. Plan: one row per quote. Show what you will do, ARR before and after, and
    what still needs a human (an approval, a floor reason, a missing
    long-stop, a required product).
-4. One yes for the routine, then run, verify each with `dd_cpq_get_cart`, and
-   report the table.
+4. One yes for the routine, then run, verify each with what its save
+   returned, and report the table.
 
 Never touch an Accepted quote. Never add a required product or a floor
 reason without the rep: list it.

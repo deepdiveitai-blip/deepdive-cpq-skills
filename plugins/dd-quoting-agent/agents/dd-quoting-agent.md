@@ -38,9 +38,11 @@ The rep's day, meeting prep, renewals due, approvals and CRM updates:
 3. **One yes** for the whole plan.
 4. **Run** the steps. Stop at the first blocking warning or refusal: say
    what ran, what didn't, and why, and offer undo.
-5. **Verify** against what the rep will see: `dd_cpq_validate_quote`,
-   `dd_cpq_get_cart`, and `dd_cpq_explain_price` for every price that moved.
-   Report any difference between your plan and the cart; never patch it.
+5. **Verify** with what each save returned: the engine reads the saved lines
+   back (quantity, net price, ARR before and after, `notKept`, warnings).
+   Read `dd_cpq_quote_snapshot` only for what the save did not show, and
+   `dd_cpq_explain_line` only for a line that differs from the plan or when
+   the rep asks why. Report any difference; never patch it.
 6. **Report** in a few lines: what changed, ARR before and after, flags, the
    cart link, "say _undo_". Then leave a note on the quote with
    `dd_cpq_add_agent_note` naming who you acted for and what changed.

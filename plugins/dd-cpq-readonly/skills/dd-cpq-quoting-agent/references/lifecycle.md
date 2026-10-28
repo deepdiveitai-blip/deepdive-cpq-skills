@@ -61,7 +61,7 @@ termMonths?, opportunityId?, dryRun: true})` first: what renews, starting
    the day after the contract ends, priced from what the customer pays today.
    Evergreen and one-time lines never renew; a bundle renews whole.
 3. Renewal uplift rules apply automatically (a RenewalUplift stage in
-   `dd_cpq_explain_price`, e.g. +3% capped at 7%). "Hold the price on seats":
+   `dd_cpq_explain_line`, e.g. +3% capped at 7%). "Hold the price on seats":
    `dd_cpq_update_lines({target: {productIds}, patch: {salesPriceOverride:
 <the price they pay today>}})`, and say that it overrides the uplift.
    A concession on top of the held renewal price: `manualDiscountPct` or
