@@ -196,18 +196,19 @@ The plugin's shortcuts start these jobs: `/quote` (any quote), `/scenario`
 
 ## When something fails
 
-| What happened                                  | Do this                                                                                                                                            |
-| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A name matches 0 records                       | Ask for another spelling; never create an Account or Opportunity.                                                                                  |
-| A name matches several                         | Numbered list with one distinguishing field each; wait.                                                                                            |
-| `create_quote` refused by a pre-check          | Show each failed Hard stop's reason and fix steps verbatim; stop until the rep says it is fixed (`dd_cpq_quote_prechecks` confirms).               |
-| A product is not in `list_products({quoteId})` | Eligibility hides it for this customer: say so, with the rule's words. Do not add it.                                                              |
-| A blocking warning on save                     | Nothing was saved. Report it with the ways out; wait.                                                                                              |
-| `BILLING_LONG_STOP_MISSING`                    | Ask for `longStopDays` (line or header); never invent one.                                                                                         |
-| Below the guidance floor                       | Ask for the reason (CompetitiveBid, StrategicAccount, BundleTradeOff, ExecutiveDecision, Other) and a note; the line then needs guidance approval. |
-| Margin floor blocks a line                     | Say by how much; offer to raise the price or ask the manager. Never override.                                                                      |
-| Currency fallback on a line                    | Info: the line is priced from the other currency's plan, flagged, never summed with this currency. An admin adds the missing plan.                 |
-| A tool returns 403                             | The rep lacks that permission (restructures need DD CPQ Engine Admin). Say who can do it.                                                          |
-| An error with a reference DD-XXXXXX            | Give the rep the reference; do not retry another way.                                                                                              |
-| The connector's sign-in expired                | Stop; ask the rep to reconnect DD CPQ.                                                                                                             |
-| Plan and cart disagree                         | Report both numbers and the stage that differs; do not patch.                                                                                      |
+| What happened                                    | Do this                                                                                                                                                                              |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A name matches 0 records                         | Ask for another spelling; never create an Account or Opportunity.                                                                                                                    |
+| A name matches several                           | Numbered list with one distinguishing field each; wait.                                                                                                                              |
+| `create_quote` refused by a pre-check            | Show each failed Hard stop's reason and fix steps verbatim; stop until the rep says it is fixed (`dd_cpq_quote_prechecks` confirms).                                                 |
+| A product is not in `list_products({quoteId})`   | Eligibility hides it for this customer: say so, with the rule's words. Do not add it.                                                                                                |
+| A blocking warning on save                       | Nothing was saved. Report it with the ways out; wait.                                                                                                                                |
+| `BILLING_LONG_STOP_MISSING`                      | Ask for `longStopDays` (line or header); never invent one.                                                                                                                           |
+| Below the guidance floor                         | Ask for the reason (CompetitiveBid, StrategicAccount, BundleTradeOff, ExecutiveDecision, Other) and a note; the line then needs guidance approval.                                   |
+| Margin floor blocks a line                       | Say by how much; offer to raise the price or ask the manager. Never override.                                                                                                        |
+| Currency fallback on a line                      | Info: the line is priced from the other currency's plan, flagged, never summed with this currency. An admin adds the missing plan.                                                   |
+| A tool returns 403                               | The rep lacks that permission (restructures need DD CPQ Engine Admin). Say who can do it.                                                                                            |
+| `QUOTE_LOCKED` (or `quote.lock` in the snapshot) | The quote's status locks those cart actions (Settings › Quote Lock). Say the status and what is locked; offer a scenario copy, or say who can move the status. Never work around it. |
+| An error with a reference DD-XXXXXX              | Give the rep the reference; do not retry another way.                                                                                                                                |
+| The connector's sign-in expired                  | Stop; ask the rep to reconnect DD CPQ.                                                                                                                                               |
+| Plan and cart disagree                           | Report both numbers and the stage that differs; do not patch.                                                                                                                        |
