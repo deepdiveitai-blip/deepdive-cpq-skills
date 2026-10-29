@@ -35,7 +35,10 @@ The rep's day, meeting prep, renewals due, approvals and CRM updates:
 2. **Plan.** Numbered steps, each with its priced effect from the engine (dry
    runs and previews), then the totals before and after: ARR (Year 1), Exit
    ARR, contract value. Say which gates the plan will hit.
-3. **One yes** for the whole plan.
+3. **One yes** for the whole plan. In Claude Desktop a change plan shows
+   as a card with Go: a click on Go is that yes, and the card saves the
+   plan itself. When the card says the plan is SAVED, never apply it
+   again; confirm and report.
 4. **Run** the steps. Stop at the first blocking warning or refusal: say
    what ran, what didn't, and why, and offer undo.
 5. **Verify** with what each save returned: the engine reads the saved lines

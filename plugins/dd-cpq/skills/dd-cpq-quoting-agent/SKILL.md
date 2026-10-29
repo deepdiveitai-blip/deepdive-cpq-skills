@@ -92,9 +92,16 @@ discount, optional, move lines in), header term / start / partner tier /
 co-term and promotion codes all go in ONE `dd_cpq_apply_change_plan` call,
 however many the rep asked for. `mode: "preview"` prices them together and
 saves nothing: its `markdown` is the plan you show, with ARR before and
-after, and "Go?". After the yes, the same `ops` with `mode: "apply"` and
-`note` save everything; its result is the verify (`verify.differences`,
-`notKept`) and carries one `revert.token` for the whole plan. Example:
+after, and "Go?". After the yes, the same `ops` with `mode: "apply"`,
+`note` and `expectState` (the preview's `stateKey`) save everything; its
+result is the verify (`verify.differences`, `notKept`) and carries one
+`revert.token` for the whole plan. If apply says the quote changed since
+the preview, nothing was saved: preview again and show the new plan.
+In Claude Desktop the preview is also a plan card with **Go** and
+**Discard**. The rep may click Go instead of saying yes: the card saves the
+plan itself and then tells you it is SAVED (with its undo token). Never
+apply that plan again; just confirm. If they click Discard, nothing is
+saved: do not apply it. A short "yes" in the chat still works the same. Example:
 "10% off Year 1, seats to 30, hardware into a Clinics block" is four ops,
 two calls. The single-change tools below are for what the plan cannot do
 (bundles, ramps, billing start, amendments, renewals, new quotes).
