@@ -40,6 +40,14 @@ them. "Our usual starter pack":
 pack": resolve each product, then `dd_cpq_save_product_set` (a write: it goes
 in the plan, private unless the rep says to share it).
 
+"Clone this quote" (a real second quote the rep keeps, same Opportunity):
+ask "What do you want to copy? Products only, products and prices, or
+products, prices and discounts", then `dd_cpq_clone_quote` with copy
+`products`, `prices` or `full`. It is always a Draft; the admin's Smart Clone
+settings decide which header fields come along, so do not ask about them. A
+what-if copy you will throw away stays `startFrom: {kind: copy, scenario:
+true}`. Amendment and renewal quotes cannot be cloned.
+
 ## Adding products
 
 - Resolve names with `dd_cpq_find_products`, then **confirm each one is in
