@@ -1,6 +1,6 @@
 {
   "name": "dd-quoting-agent",
-  "version": "1.1.43",
+  "version": "1.1.44",
   "description": "For sales reps: an autonomous quoting colleague. It plans the whole job (new quotes, multi-site ramps, renewals, upgrades, fitting a budget, fixing expiring quotes), prices every step with the DD CPQ engine, asks once, runs it, checks the cart and reports. Shortcuts: /quote, /scenario, /fit, /amend, /renew, /golive, /sweep, /prep, /my-day, /renewals, /approvals, /setup.",
   "author": {
     "name": "DeepDive IT"

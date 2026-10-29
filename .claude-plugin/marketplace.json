@@ -25,16 +25,6 @@
         "name": "DeepDive IT"
       },
       "source": "./plugins/dd-cpq"
-    },
-    {
-      "name": "dd-cpq-readonly",
-      "displayName": "DD CPQ (read-only)",
-      "description": "For testers: every DD CPQ skill with the read-only DD CPQ connector. It can look up quotes, prices and rules but cannot change anything.",
-      "category": "sales",
-      "author": {
-        "name": "DeepDive IT"
-      },
-      "source": "./plugins/dd-cpq-readonly"
     }
   ]
 }
