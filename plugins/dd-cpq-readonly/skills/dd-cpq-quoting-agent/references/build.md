@@ -36,7 +36,9 @@ templateId}` a Deal Block template's empty blocks.
 copy` when it is on the same Opportunity; otherwise read its products with
 `dd_cpq_quote_snapshot` (each row carries productId and ratePlanId) and add
 them. "Our usual starter pack":
-`dd_cpq_list_saved_sets` → `startFrom: savedSet`.
+`dd_cpq_list_saved_sets` → `startFrom: savedSet`. "Save these as my starter
+pack": resolve each product, then `dd_cpq_save_product_set` (a write: it goes
+in the plan, private unless the rep says to share it).
 
 ## Adding products
 
