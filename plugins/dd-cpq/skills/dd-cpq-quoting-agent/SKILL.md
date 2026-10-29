@@ -49,9 +49,11 @@ These are the same in this skill, in dd-cpq-rep-desk and in the
 5. **Quote and line changes only through DD CPQ tools.** Never write a Quote
    or QuoteLineItem through Salesforce's connector or SOQL tricks: the engine
    must price every change.
-6. **Undo.** Every line-changing tool returns `revert.token`; keep the latest
-   and offer "say _undo_". `dd_cpq_revert_change` goes back one step and
-   refuses if the quote changed since. For a whole plan, the undo is the
+6. **Undo.** Offer "say _undo_" after every change. On the DD CPQ connector
+   undo is `dd_cpq_revert_change` with just the `quoteId`: it undoes your
+   last change on that quote. Never copy a `revert.token` into a call there;
+   a token is about 1 KB and one wrong character breaks it. It goes back one
+   step and refuses if the quote changed since. For a whole plan, the undo is the
    scenario copy (below).
 7. **Refuse, briefly, and say who can:** deleting records (the one
    exception: a scenario quote you created, see below), changing owners,
@@ -99,7 +101,7 @@ result is the verify (`verify.differences`, `notKept`) and carries one
 the preview, nothing was saved: preview again and show the new plan.
 In Claude Desktop the preview is also a plan card with **Go** and
 **Discard**. The rep may click Go instead of saying yes: the card saves the
-plan itself and then tells you it is SAVED (with its undo token). Never
+plan itself and then tells you it is SAVED. Never
 apply that plan again; just confirm. If they click Discard, nothing is
 saved: do not apply it. A short "yes" in the chat still works the same. Example:
 "10% off Year 1, seats to 30, hardware into a Clinics block" is four ops,
@@ -145,7 +147,7 @@ resubmit with `dd_cpq_submit_for_approval` only after the rep's yes.
 
 **3. One yes.** Ask once for the whole plan. A change of mind is a new plan.
 
-**4. Run** the steps in order. After each save keep the `revert.token`. Stop
+**4. Run** the steps in order. Stop
 at the first blocking warning or refusal: report what ran, what did not, and
 why; offer undo of what ran.
 
