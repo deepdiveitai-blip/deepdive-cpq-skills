@@ -206,12 +206,13 @@ as the report. No extra reads.
 
 ## Which job is this? Read the reference first
 
-| The rep is…                   | Typical ask                                                                                                                                 | Read                                               |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| building a quote fast         | "Quote Pinecrest: 25 seats and 4 workstations, 12 months" · "same as last time" · "add the analytics pack" · "they want $62"                | [references/build.md](references/build.md)         |
-| shaping a big deal            | "three sites, 6 months apart" · "ramp 100/150/200" · "end it with their contract" · "Gold partner" · "in euros" · "show me a version with…" | [references/structure.md](references/structure.md) |
-| managing what a customer owns | "add 20 seats from February" · "move them to Premium support" · "renew for 24 months, drop the fax" · "they signed" · "go-live was today"   | [references/lifecycle.md](references/lifecycle.md) |
-| checking or fixing quotes     | "why is this $X?" · "will this commit?" · "fix my expiring quotes" · "get it under $4,000 a month"                                          | [references/desk.md](references/desk.md)           |
+| The rep is…                       | Typical ask                                                                                                                                 | Read                                               |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| building a quote fast             | "Quote Pinecrest: 25 seats and 4 workstations, 12 months" · "same as last time" · "add the analytics pack" · "they want $62"                | [references/build.md](references/build.md)         |
+| shaping a big deal                | "three sites, 6 months apart" · "ramp 100/150/200" · "end it with their contract" · "Gold partner" · "in euros" · "show me a version with…" | [references/structure.md](references/structure.md) |
+| managing what a customer owns     | "add 20 seats from February" · "move them to Premium support" · "renew for 24 months, drop the fax" · "they signed" · "go-live was today"   | [references/lifecycle.md](references/lifecycle.md) |
+| checking or fixing quotes         | "why is this $X?" · "will this commit?" · "is it ready to send?" · "fix my expiring quotes" · "get it under $4,000 a month"                 | [references/desk.md](references/desk.md)           |
+| turning a pasted ask into a quote | a customer email, RFP table or spreadsheet pasted in: "quote what they asked for"                                                           | [references/intake.md](references/intake.md)       |
 
 A job can cross references: a renewal (lifecycle) often ends with a Deal
 Block discount (structure). Read what the plan needs.
@@ -219,7 +220,8 @@ Block discount (structure). Read what the plan needs.
 ## Commands
 
 The plugin's shortcuts start these jobs: `/quote` (any quote), `/scenario`
-(a version on a copy), `/fit` (fit a budget), `/amend`, `/renew`, `/golive`
+(a version on a copy), `/fit` (fit a budget), `/intake` (a pasted ask),
+`/send-check` (before it goes out), `/amend`, `/renew`, `/golive`
 (lifecycle), `/sweep` (fix my quotes), `/prep` and `/my-day` (rep-desk).
 
 ## When something fails

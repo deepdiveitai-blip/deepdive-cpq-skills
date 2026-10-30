@@ -34,6 +34,43 @@ fixed.
   with today's rules, gives a fresh expiry, and brings an Expired quote back
   to Draft. It returns exactly what moved, per line and stage, and why.
 
+## Before it goes out (`/send-check`)
+
+The rep's one-minute gate before sending a quote, plus a summary the
+customer can read. **Change nothing** unless the rep asks to mark it
+Presented and says yes.
+
+1. `dd_cpq_quote_snapshot`, then in parallel `dd_cpq_get_quote_header`,
+   `dd_cpq_quote_expiration`, `dd_cpq_validate_quote`,
+   `dd_cpq_list_deal_blocks`, `dd_cpq_timeline_preview`,
+   `dd_cpq_billing_start_status`, and `dd_cpq_quote_changes_since` from the
+   last Approval (or 30 days).
+2. **Clean** only when none of these hold, each listed with its fix:
+   - status Accepted or Denied, or the quote is locked (`quote.lock`)
+   - expired, or expiring before the customer could sign (under 7 days)
+   - `validate_quote` ok=false
+   - a promotion code that wins no line (`list_available_promotions`)
+   - a line flagged `currency fallback`
+   - a trial line with a discount, or without its paid line
+   - a pick-one block with no alternative chosen
+   - an approval flag while the status is Draft, or a Line/Save change after
+     the last Approval
+   - the quote is a scenario copy (Description starts "DD Quoting Agent
+     scenario of")
+3. **Customer summary**, in the customer's words, numbers from the engine:
+   - What you get: per block, each line's product, quantity and price;
+     optional items marked "optional"; trial lines as "trial, then paid
+     from <date>".
+   - When: start date, term, end date; anything that starts on go-live.
+   - What you pay: first invoice, then each period (from
+     `timeline_preview`), Year-1 ARR, exit ARR when it ramps, contract
+     value.
+   - Valid until: the expiration date.
+4. **Internal only**: flags, approvals, and what changed since the last
+   approval.
+5. Offer to set Status to Presented (`dd_cpq_update_quote_header`), after a
+   yes. Never send, email or make a PDF.
+
 ## The end-of-quarter sweep (`/sweep`)
 
 1. `dd_cpq_my_day`: the rep's quotes with `reasons` (expired, expiring,

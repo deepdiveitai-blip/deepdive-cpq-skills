@@ -9,12 +9,22 @@
     {
       "name": "dd-quoting-agent",
       "displayName": "DD Quoting Agent",
-      "description": "For sales reps: an autonomous quoting colleague. It plans the whole job (new quotes, multi-site ramps, renewals, upgrades, fitting a budget, fixing expiring quotes), prices every step with the DD CPQ engine, asks once, runs it, checks the cart and reports. Shortcuts: /quote, /scenario, /fit, /amend, /renew, /golive, /sweep, /prep, /my-day, /renewals, /approvals, /setup.",
+      "description": "For sales reps: an autonomous quoting colleague. It plans the whole job (new quotes, multi-site ramps, renewals, upgrades, fitting a budget, fixing expiring quotes), prices every step with the DD CPQ engine, asks once, runs it, checks the cart and reports. Shortcuts: /quote, /intake, /send-check, /scenario, /fit, /amend, /renew, /golive, /sweep, /prep, /my-day, /renewals, /approvals, /setup.",
       "category": "sales",
       "author": {
         "name": "DeepDive IT"
       },
       "source": "./plugins/dd-quoting-agent"
+    },
+    {
+      "name": "dd-deal-desk",
+      "displayName": "DD Deal Desk",
+      "description": "For deal desk analysts, renewal managers and pricing admins: runs the jobs that take hours. Reviews a quote against policy before it is signed or sent, and works across many quotes and contracts. Reviews change nothing; jobs that change records show one plan, get one yes, run and report.",
+      "category": "sales",
+      "author": {
+        "name": "DeepDive IT"
+      },
+      "source": "./plugins/dd-deal-desk"
     },
     {
       "name": "dd-cpq",
