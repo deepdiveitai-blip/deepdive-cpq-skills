@@ -60,9 +60,16 @@ quantity?, price?, discountPct?}], dryRun})`: save edited years (the ramp
   Change `termMonths` on the header or the line and read the TermDiscount
   stage in `dd_cpq_explain_line`.
 - `dd_cpq_timeline_preview({quoteId})`: what the customer is invoiced per
-  period (first month, steady state, contract value, trial savings, spread
+  period (first month, steady state, contract value, spread
   fees). Show it whenever there is a trial, ramp, prepay, spread fee,
   proration or a billing start after the service start.
+- A rate plan with a trial gives two lines (DDCPQ-386): the trial line at the
+  trial price, then the paid line from the day after the trial, for the full
+  commitment. `dd_cpq_quote_snapshot` gives each its `phase` (trial / paid)
+  and `trialStatus` (Scheduled / Running / Converted / Expired; Pending /
+  Active). The trial price is final: discount the paid line, never
+  the trial line. Removing the trial line removes both. Header ARR is what is
+  earned today (0 during a trial); exit ARR is the paid line.
 
 ## Ending with the existing contract (co-term)
 

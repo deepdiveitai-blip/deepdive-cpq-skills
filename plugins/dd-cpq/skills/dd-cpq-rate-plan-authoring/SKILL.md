@@ -194,12 +194,19 @@ Emit 3 upserts, all with the same `planGroupKey`. Mark ONE `isDefaultInGroup: tr
 
 ### Trial (Phase D)
 
-Add `trialDays` + `trialUnitPrice`. MRR calc uses the LIST unit price (Bessemer-clean); trial is transient. Since DDCPQ-153 the trial window starts when the line starts billing (its service start unless a billing trigger delays it).
+Add `trialDays` + `trialUnitPrice`, and say what happens when it ends (DDCPQ-386):
+
+- `trialEndRule`: `ConvertToPaid` (default) or `Expire`. Ask the admin when the description does not say.
+- `trialCountsInMrr`: `true` counts the trial price in MRR/ARR while the trial runs. Default `false`: a trial books no MRR.
+
+On a quote the plan gives **two lines**: a trial line at the trial price (no term, invoiced once, Trial End Date = the last trial day), then a paid line starting the next day for the full commitment, priced like any line. The trial price is final: no discount, promotion or override touches it. With `Expire` there is no paid line, and a bundle's options are included in the trial and end with it. The trial starts with the line's service start; when billing starts later (a go-live), the trial and the paid line move together.
+
+`dd_cpq_preview_rate_plan` returns a `trial` object with both lines' dates (from today, or pass `plan.trialStart`).
 
 **Billing starts is required (DDCPQ-225).** Every new plan, and every edit of an older plan that has none, must pass `defaultBillingTrigger` to `upsert_rate_plan`: `ServiceStart` (most plans), `Signature`, `FixedDate`, `Offset`, `Provisioning`, `GoLive` or `CustomerAcceptance`. Ask the admin when the description does not say; never guess an event trigger. For an event trigger, `defaultLongStopDays` is optional (blank = the org default). The save is refused without it, and it cannot be cleared.
 
 ```json
-{ "plan": { ..., "unitPrice": 12.50, "trialDays": 14, "trialUnitPrice": 0 } }
+{ "plan": { ..., "unitPrice": 12.50, "trialDays": 14, "trialUnitPrice": 0, "trialEndRule": "ConvertToPaid" } }
 ```
 
 ### Payment terms with early-pay discount (Phase F)
@@ -339,7 +346,7 @@ Draft, which is this skill's default. `dd_cpq_pricing_view` reports it as
 
 **DrawdownFromPlanId points at the POOL, not the reverse.** Common mental slip: "the usage plan is the drawdown, so the pool references it." Wrong. The **usage** plan's `drawdownFromPlanId` field points at the **pool** plan's Id. If you get this backward, the simulator returns 0 drawdown + everything unmatched.
 
-**MRR is not affected by trials.** `trialDays > 0` is transient — the Bessemer/Meritech convention says MRR is steady-state. NMR reads the LIST unit price, not the trial rate. Don't be tempted to "average in" the trial.
+**A trial is its own line, not an average.** The paid line carries the steady-state MRR; the trial line books 0 unless the plan ticks `trialCountsInMrr`. The cart header shows what is earned today (0 during a trial); exit ARR shows the paid line. Never "average in" the trial.
 
 **Currency variants are separate rows.** In MultiCurrency orgs, each (Product × Currency) needs its own RatePlan row. Use `dd_cpq_clone_rate_plan_currency` to duplicate an existing plan; don't try to stuff multi-currency into one row.
 
