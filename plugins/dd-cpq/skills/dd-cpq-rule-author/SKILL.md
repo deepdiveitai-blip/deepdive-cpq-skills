@@ -10,7 +10,7 @@ description: >-
   guesses a field, product or value.
 
   Trigger on: "write a rule", "create a pricing rule", "make a promotion",
-  "10% off … for <segment>", "block/require a product when …", "margin
+  "10% off … for Healthcare accounts", "block/require a product when …", "margin
   floor", "renewal uplift", text pasted from Rules Studio's "Ask Claude"
   panel.
 

@@ -1,6 +1,6 @@
 {
   "name": "dd-deal-desk",
-  "version": "1.1.50",
+  "version": "1.1.51",
   "description": "For deal desk analysts, renewal managers and pricing admins: runs the jobs that take hours. Reviews a quote against policy before it is signed or sent, and works across many quotes and contracts. Reviews change nothing; jobs that change records show one plan, get one yes, run and report.",
   "author": {
     "name": "DeepDive IT"

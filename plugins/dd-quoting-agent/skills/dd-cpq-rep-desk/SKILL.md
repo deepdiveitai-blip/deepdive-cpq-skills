@@ -10,8 +10,8 @@ description: >-
   Hands quote building to dd-cpq-quoting-agent.
 
   Trigger on: "what's on my plate", "my day", "prep me for my meeting with
-  …", "what do I know about <account>", "which renewals are at risk", "chase
-  my approvals", "approve <quote>", "log a call with …", "move the opp to
+  …", "what do I know about Acme", "which renewals are at risk", "chase
+  my approvals", "approve the Harbor quote", "log a call with …", "move the opp to
   …", "push the close date".
 
   Skip for building or changing a quote, including submitting it for
