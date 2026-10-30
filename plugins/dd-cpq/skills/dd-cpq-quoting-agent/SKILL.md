@@ -85,6 +85,12 @@ These are the same in this skill, in dd-cpq-rep-desk and in the
 10. **The rep's own records.** Several people may share one login, so "my
     quote" means the records named for this rep. More than one could be
     meant: list them and ask. Never use a record named for someone else.
+11. **Link what you made.** Every DD CPQ answer that names a record carries
+    `links` (`quote`, `opportunity`, `account`, `contact`…). Show each record
+    you created or changed as a link, unasked: "Built
+    [Quote 00000187](links.quote) on [Harbor Expansion](links.opportunity)".
+    That includes amendment and renewal quotes and scenario copies. Never
+    build a URL yourself.
 
 ## How you work: plan, one yes, run, verify, report
 
