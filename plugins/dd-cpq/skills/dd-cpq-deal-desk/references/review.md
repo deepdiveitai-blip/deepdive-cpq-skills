@@ -8,29 +8,36 @@ person picks (a fix plan, submit for approval, a note), after a yes.
 ## 1. Find the quote
 
 `dd_cpq_find_quote` (number, name or Id). Several matches: a numbered list.
-Then `dd_cpq_quote_snapshot` for status, lock, transaction type, cart mode,
-totals and every line with its flags, zone, discounts, start, end, phase.
 
-## 2. Gather, in parallel, once
+## 2. Run the review in the engine
 
-- `dd_cpq_get_quote_header` (start, term, end, co-term mode, expected go-live,
-  long-stop days, expiration, account, opportunity)
-- `dd_cpq_quote_expiration`
-- `dd_cpq_validate_quote` ({quoteId})
-- `dd_cpq_price_guidance`
-- `dd_cpq_list_deal_blocks`
-- `dd_cpq_get_ramp_segments`
-- `dd_cpq_billing_start_status` ({quoteId})
-- `dd_cpq_timeline_preview` (invariants only)
-- `dd_cpq_quote_changes_since` ({quoteId, since: 30 days ago})
-- `dd_cpq_quote_prechecks` ({opportunityId})
-- `dd_cpq_list_available_promotions` ({quoteId})
-- `dd_cpq_list_contracts`, `dd_cpq_install_base`,
-  `dd_cpq_list_active_commitments` (the account)
-- `dd_cpq_amendment_dates` (only for an amendment)
-  Use the shipped limits below and say "Policy: shipped defaults" in the
-  report header. (DR-02 adds a Deal Desk settings group; do not read the whole
-  settings list for it, it is large.)
+`dd_cpq_deal_review({quoteId})` runs all 30 checks below in DD CPQ and returns
+each row (id, group, name, status, evidence, fix, blocking), the verdict
+(`readyToSend`, `verdict`), the counts and the limits it used
+(`thresholds`, from Settings › Deal Desk). Report it as it is: never re-judge
+a row, never change a status, never add a check of your own. The Quote
+page's Deal Review tab shows the same review.
+
+Then read only what the report needs on top:
+
+- `dd_cpq_quote_snapshot`, for the deal in one line (ARR, exit ARR, contract
+  value).
+- `dd_cpq_explain_line` for each line that failed check 9 or 10 (its
+  discount stack).
+- `dd_cpq_quote_changes_since` (30 days) for the five most recent changes.
+- `dd_cpq_timeline_preview` invariants for check 22, which the engine leaves
+  to the timeline: a failed invariant is a warning.
+
+**Older package builds** answer that `dd_cpq_deal_review` is not available.
+Then run the checks yourself from these reads, in parallel, once:
+`dd_cpq_quote_snapshot`, `dd_cpq_get_quote_header`,
+`dd_cpq_quote_expiration`, `dd_cpq_validate_quote`, `dd_cpq_price_guidance`,
+`dd_cpq_list_deal_blocks`, `dd_cpq_get_ramp_segments`,
+`dd_cpq_billing_start_status`, `dd_cpq_quote_changes_since`,
+`dd_cpq_quote_prechecks`, `dd_cpq_list_available_promotions`,
+`dd_cpq_list_contracts`, `dd_cpq_install_base`,
+`dd_cpq_list_active_commitments`, and `dd_cpq_amendment_dates` for an
+amendment. Use the shipped limits below and say "Policy: shipped defaults".
 
 | Limit                                         | Shipped default                       |
 | --------------------------------------------- | ------------------------------------- |
@@ -38,9 +45,10 @@ totals and every line with its flags, zone, discounts, start, end, phase.
 | Maximum total discount on a line (all stages) | 40%                                   |
 | Term                                          | 12 to 60 months                       |
 | Days left before the quote expires            | at least 7                            |
+| Payment terms allowed                         | On receipt, Net 30, Net 45, Net 60    |
 | Checks that block sending                     | 2, 5, 7, 8, 9, 11, 18, 19, 23, 25, 26 |
 
-## 3. The checks
+## 3. The checks (what the engine runs; the fallback follows the same rules)
 
 **Group A — identity and state**
 
@@ -77,7 +85,8 @@ totals and every line with its flags, zone, discounts, start, end, phase.
 11. **Promotions.** A code on the quote that wins no line, or whose window
     ends before the quote expires: fail. — `list_available_promotions`
     (`isApplied`, `winsOnLines`, status)
-12. **Partner tier.** n/a in this version: "not checked yet (DR-02)".
+12. **Partner tier.** n/a: the tier on the quote is reported; DD CPQ has no
+    account field to compare it with.
 13. **Currency.** A line flagged `currency fallback`: warn. — snapshot
 14. **Trial lines.** A trial line without its paid line when the plan
     converts, or any discount on a trial line: fail. — snapshot `phase`,
@@ -126,9 +135,11 @@ totals and every line with its flags, zone, discounts, start, end, phase.
 
 **Group E — downstream**
 
-28. **Tax.** n/a: "not checked yet (DR-02)".
-29. **Payment terms.** n/a: "not checked yet (DR-02)".
-30. **Opportunity sync.** n/a: "not checked yet (DR-02)".
+28. **Tax.** Calculated: pass. Out of date, failed or in progress: warn.
+    Not calculated or not applicable: n/a. — Quote `TaxStatus__c`
+29. **Payment terms.** A line whose rate plan's payment terms are not in the
+    allowed list: warn. — the plan's `PaymentTerms__c`
+30. **Opportunity sync.** Not the opportunity's syncing quote: warn.
 
 A check whose tool is missing in this org's package build: n/a, "not
 available in this build". A tool that fails: n/a with the error reference.

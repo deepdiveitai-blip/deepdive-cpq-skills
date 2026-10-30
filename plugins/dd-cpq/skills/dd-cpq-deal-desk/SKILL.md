@@ -57,9 +57,12 @@ you.
 
 ## Jobs
 
-| Command        | Job                                                                 | Reference            |
-| -------------- | ------------------------------------------------------------------- | -------------------- |
-| `/deal-review` | 30 checks on one quote before it is signed or sent; changes nothing | references/review.md |
+| Command                | Job                                                                                                   | Reference                 |
+| ---------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------- |
+| `/deal-review`         | 30 checks on one quote before it is signed or sent; changes nothing                                   | references/review.md      |
+| `/renewal-book`        | contracts ending in a window, ARR at stake, renewal coverage; drafts the ones not started after a yes | references/book.md        |
+| `/rewrite`             | merge, split, transfer or cancel-and-replace contracts; preview first, one yes                        | references/restructure.md |
+| `/price-change-impact` | open quotes a price change reaches and what each would move; reprices up to 10 picked after a yes     | references/book.md        |
 
 ## When a tool fails
 
