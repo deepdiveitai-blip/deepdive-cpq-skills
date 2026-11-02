@@ -1,322 +1,245 @@
 ---
 name: dd-cpq-scratch-refresh
 description: >-
-  Spin up a fresh DD CPQ scratch org for development: create, deploy all
-  metadata, run demo seeds, verify the pricing math. Use when the current
-  scratch org is expiring or corrupted, or when a new dev needs their own
-  copy. About 10 minutes end to end.
+  Rotate the DD CPQ dev scratch org before it expires: create the new
+  namespaced org, deploy force-app and org-config, seed the trails and tester
+  datasets, copy the hand-built catalogs, settings and pre-check rules from the
+  old org, prove it with RunLocalTests and the GOLD replay, then cut over the
+  Worker, the trail page, Jira and the skills. About half a day, most of it
+  waiting.
 
-  Trigger on: "new scratch org", "the scratch org is expiring", "refresh the
-  org", "rebuild the dev org".
+  Trigger on: "rotate the org", "new scratch org", "the dev org is expiring",
+  "refresh the org", "start the rotation".
 
-  Skip for a tester's own sandbox or Developer Edition org
-  (dd-cpq-sandbox-e2e).
+  Skip for a tester's own sandbox or Developer Edition org (dd-cpq-sandbox-e2e),
+  and for a package install check org (see the last section here).
 ---
 
-# DD CPQ scratch org refresh — the repeatable playbook
+# DD CPQ dev org rotation
 
-**Context:** Salesforce scratch orgs auto-die on a fixed date (default 7 days,
-we use 30). Before that day, we need a fresh org with the same code + demo
-seeds + v2 pricing engine active. This skill is the exact sequence that works.
-Learned the hard way on 2026-07-29 by running through it and hitting every
-Salesforce gotcha in order.
+Scratch orgs die on a fixed date (we create them for 30 days). Rotate **7–10
+days before** the old one expires, and keep both alive until testers have moved.
+This is the procedure that ran on 2026-11-01 (cpq-dev2 → cpq-dev3). Every step
+was needed.
 
-## When to invoke
+Commands are bash (git-bash on Windows), run from the root of
+`deepdive-cpq-engine`. `OLD` and `NEW` are org aliases; set them first:
 
-- Current scratch org expires in <7 days.
-- The current scratch org is in a bad state (corrupt data, botched deploy).
-- A new dev needs their own personal copy for isolated testing.
-- User says: "spin up a fresh org", "new scratch", "refresh the scratch", "org expiring".
-
-## Skip this skill when
-
-- The current org is fine and expires in >7 days — no rush, don't churn.
-- You just need to redeploy code (that's `sf project deploy start`, not this).
-- You want to seed one specific demo (that's just `sf apex run --file scripts/apex/seed-X.apex`).
-
-## The full sequence — copy-paste ready
-
-Every step below has been run against a fresh org. Order matters. Do NOT
-skip steps because "this one usually works" — the gotchas are exactly at
-the "usually works" boundaries.
-
-### Step 1 — Create the org (2 min)
-
-```powershell
-sf org create scratch `
-  --target-dev-hub PartnerDev `
-  --alias cpq-scratch-v2 `
-  --definition-file config/project-scratch-def.json `
-  --duration-days 30 `
-  --set-default
+```bash
+OLD=cpq-dev3 NEW=cpq-dev4
+F=org-config/main/default/approvalProcesses/Quote.DD_CPQ_Needs_Review.approvalProcess-meta.xml
 ```
 
-**Alias convention:** `cpq-scratch-vN` where N increments. Never overwrite the
-current alias — testers may be mid-session on the old org. Cutover the alias
-name only once the new org is fully verified.
+## Ground rules
 
-**Grab a memorable password immediately** (default password is CLI-generated
-and long):
+- **Engine repo only** (CLAUDE.md rule 11). Every deploy names its directory
+  with `-d`. Never deploy unfiltered.
+- **Never print or store a password** in memory, chat, Jira or a file. Read it
+  with `sf org display -o $NEW --verbose` when someone needs it.
+- **Decisions go to Venkat one at a time**, as A/B. What to copy and when to
+  cut over are his call. The defaults below are what he chose last time.
+- **Nothing outside Jira:** Venkat tells the testers himself.
 
-```powershell
-sf org generate password --target-org cpq-scratch-v2 --length 12
-sf org display --target-org cpq-scratch-v2 --verbose  # capture URL + username + password + expiration
+## 1. Create the org
+
+```bash
+sf org create scratch -v PartnerDev -f config/project-scratch-def.json -a $NEW -y 30 -w 20
+sf data query -o $NEW -q "SELECT NamespacePrefix, Id FROM Organization"   # must say DDCPQ
+sf org generate password -o $NEW --length 16
+sf org display -o $NEW --verbose     # URL, username, org id, expiry. Do not paste the password anywhere.
 ```
 
-### Step 2 — Deploy in two waves (5 min)
+Write down the org id (00D…), the My Domain (`https://<name>.scratch.my.salesforce.com`)
+and the expiry date. Step 9 needs them.
 
-**Wave 1: external credentials + named credentials FIRST.** Permsets that
-reference these fail to deploy if the credential doesn't exist yet. As of
-2026-08-04 the external credential also declares the `Default` NamedPrincipal
-in source, so Wave 1 creates it — which is what lets Wave 2 deploy ALL four
-permission sets (see below). It also wires the `x-api-key` header; only the
-key VALUE is manual (Step 7).
+## 2. Deploy
 
-```powershell
-sf project deploy start --target-org cpq-scratch-v2 `
-  --source-dir force-app/main/default/externalCredentials `
-  --source-dir force-app/main/default/namedCredentials `
-  --ignore-conflicts --wait 10
+```bash
+sf project deploy start -o $NEW -d force-app -l NoTestRun --ignore-conflicts --wait 60
+sf org assign permset -o $NEW -n DD_CPQ_Engine_Admin
+sf data create record -o $NEW --sobject CurrencyType --values "IsoCode=EUR ConversionRate=0.92 DecimalPlaces=2 IsActive=true"
 ```
 
-**Wave 2: everything except the types that break a fresh org.**
+Expect `Succeeded`, about 1,830 components. Add any other currency the old org
+has: `sf data query -o $OLD -q "SELECT IsoCode, ConversionRate FROM CurrencyType"`.
 
-- ~~`standardValueSets`~~ — **no longer excluded as of 2026-08-04.** The old "inserts into standard picklists aren't supported" error was caused by a **misnamed file**: `AccountIndustry.standardValueSet-meta.xml`. There is no `AccountIndustry` standard value set — the real one is `Industry`, so Salesforce read the deploy as an attempt to CREATE a new standard value set, which is never allowed. Renamed to `Industry.standardValueSet-meta.xml`; both it and `AccountType` now deploy clean. Include the directory.
-- `connectedApps` — **now permanently excluded via `.forceignore`.** Salesforce disabled connected app creation org-wide (not just scratch), and the New Connected App button is gone from App Manager, so there is no manual fallback either. Superseded by the four External Client App directories below, which DO deploy — include them.
-- ~~`permissionsets/DD_CPQ_Admin` / `DD_CPQ_Amendments`~~ — **no longer excluded as of 2026-08-04.** Wave 1 now creates the `Anthropic_API-Default` principal from source, so all four permission sets deploy clean. Deploy the whole `permissionsets` directory. (If you ever see "The Default parameter value doesn't exist" again, Wave 1 didn't run or failed — fix that rather than excluding the permsets.)
+**org-config** holds the Quote approval process, and that process names an
+approver by username. The username in source belongs to a dead org, so the
+deploy fails until you swap it. Swap it in the working copy only, then restore:
 
-```powershell
-sf project deploy start --target-org cpq-scratch-v2 `
-  --source-dir force-app/main/default/applications `
-  --source-dir force-app/main/default/aura `
-  --source-dir force-app/main/default/cachePartitions `
-  --source-dir force-app/main/default/classes `
-  --source-dir force-app/main/default/contentassets `
-  --source-dir force-app/main/default/customMetadata `
-  --source-dir force-app/main/default/externalClientApps `
-  --source-dir force-app/main/default/extlClntAppOauthSettings `
-  --source-dir force-app/main/default/extlClntAppGlobalOauthSets `
-  --source-dir force-app/main/default/extlClntAppOauthPolicies `
-  --source-dir force-app/main/default/flexipages `
-  --source-dir force-app/main/default/layouts `
-  --source-dir force-app/main/default/lwc `
-  --source-dir force-app/main/default/objects `
-  --source-dir force-app/main/default/pages `
-  --source-dir force-app/main/default/settings `
-  --source-dir force-app/main/default/staticresources `
-  --source-dir force-app/main/default/tabs `
-  --source-dir force-app/main/default/triggers `
-  --source-dir force-app/main/default/permissionsets `
-  --ignore-conflicts --ignore-warnings --wait 30
+```bash
+ME=$(sf org display -o $NEW --json | python -c "import sys,json;print(json.load(sys.stdin)['result']['username'])")
+grep -n "@example.com" $F                                 # the approver in source
+sed -i "s/[0-9_]*test-[a-z0-9]*@example.com/$ME/" $F
+sf project deploy start -o $NEW -d org-config -l NoTestRun --ignore-conflicts --wait 30
+git checkout -- org-config && git status --short          # must be clean
+sf org assign permset -o $NEW -n DD_CPQ_Trail_FM
 ```
 
-Expected: `Status: Succeeded`, ~825 components.
+Expect about 29 components. Step 4 points the approver at Riya Rep.
 
-### Step 3 — Deploy DD_CPQ_Admin with external-cred block temporarily stripped
+## 3. Seed
 
-The Admin permset is the ONLY one that grants full FLS on all DD CPQ objects.
-Seeds need it. Strip the credential block, deploy, restore the file:
+Seeds come **before** the catalog copy (step 5). A seed that finds its product
+already there may skip it or fail.
 
-```powershell
-$permset = 'force-app/main/default/permissionsets/DD_CPQ_Admin.permissionset-meta.xml'
-Copy-Item $permset "$env:TEMP\DD_CPQ_Admin.bak"
-
-# Strip the block via a here-string replacement (avoids sed on Windows)
-(Get-Content $permset -Raw) `
-  -replace '(?s)\s*<externalCredentialPrincipalAccesses>.*?</externalCredentialPrincipalAccesses>', '' `
-  | Set-Content $permset -Encoding UTF8
-
-sf project deploy start --target-org cpq-scratch-v2 --source-dir $permset --ignore-conflicts --wait 5
-
-# Restore original source
-Copy-Item "$env:TEMP\DD_CPQ_Admin.bak" $permset -Force
+```bash
+A=scripts/apex
+sf apex run -o $NEW -f $A/seed-ddcpq-245-trail-qa-catalog.apex
+for W in GOLD Venkat Santhosh Thirisha Abinash Darwin Rahul; do bash scripts/reset-ddcpq-256-dataset.sh $W $NEW; done
+for f in seed-ddcpq-rules-trail seed-ddcpq-59-ramp-trail; do sf apex run -o $NEW -f $A/$f.apex; done
+for i in 1 2 3 4 5 6; do sf apex run -o $NEW -f $A/seed-ddcpq-89-deal-blocks-trail.apex | grep -q "BLOCKS TRAIL: done" && break; done
+sf apex run -o $NEW -f scripts/rotation/attributes.apex
+for f in seed-ddcpq-promo-trail seed-ddcpq-attribute-rules-trail seed-ddcpq-field-map-trail \
+         seed-ddcpq-239-quoting-agent-trail seed-ddcpq-242-plugin-trail seed-lifecycle-acme seed-lifecycle-newbusiness; do
+  echo "== $f"; sf apex run -o $NEW -f $A/$f.apex | grep -E "USER_DEBUG|Error|Exception" | tail -4
+done
 ```
 
-Then assign it:
+- **The deal-blocks seed** does not always finish in one run, and a rerun
+  picks up where it stopped. Repeat it until it prints `BLOCKS TRAIL: done`.
+- **The 256 datasets** run each step as its own Apex run. If the network
+  drops, one quote is left empty; check the `report` lines. To redo a single
+  step:
+  `sed "s/{{WHO}}/Venkat/; s/{{STEP}}/priceBulk/" $A/seed-ddcpq-246-rep-certification.apex > /tmp/rc.apex && sf apex run -o $NEW -f /tmp/rc.apex`
+- **attributes.apex** creates the Color, Deployment and Warranty attributes
+  that the attribute-rules and field-map seeds expect.
 
-```powershell
-sf org assign permset --target-org cpq-scratch-v2 --name DD_CPQ_Selling
-sf org assign permset --target-org cpq-scratch-v2 --name DD_CPQ_Admin
+## 4. Users and test settings
+
+```bash
+sf apex run -o $NEW -f scripts/rotation/test-users.apex            # Riya Rep + Nora NoCPQ
+RIYA=$(sf data query -o $NEW -q "SELECT Username FROM User WHERE Alias='riyarep'" --json | python -c "import sys,json;print(json.load(sys.stdin)['result']['records'][0]['Username'])")
+sed -i "s/[0-9_]*test-[a-z0-9]*@example.com/$RIYA/" $F
+sf project deploy start -o $NEW -d $F -l NoTestRun --ignore-conflicts --wait 10
+git checkout -- org-config
+sf project deploy start -o $NEW --metadata-dir scripts/rotation/apex-settings --wait 10   # parallel Apex testing OFF
 ```
 
-### Step 4 — Insert active v2 PolicyConstitution (1 min)
+Riya Rep is a rep with `DD_CPQ_Engine_User` and the Quote approver. Nora NoCPQ
+has no DD CPQ access, for the "no access" cases. Parallel testing is turned
+off to match the old org, which is where RunLocalTests passes in full.
 
-Without a v2 constitution, `PricingModelService` never fires and every quote
-returns `list × qty` regardless of the profile's PricingModel. This is THE
-trap that made testers report "the 5 pricing models don't work."
+## 5. Copy what was hand-built in the old org
 
-```powershell
-$apex = @'
-PolicyConstitution__c c = new PolicyConstitution__c(
-    Name = 'DD CPQ Bootstrap',
-    Status__c = 'Active',
-    PricingEngineVersion__c = 'v2'
-);
-insert c;
-System.debug('constitution active v2: ' + c.Id);
-'@
-$apex | sf apex run --target-org cpq-scratch-v2
+Ask Venkat first: **(A) copy the hand-built catalogs, settings and pre-check
+rules** (chosen 2026-11-01), or (B) seeds only. Quotes are never copied. The
+GOLD quotes are rebuilt in step 7.
+
+```bash
+python scripts/rotation/copy_org_data.py catalog   $OLD $NEW --dry   # counts only
+python -u scripts/rotation/copy_org_data.py catalog $OLD $NEW        # 54 products last time
+python scripts/rotation/copy_org_data.py settings  $OLD $NEW
+python scripts/rotation/copy_org_data.py prechecks $OLD $NEW
 ```
 
-Expected `constitution active v2: <id>` in the debug log.
+- **catalog** copies every product the new org lacks, with what hangs off it.
+- **settings** keeps `Long_Stop_Default_Days` at the new org's default.
+- **prechecks** drops reference fields (OwnerId can't cross orgs).
+- All three refuse unless both orgs carry the same namespace, and a second run
+  copies nothing new.
 
-### Step 5 — Run the seed scripts (2 min)
+**If the catalog copy dies partway**, delete what it created since it started,
+then rerun. Its retries cover dropped connections, but not a laptop going to
+sleep. Then prove the copy: price the same 10–12 copied products in both orgs
+inside a rolled-back savepoint (`CpqEngine.previewDrafts`), and the net prices
+must match.
 
-Only the demos that don't depend on customer catalogs. If you need Microsoft
-or AWS catalogs, run those first — they're prerequisites for the term-discount
-demo.
+## 6. Prove it
 
-```powershell
-sf apex run --file scripts/apex/seed-pricing-model-demo.apex --target-org cpq-scratch-v2
-sf apex run --file scripts/apex/seed-hybrid-charge-profile-demo.apex --target-org cpq-scratch-v2
-
-# Optional: customer catalogs before their laws + demos
-# sf apex run --file scripts/apex/seed-microsoft-1-catalog.apex --target-org cpq-scratch-v2
-# sf apex run --file scripts/apex/seed-microsoft-4-simple-laws.apex --target-org cpq-scratch-v2
-# sf apex run --file scripts/apex/seed-term-discount-demo.apex --target-org cpq-scratch-v2
+```bash
+sf apex run test -o $NEW -l RunLocalTests -w 60
 ```
 
-### Step 6 — Verify all 5 pricing models produce the expected totals
+Every test passes (1,941 on 2026-11-01), including `EngineGoldenTest`
+($101.83). A failure here is a real defect or a missed step. Do not move on.
 
-The gold-standard smoke test. If this passes, the org is fully working:
+## 7. Rebuild GOLD
 
-```powershell
-foreach ($M in @('Flat Fee', 'Per Unit', 'Tiered', 'Volume', 'Package')) {
-$apex = @"
-Id qId = [SELECT Id FROM Quote WHERE Name = 'DDCPQ Model . $M' LIMIT 1].Id;
-QuoteLineItem qli = [SELECT Id, Product2Id, PricebookEntryId, Quantity FROM QuoteLineItem WHERE QuoteId = :qId LIMIT 1];
-CpqEngine.Request req = new CpqEngine.Request();
-req.quoteId = qId; req.selections = new List<CpqEngine.Selection>();
-CpqEngine.Selection s = new CpqEngine.Selection();
-s.localKey='k1'; s.productId=qli.Product2Id; s.quantity=qli.Quantity;
-req.selections.add(s);
-List<CommitService.LineDraft> drafts = CpqEngine.previewDrafts(req);
-System.debug('RESULT $M: total=' + (drafts[0].netPrice * drafts[0].quantity));
-"@
-$apex | sf apex run --target-org cpq-scratch-v2 2>&1 | Select-String 'RESULT'
-}
+`mcp-server/tests/goldReplay.test.ts` replays the GOLD rep-certification
+missions against fixed record ids, and those ids now point at the dead org.
+
+1. Run the GOLD missions on the new org through the MCP tools (Build, West,
+   Riverside, Partner, Nordhavn and the rest). Use the GOLD dataset from step 3.
+2. Check every number against the mission answer sheet.
+3. Put the new ids into `goldReplay.test.ts` and run `npx vitest run tests/goldReplay.test.ts`
+   from `mcp-server/`. It must pass in full.
+4. Open a PR (DDCPQ-254 style).
+
+## 8. Retest records for open stories
+
+For each story In Review whose test steps name records in the old org, build
+the same records in the new org. Post a Jira comment with the new quote numbers
+and links. Don't edit the story text.
+
+## 9. Cut over (Venkat chooses when; default: once steps 1–7 pass)
+
+**Worker** (`mcp-server/worker/wrangler.jsonc`), on a branch from `feat/ddcpq-api-parity`:
+
+- `SF_LOGIN_URL` = the new My Domain.
+- `ALLOWED_ORG_IDS` = new org id **plus** the old one until it expires.
+
+Then `npm run typecheck && npm test` in `mcp-server/worker`, `npx wrangler deploy`,
+and open a PR. Write down the old Worker version for rollback
+(`npx wrangler deployments list`).
+
+**Trail page** (the rep-certification trail artifact):
+
+- Update `ORG`, `MYDOMAIN`, the org notice text, and the `fc-datasets` JSON
+  (quote numbers and ids per tester, read from the new org).
+- Republish it to the same URL.
+
+**Jira:**
+
+- Swap old quote numbers and the org name for the new ones **in place** in
+  the rep-certification stories and sub-tasks (272–278 and their sub-tasks).
+  Never regenerate them, because some carry hand-added rows.
+- Afterwards, search the stories for the old org alias and old quote numbers.
+  Nothing should be left.
+
+**Skills and memory:**
+
+- Every skill that names the dev org changes to the new alias
+  (`grep -rn "cpq-dev" .claude/skills`). Leave lines that describe history.
+- Update the workspace memory line and the rotation memory.
+- Skills are republished only after Venkat merges.
+
+**After the old org expires:**
+
+- Remove its id from `ALLOWED_ORG_IDS` with the next Worker change.
+
+## Package install check org (separate, when a new beta is built)
+
+The installed-package org (`cpq-pkgN`) uses a **single-currency, no-namespace**
+definition, so it proves the package installs on a plain customer org:
+
+```json
+{ "orgName": "DD CPQ Package Install Check", "edition": "Developer",
+  "settings": { "lightningExperienceSettings": { "enableS1DesktopEnabled": true },
+                "quoteSettings": { "enableQuote": true } } }
 ```
 
-**Expected output** (list=$2K, qty=10 for all):
+- **A beta does not upgrade to the next beta.** Delete the
+  `DDCPQ__DD_CPQ_Engine_Admin` permission-set assignments, uninstall the old
+  version, install the new one, then reassign.
+- **Package build tests run as a user with no DD CPQ permission set.** Wrap
+  them in `System.runAs(DdCpqTestAccess.sharedEngineUser())`.
+- Then run the packaged golden test on the installed org.
 
-| Model    | Expected total |
-| -------- | -------------- |
-| Flat Fee | $2,000         |
-| Per Unit | $20,000        |
-| Tiered   | $17,500        |
-| Volume   | $15,000        |
-| Package  | $18,000        |
+## Gotchas, in the order they bit
 
-If ALL 5 match — org is ready. If any two match or any number is wrong,
-check `PolicyConstitution.Status__c = 'Active'` and
-`PricingEngineVersion__c = 'v2'` first.
-
-### Step 7 — Manual UI steps (defer until testers actually need them)
-
-One thing you cannot deploy from source — **the Anthropic API key value**:
-
-1. **`ApiKey` authentication parameter.** The `Default` principal itself now
-   deploys in Wave 1, and the `x-api-key` header is wired in source to
-   `{!$Credential.Anthropic_API.ApiKey}`. But the `Custom` auth protocol does
-   **not** accept an `AuthParameter` via metadata (deploy error: _"The
-   authentication protocol Custom doesn't support the following external
-   credential parameter type(s): AuthParameter"_), so the parameter is created
-   together with its secret value in the UI:
-
-   Setup -> Named Credentials -> **External Credentials** tab -> Anthropic API
-   -> Principals -> `Default` -> Edit -> Authentication Parameters -> Add:
-   Name = `ApiKey` (exact case — the merge field is case-sensitive),
-   Value = the `sk-ant-...` key from https://console.claude.com/settings/keys
-
-   Verify with a real callout, not a dry run (a dry run only validates XML and
-   never opens a connection):
-
-   ```apex
-   HttpRequest req = new HttpRequest();
-   req.setEndpoint('callout:Anthropic_API/v1/messages');
-   req.setMethod('POST');
-   req.setHeader('Content-Type', 'application/json');
-   req.setHeader('anthropic-version', '2023-06-01');
-   req.setBody('{"model":"claude-haiku-4-5-20251001","max_tokens":16,'
-     + '"messages":[{"role":"user","content":"Reply with the single word OK."}]}');
-   HttpResponse res = new Http().send(req);
-   System.debug('STATUS=' + res.getStatusCode() + ' BODY=' + res.getBody());
-   ```
-
-   Expect `STATUS=200`. A **401 means the merge field resolved empty** — the
-   parameter is missing or misnamed.
-
-**No longer manual (2026-08-04): the MCP OAuth app.** It used to be an 8-step
-UI walkthrough for a Connected App. It is now an **External Client App** that
-deploys with Wave 2 above — nothing to click. Grab the org-generated Consumer
-Key for the MCP server's `SF_CLIENT_ID` with:
-
-```powershell
-sf project retrieve start -o cpq-scratch-v2 `
-  -m "ExtlClntAppGlobalOauthSettings:DD_CPQ_MCP" `
-  --target-metadata-dir ./tmp-eca --unzip
-```
-
-Then read `<consumerKey>` from the retrieved `.ecaGlblOauth` file. See
-`force-app/main/default/connectedApps/MANUAL_SETUP.md` for the full mapping.
-
-### Step 8 — Cutover for testers
-
-Once verified, communicate the new creds to testers:
-
-- Update `deepdive-cpq-workspace/SETUP-LAPTOP-2.html` — the credentials
-  card in Module 5. Replace username / password / Instance URL / Expiration.
-- Update `deepdive-cpq-workspace/OneDrive/Documents/DeepDive CPQ/SETUP-LAPTOP-2.html`
-  if you keep the OneDrive copy.
-- Commit + push the workspace repo.
-- Slack the testers: "cpq-scratch is refreshed, expires <date>, creds updated
-  in SETUP-LAPTOP-2.html — pull the workspace repo."
-- Once every tester has migrated, delete the old scratch org:
-  `sf org delete scratch --target-org cpq-scratch --no-prompt`
-
-## Gotchas learned on 2026-07-29 (in order encountered)
-
-1. **`AccountIndustry StandardValueSet` deploy error** — you can't insert
-   standard value sets. Skip that folder.
-2. **`DD_CPQ_MCP ConnectedApp` deploy error — RESOLVED 2026-08-04.** The cause
-   was never scratch-org-specific: Salesforce disabled connected app creation
-   org-wide and removed the New Connected App button, so the "do the manual UI
-   setup" advice was impossible to follow. `connectedApps/` is now in
-   `.forceignore` and the app ships as four External Client App directories
-   that deploy in Wave 2. If you see this error again, something re-added
-   `connectedApps` to a deploy — remove it, don't try to click through it.
-3. **`DD_CPQ_Admin` + `DD_CPQ_Amendments` permset errors: "The Default
-   parameter value doesn't exist" — RESOLVED 2026-08-04.** The external
-   credential now declares the `Default` NamedPrincipal in source, so Wave 1
-   creates it and both permsets deploy clean. **Do NOT strip the
-   `externalCredentialPrincipalAccesses` block** (the old workaround) — that
-   silently ships permsets which can't reach the Anthropic credential, so
-   Compile / Ask AI / Ask the Warehouse fail at runtime with no deploy error.
-   If the error reappears, Wave 1 didn't run before Wave 2.
-4. **"Field does not exist: PricingEngineVersion__c on PolicyConstitution__c"
-   when running Apex** — the user's assigned permset lacks FLS on that field.
-   Even System Administrator profile does NOT auto-grant FLS on custom
-   fields since Winter '23. `DD_CPQ_Selling` had incomplete grants; that's
-   why `DD_CPQ_Admin` (with full FLS) is essential — hence the strip-and-
-   redeploy dance in step 3.
-5. **"No such relation 'TargetProduct__r' on entity 'UsageTier__c'"** — same
-   FLS issue. Grants are on `DD_CPQ_Admin` only. Assign it before running seeds.
-
-## Rotation schedule
-
-- Every scratch org lasts 30 days.
-- Refresh 7-10 days before expiration to leave a cutover window.
-- Set a calendar reminder for `<expiration - 10 days>` when you create the org.
-- Keep both orgs alive during cutover so testers finishing sessions on the
-  old org aren't disrupted.
-
-## Files this skill uses
-
-- `config/project-scratch-def.json` — org shape (Developer edition, Quote enabled)
-- `sfdx-project.json` — package config
-- `force-app/main/default/**` — all metadata
-- `scripts/apex/seed-pricing-model-demo.apex` — 5 pricing model quotes at qty=10
-- `scripts/apex/seed-hybrid-charge-profile-demo.apex` — 4 hybrid products, 9 profile rows
-- `scripts/apex/seed-microsoft-*.apex` — customer catalog for term discount + amendment demos
-- `deepdive-cpq-workspace/SETUP-LAPTOP-2.html` — where to publish new tester creds
-- `force-app/main/default/connectedApps/MANUAL_SETUP.md` — UI walkthrough for the ConnectedApp
+1. **The org-config approver is a username from a dead org.** Swap it in the
+   working copy, deploy, and `git checkout` (step 2). Never commit the swap.
+2. **Seed before you copy.** The copy skips products that already exist by
+   name, but seeds don't check for copied products.
+3. **Anonymous Apex from git-bash:** heredocs mangle backslashes and quotes.
+   Generate Apex from Python (as `copy_org_data.py settings` does), or write
+   the file with an editor.
+4. **Apex reserved words** (`trigger`, `on`, `group`) break hand-written
+   anonymous Apex, and the error doesn't point at the cause.
+5. **Network drops mid-copy** leave half a catalog. Delete what was created
+   after the start time, then rerun. Don't patch around it.
+6. **`dd_cpq_start_renewal` `exclude` takes asset ids**, not product ids, when
+   you rebuild the GOLD renewal mission.
+7. **The constitution step in old copies of this skill is a cut feature**
+   (CLAUDE.md rule 11). The engine has no constitution. Never insert one.

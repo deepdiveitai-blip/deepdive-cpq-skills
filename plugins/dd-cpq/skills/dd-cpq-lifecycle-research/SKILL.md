@@ -93,7 +93,7 @@ and what "done" looks like. For this pillar the shapes are at least:
 ### Phase 1 · Platform facts, from the org
 
 Run against `<org>` — the alias of the org you are researching against (ask
-the user, or `sf org list`; our internal dev org is `cpq-dev2`, and was `cpq-dev` until 2026-10-14).
+the user, or `sf org list`; our internal dev org is `cpq-dev3`, and was `cpq-dev2` until 2026-11-01).
 Check the namespace first — `SELECT NamespacePrefix FROM Organization`:
 
 - `sf sobject describe -s <Object>` for `Asset`, `AssetRelationship`,
