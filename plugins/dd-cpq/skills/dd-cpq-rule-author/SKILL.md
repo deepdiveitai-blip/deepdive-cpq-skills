@@ -53,6 +53,7 @@ do.
 | Never sell below a margin or markup         | `marginFloor`   |
 | Raise the price at renewal                  | `renewalUplift` |
 | What customers may change mid-contract      | `lifecycle`     |
+| Fill in a field on a line or on the Quote   | `field`         |
 
 If nothing fits, say so and stop. Do not force a request into the nearest
 type.
@@ -74,6 +75,31 @@ Studio only lists these rules, and they are written per product.
    Bundle / Quote; `severity`; and the `message` the rep reads.
 4. Report the returned `sentence` and any `problems`. The admin activates
    the rule in Product Attributes → the product → Rules.
+
+**Fill in a field when a condition holds** ("set the Data Center Region of
+Hardware lines to EU-Frankfurt", "Healthcare quotes get Approval Tier 2",
+"5 lines or more: Approval Tier 2") is a Field Rule, ruleType `field`. It
+never sets a price.
+
+1. `dd_cpq_field_rule_targets({targetObject: "Line"|"Quote"})` — the fields
+   a rule may set. Use only a `value` it returns as `TargetField__c`; if the
+   admin's field is not there, say so (it is a price or DD CPQ field, a
+   formula, or one they cannot edit) and stop.
+2. Build `TargetObject__c` (Line / Quote), `TargetField__c`, `Stage__c`
+   (BeforePricing, or AfterNet when the condition reads Line.NetPrice),
+   `ValueSource__c` and the value: Literal + `SetValue__c`; Variable +
+   `ValueVariable__c`; LineValue + `SetValue__c` such as Line.TermMonths;
+   LineAggregate (Quote only) + `SetValue__c` such as `Count(*)` or
+   `Sum(Line.NetTotal)`; or Clear. `OnlyIfBlank__c` keeps a value already
+   there. Conditions may read totals over the lines (`Lines.Count`,
+   `Lines.Sum.NetTotal`); a Quote rule cannot read Line, Product or Block.
+   A Line rule may be limited to products (`Target__c`); a Quote rule
+   cannot.
+3. Save it with `Status__c: "Draft"` and read the sentence back to the
+   admin ("When Product Family is Hardware, set Line.… to … before
+   pricing"). **Ask before activating it**: an Active Field Rule changes
+   every matching quote in the org on its next reprice. Find existing ones
+   with `dd_cpq_rules_studio({ruleType: "field"})`.
 
 **A bigger discount for a longer contract** is a term curve, which is not a
 ruleType: it is saved as a whole, curve and points together.
@@ -113,7 +139,7 @@ Target__c?, Conditions__c?}]}`. Blank billing = any billing; blank target =
      create one with `dd_cpq_rule_set_save` (it starts as Draft). Never put
      a new rule in an Active set — it would price quotes at once.
    - types without sets (promotion, channel, contractPrice, marginFloor,
-     commitment, renewalUplift): send `Status__c: "Draft"` (Margin Floors
+     commitment, renewalUplift, field): send `Status__c: "Draft"` (Margin Floors
      have only Active/Inactive: use Inactive).
 
 ## Check before saving
