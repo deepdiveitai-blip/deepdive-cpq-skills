@@ -83,6 +83,28 @@ quantity?, price?, discountPct?}], dryRun})`: save edited years (the ramp
   own dates. One line can opt out with `independentTerm: true`.
 - A co-termed line shorter than its plan's minimum term is raised to the
   minimum at commit: say so.
+
+## An amendment that would run past the contract end
+
+The org setting **When an amendment runs past the contract end** (an admin
+sets it; the quote snapshot's last line names it) decides what happens when an amendment adds something longer than the
+contract has left.
+
+- **Stop at the contract end** (the default): every line ends on the
+  contract's exact end day. A longer term, `ExtendDealToLongest` or
+  `Independent` is refused with "An amendment ends with its contract (date).
+  To sell beyond it, renew first or quote it as a new contract." A product
+  whose minimum term cannot fit, or a line with Keeps Own Dates past the end,
+  is refused at commit. Tell the user; do not retry. Offer a renewal
+  (`dd_cpq_start_renewal`) or a new-business quote instead.
+- **Extend the contract**: accept the Extend proposal; the lines the customer
+  already has are stretched (snapshot flag `extended (was to <date>)`), and at
+  accept their Assets end on the new day. To keep one on its own end, send
+  `independentTerm: true` on that line.
+- **Add a continuation line**: the owned lines keep their dates and a new
+  line with lineAction `Continuation` covers the extra months. To stop the
+  product on its own end, set that continuation's quantity to 0 with
+  `dd_cpq_update_line`; the owned line then shows `not continued past <date>`.
 - A Deal Block with its own start date is its own window: its lines end at
   the block's start plus the block's term (the deal's term when the block has
   none), and `AlignToDealEnd` does not pull them back to the deal's end. To
