@@ -86,6 +86,11 @@ quantity?, price?, discountPct?}], dryRun})`: save edited years (the ramp
 
 ## An amendment that would run past the contract end
 
+A line the customer has already scheduled to stop (a removal on the ledger
+before the contract end) starts the amendment with Keeps Own Dates ticked
+(`independentTerm: true`), so it still stops on its day. Only untick it when
+the rep asks to keep that product longer.
+
 The org setting **When an amendment runs past the contract end** (an admin
 sets it; the quote snapshot's last line names it) decides what happens when an amendment adds something longer than the
 contract has left.
