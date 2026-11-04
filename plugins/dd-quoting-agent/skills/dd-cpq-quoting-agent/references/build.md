@@ -76,6 +76,9 @@ bundleQuantity, selections: [{optionId, quantity, attributes?}]})`.
 parentQliId, selections?, bundleQuantity?, dryRun})`. `selections` is the
   full option set it should have (kept, added, removed). Never
   `configure_bundle` for this: that adds a second bundle.
+- On an amendment, replacing one owned option with one other option of the
+  same feature comes back as one row `swapped` ("Memory 16GB → Memory
+  32GB"). Read it to the rep as a swap, not a removal and an addition.
 - Quantity rules decide what is saved, not what you asked:
 
 | `quantityRule`    | Result                                           |

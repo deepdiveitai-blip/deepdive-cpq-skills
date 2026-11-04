@@ -69,7 +69,10 @@ contract, one yes.
    `latestEnd` is a renewal: take it out of the plan and say "that one is a
    renewal (`/renew`)".
 3. **Swap targets.** `dd_cpq_swap_options({assetId})` for each swap; the
-   rep's words pick the target. Several candidates: ask.
+   rep's words pick the target. Several candidates: ask. An option inside
+   an owned bundle can also be swapped with `dd_cpq_reconfigure_bundle`
+   (drop the old option, pick the new one in the same feature): it saves
+   one Swap row.
 4. **The plan**, one table, a row per change:
 
    | #   | Contract | Product | Now | After | From | Timing | Price basis | Approval |
