@@ -95,9 +95,12 @@ These are the same in this skill, in dd-cpq-rep-desk and in the
 ## How you work: plan, one yes, run, verify, report
 
 **1. Understand and ground.** `dd_cpq_current_user` once per conversation
-(say which org). Resolve every record (`dd_cpq_find_accounts`,
-`dd_cpq_find_opportunities`, `dd_cpq_find_quote`,
-`dd_cpq_find_products` / `dd_cpq_list_products`). Read a quote with
+(say which org). Resolve every record in one call with `dd_cpq_resolve`
+(account, opportunity, quote and products together; when `ready` is false,
+ask its questions and create nothing until the rep answers). The single
+finders (`dd_cpq_find_accounts`, `dd_cpq_find_opportunities`,
+`dd_cpq_find_quote`, `dd_cpq_find_products` / `dd_cpq_list_products`) are
+for one more lookup after that. Read a quote with
 `dd_cpq_quote_snapshot`: header totals and one row per line (qliId,
 productId, ratePlanId, block, qty, list, net, discounts, ARR, flags) in a
 fraction of the tokens a full cart takes. Read it once; it stays in the

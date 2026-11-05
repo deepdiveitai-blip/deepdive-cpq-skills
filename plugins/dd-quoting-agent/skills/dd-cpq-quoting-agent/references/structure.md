@@ -48,6 +48,12 @@ three lines for 36 months is correct, not a duplicate.
   `totalArr` (Year 1) and `exitArr` (final year).
 - `dd_cpq_preview_ramp_segments({quoteId, mode: propose|set|reset, lines})`:
   price years without saving.
+- A line that is not ramped yet: `dd_cpq_apply_change_plan` with
+  `{op: "ramp.create", target: {qliIds: [qliId]}, years: [{quantity: 100},
+{quantity: 150}, {quantity: 200}]}`. Preview first and show its ramps table
+  (quantity, price, ARR per year); "undo" takes it back to one line. A ramp
+  longer than the line's term is refused (`RAMP_TERM_TOO_SHORT`): ask the rep
+  to change the quote term first.
 - `dd_cpq_set_ramp_years({quoteId, qliId, mode: "set", years: [{year,
 quantity?, price?, discountPct?}], dryRun})`: save edited years (the ramp
   becomes Manual); `mode: "reset"` goes back to the rule.

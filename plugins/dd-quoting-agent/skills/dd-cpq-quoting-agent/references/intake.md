@@ -19,8 +19,11 @@ that is not in the text stays blank: ask, never guess.
 
 ## 2. Find the account, opportunity and products
 
-- `dd_cpq_find_accounts`, `dd_cpq_find_opportunities` (the opportunity must
-  exist; never create one), `dd_cpq_find_quote` for an open Draft to add to.
+- `dd_cpq_resolve` first: the account, its opportunity (it must exist; never
+  create one), an open Draft to add to and the products, in one call. When
+  `ready` is false, ask its questions and stop until the rep answers.
+- `dd_cpq_find_accounts`, `dd_cpq_find_opportunities`, `dd_cpq_find_quote`
+  only for a further lookup.
 - `dd_cpq_resolve_products` with every row at once (code or name per row).
   - exact: use the productId.
   - ambiguous: ask, listing the candidates with their codes. Never pick one,
@@ -41,7 +44,9 @@ that is not in the text stays blank: ask, never guess.
   it for the later ones with `dd_cpq_clone_deal_block({startOffsetMonths})`;
   products only some sites get go in through `dd_cpq_apply_change_plan`
   (`block.save`, `block.move`) after the create.
-- Bundles: `dd_cpq_configure_bundle` after the quote exists.
+- Bundles go in the same `dd_cpq_create_quote` call: a line with the bundle
+  product and its `options` (`{optionName: "16 GB memory", quantity}` or
+  `optionId`). A bundle added later goes through `dd_cpq_configure_bundle`.
 - After the quote exists, `dd_cpq_list_products({quoteId})` tells you what
   this customer may buy. A row whose product is not listed is "not quoted"
   with the eligibility rule's words; do not add it.

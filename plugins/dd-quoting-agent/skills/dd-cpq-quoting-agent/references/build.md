@@ -5,9 +5,10 @@ Speed matters, and so does never quoting something the customer can't buy.
 
 ## New quote
 
-1. `dd_cpq_find_accounts` → `dd_cpq_find_opportunities({accountId})`. The
-   Opportunity must exist; this agent never creates one. None: ask the rep to
-   create it in Salesforce.
+1. `dd_cpq_resolve({account, opportunity: "", products})` finds the account,
+   its open opportunity and the products in one call. The Opportunity must
+   exist; this agent never creates one. None: ask the rep to create it in
+   Salesforce. Two matches: list them and ask which; create nothing yet.
 2. Is there already a Draft on it? `dd_cpq_find_quote({opportunityId})`; ask
    before reusing it.
 3. `dd_cpq_quote_prechecks({opportunityId, startFrom?})`: the org's Quote
