@@ -1,6 +1,6 @@
 # Deal review (/deal-review)
 
-A deal desk review of one quote before it is signed or sent: 30 numbered
+A deal desk review of one quote before it is signed or sent: 31 numbered
 checks, each **pass**, **warn**, **fail** or **n/a**, with the evidence and the
 fix, and one verdict line. **Change nothing.** The only write is an offer the
 person picks (a fix plan, submit for approval, a note), after a yes.
@@ -11,7 +11,7 @@ person picks (a fix plan, submit for approval, a note), after a yes.
 
 ## 2. Run the review in the engine
 
-`dd_cpq_deal_review({quoteId})` runs all 30 checks below in DD CPQ and returns
+`dd_cpq_deal_review({quoteId})` runs all 31 checks below in DD CPQ and returns
 each row (id, group, name, status, evidence, fix, blocking), the verdict
 (`readyToSend`, `verdict`), the counts and the limits it used
 (`thresholds`, from Settings › Deal Desk). Report it as it is: never re-judge
@@ -140,6 +140,9 @@ amendment. Use the shipped limits below and say "Policy: shipped defaults".
 29. **Payment terms.** A line whose rate plan's payment terms are not in the
     allowed list: warn. — the plan's `PaymentTerms__c`
 30. **Opportunity sync.** Not the opportunity's syncing quote: warn.
+31. **Document ready.** The quote document's readiness score below 80, or
+    nothing to sign: warn (fail when the admin made 31 blocking), with the
+    first fix. Documents off: n/a. — `dd_cpq_document_readiness`
 
 A check whose tool is missing in this org's package build: n/a, "not
 available in this build". A tool that fails: n/a with the error reference.
