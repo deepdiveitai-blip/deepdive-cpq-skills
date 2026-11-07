@@ -11,7 +11,7 @@ person picks (a fix plan, submit for approval, a note), after a yes.
 
 ## 2. Run the review in the engine
 
-`dd_cpq_deal_review({quoteId})` runs all 31 checks below in DD CPQ and returns
+`dd_cpq_deal_review({quoteId})` runs all 32 checks below in DD CPQ and returns
 each row (id, group, name, status, evidence, fix, blocking), the verdict
 (`readyToSend`, `verdict`), the counts and the limits it used
 (`thresholds`, from Settings › Deal Desk). Report it as it is: never re-judge
