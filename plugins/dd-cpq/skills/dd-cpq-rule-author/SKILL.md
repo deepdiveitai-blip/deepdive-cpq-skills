@@ -91,7 +91,10 @@ never sets a price.
    `ValueVariable__c`; LineValue + `SetValue__c` such as Line.TermMonths;
    LineAggregate (Quote only) + `SetValue__c` such as `Count(*)` or
    `Sum(Line.NetTotal)`; or Clear. `OnlyIfBlank__c` keeps a value already
-   there. Conditions may read totals over the lines (`Lines.Count`,
+   there. To set several fields on the same condition, put the second and
+   later ones in `AdditionalActions__c` as
+   `{"v":1,"actions":[{"field":"Approval_Tier__c","source":"Literal","value":"2"}]}`
+   (same object, each field once, at most 10 extra). Conditions may read totals over the lines (`Lines.Count`,
    `Lines.Sum.NetTotal`); a Quote rule cannot read Line, Product or Block.
    A Line rule may be limited to products (`Target__c`); a Quote rule
    cannot.
