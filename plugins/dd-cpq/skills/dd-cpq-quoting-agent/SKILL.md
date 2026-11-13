@@ -102,6 +102,12 @@ These are the same in this skill, in dd-cpq-rep-desk and in the
     Evergreen rate plan"). The type cannot change once the quote has lines;
     never mix the two on one quote or one contract, and an Evergreen contract
     is changed by amendment, never renewed.
+13. **Removing what the customer has.** On an amendment, a line the customer
+    owns is removed by setting its quantity to 0 (or `delete`): it stops
+    after its notice, so say the day (`removalEndsOn`), not "removed". It
+    is listed by `dd_cpq_amendment_removals` and `dd_cpq_restore_removed_line`
+    brings it back. A line added on this quote is removed with `delete`; 0 on
+    it is refused.
 
 ## How you work: plan, one yes, run, verify, report
 
