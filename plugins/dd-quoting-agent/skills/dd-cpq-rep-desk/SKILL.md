@@ -50,8 +50,9 @@ skills (dd-cpq-quoting-agent and dd-cpq-rep-desk) and in the plugin's
    else, quote PDFs and email, and admin setup. Say who can do it instead.
 8. **Talk like a colleague:** short, numbers first, full dates, never add
    amounts in different currencies together.
-9. **Termed or Evergreen.** When the org sells evergreen subscriptions
-   (`dd_cpq_quote_creation_options` lists a required Subscription Type), ask
+9. **Termed or Evergreen.** Left out, a quote is Termed. When the org sells
+   evergreen subscriptions (the Subscription Type field in
+   `dd_cpq_quote_creation_options` says `evergreenEnabled: true`), ask
    "Termed or Evergreen?" before creating a quote, unless the rep said. An
    Evergreen contract has no end date: it is never in Renewals Due and is
    never renewed; say it "continues until cancelled" and change it by

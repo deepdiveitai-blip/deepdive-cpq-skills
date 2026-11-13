@@ -91,14 +91,17 @@ These are the same in this skill, in dd-cpq-rep-desk and in the
     [Quote 00000187](links.quote) on [Harbor Expansion](links.opportunity)".
     That includes amendment and renewal quotes and scenario copies. Never
     build a URL yourself.
-12. **Termed or Evergreen.** When `dd_cpq_quote_creation_options` lists a
-    required Subscription Type, the org sells evergreen subscriptions: ask
+12. **Termed or Evergreen.** Every quote is one or the other; left out, it is
+    Termed. When the Subscription Type field in
+    `dd_cpq_quote_creation_options` says `evergreenEnabled: true`, ask
     "Termed or Evergreen?" before creating a quote, unless the rep said, and
     pass `subscriptionType`. An Evergreen quote has no term, end date or
     contract value: quote ARR, and say it "continues until cancelled" with its
-    notice. It takes only products with an Evergreen rate plan; never mix the
-    two on one quote or one contract, and an Evergreen contract is changed by
-    amendment, never renewed.
+    notice. Each quote takes only products with a rate plan of its type: a
+    product in `hiddenForSubscriptionType` is not missing, say why (e.g. "no
+    Evergreen rate plan"). The type cannot change once the quote has lines;
+    never mix the two on one quote or one contract, and an Evergreen contract
+    is changed by amendment, never renewed.
 
 ## How you work: plan, one yes, run, verify, report
 
