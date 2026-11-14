@@ -54,6 +54,7 @@ do.
 | Raise the price at renewal                  | `renewalUplift` |
 | What customers may change mid-contract      | `lifecycle`     |
 | Fill in a field on a line or on the Quote   | `field`         |
+| The code billing / ERP knows a line by      | `billingCode`   |
 
 If nothing fits, say so and stop. Do not force a request into the nearest
 type.
@@ -103,6 +104,27 @@ never sets a price.
    pricing"). **Ask before activating it**: an Active Field Rule changes
    every matching quote in the org on its next reprice. Find existing ones
    with `dd_cpq_rules_studio({ruleType: "field"})`.
+
+**The code a line goes to billing under** ("Care Suite codes are
+CARE-deployment-support-region-plan", "Gov cloud bills as CARE-GOV-ONPREM",
+"the ERP code for Hardware is HW-product code") is a Billing Code rule,
+ruleType `billingCode`. It never changes a price.
+
+1. `dd_cpq_product_attributes({productId})` for the answer codes, and the
+   plans' `code` (Rate Plan Editor; set one with `dd_cpq_upsert_rate_plan`
+   `code` when a plan has none, e.g. M, A12, EVG).
+2. Build `Mode__c` Template (`CodeTemplate__c` with tokens
+   `{Product.ProductCode}`, `{deployment}` = the answer code in upper case,
+   `{RatePlan.Code}`, `{Quote.<field>}`, modifiers `:lower`, `:upper`, `:4`)
+   or Exact (`CodeTemplate__c` is the code, no tokens) for an exception;
+   `BillingTarget__c` blank = billing, or erp / provisioning. Exact rules go
+   first, then templates, by `Priority__c`; the first whose conditions hold
+   and whose tokens all have a value wins.
+3. Save as Draft, then `dd_cpq_billing_code_grid({productId})` to show the
+   admin every combination's code before they activate it, and
+   `dd_cpq_billing_code_register` (dryRun first) to add new codes to the
+   Billing Catalog (`dd_cpq_billing_catalog`). A sold line keeps its code on
+   amendments until its answers or plan change.
 
 **A bigger discount for a longer contract** is a term curve, which is not a
 ruleType: it is saved as a whole, curve and points together.

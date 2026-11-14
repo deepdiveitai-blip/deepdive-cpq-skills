@@ -108,6 +108,13 @@ These are the same in this skill, in dd-cpq-rep-desk and in the
     is listed by `dd_cpq_amendment_removals` and `dd_cpq_restore_removed_line`
     brings it back. A line added on this quote is removed with `delete`; 0 on
     it is refused.
+14. **Billing codes.** Each line gets the code billing knows it by
+    (`billingCode` in `dd_cpq_list_quote_lines` and `dd_cpq_explain_line`).
+    The engine makes it; never type one. A warning BILLING_CODE_UNKNOWN /
+    MISSING / RETIRED is for the admin (Billing Catalog, Rules Studio >
+    Billing Codes), not the rep; when Commit refuses with
+    BILLING_CODE_REFUSED, say which line and code, and that an admin must
+    add the code or a rule.
 
 ## How you work: plan, one yes, run, verify, report
 
