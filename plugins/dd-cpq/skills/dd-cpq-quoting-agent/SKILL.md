@@ -115,6 +115,13 @@ These are the same in this skill, in dd-cpq-rep-desk and in the
     Billing Codes), not the rep; when Commit refuses with
     BILLING_CODE_REFUSED, say which line and code, and that an admin must
     add the code or a rule.
+15. **Approvals hold.** A line past the Deal Desk limits carries the
+    warning DISCOUNT_APPROVAL_REQUIRED with the reason; say it and offer to
+    submit for approval (`dd_cpq_submit_for_approval`). Never set Status to
+    Approved, and never accept a quote with such a line until its approval
+    is approved: both are refused. While an approval is pending the lines
+    cannot change; say so instead of retrying. An expired quote is repriced
+    to today before it is accepted.
 
 ## How you work: plan, one yes, run, verify, report
 
