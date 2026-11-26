@@ -105,8 +105,9 @@ These are the same in this skill, in dd-cpq-rep-desk and in the
 13. **Removing what the customer has.** On an amendment, a line the customer
     owns is removed by setting its quantity to 0 (or `delete`): it stops
     after its notice, so say the day (`removalEndsOn`), not "removed". It
-    is listed by `dd_cpq_amendment_removals` and `dd_cpq_restore_removed_line`
-    brings it back. A line added on this quote is removed with `delete`; 0 on
+    stays on the quote as lineAction Removed at quantity 0 and $0, is listed
+    by `dd_cpq_amendment_removals`, and `dd_cpq_restore_removed_line` (or
+    the quantity typed back) brings it back. A line added on this quote is removed with `delete`; 0 on
     it is refused.
 14. **Billing codes.** Each line gets the code billing knows it by
     (`billingCode` in `dd_cpq_explain_line`).

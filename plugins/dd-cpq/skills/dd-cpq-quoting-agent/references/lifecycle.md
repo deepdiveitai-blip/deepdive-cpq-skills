@@ -44,7 +44,8 @@ timing?, swaps?, opportunityId?})`:
    Removing a line ends that product, with the notice the lifecycle rules
    require.
 5. `dd_cpq_amendment_removals({quoteId})`: what is coming off and when it
-   ends. Put one back with `dd_cpq_restore_removed_line({quoteId,
+   ends. A removed line stays on the quote as Removed at quantity 0 and $0
+   (DDCPQ-861). Put one back with `dd_cpq_restore_removed_line({quoteId,
 baselineLineId})`, which keeps it tied to what they own. Never re-add the
    product with `add_line_item`: that sells it a second time.
 6. Accept: **never** `status: Accepted` on an amendment. Use
